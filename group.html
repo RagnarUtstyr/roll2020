@@ -8,65 +8,14 @@
     <!-- Firebase App and Database SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js"></script>
-    <script>
-        // Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyD_4kINWig7n6YqB11yM2M-EuxGNz5uekI",
-            authDomain: "roll202-c0b0d.firebaseapp.com",
-            databaseURL: "https://roll202-c0b0d-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "roll202-c0b0d",
-            storageBucket: "roll202-c0b0d.appspot.com",
-            messagingSenderId: "607661730400",
-            appId: "1:607661730400:web:b4b3f97a12cfae373e7105",
-            measurementId: "G-6X5L39W56C"
-        };
-
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        console.log('Firebase initialized');
-        const db = firebase.database();
-
-        // Function to fetch and display rankings
-        async function fetchRankings() {
-            const reference = db.ref('rankings/');
-            reference.on('value', (snapshot) => {
-                console.log('Data fetched from Firebase:', snapshot.val());
-                const data = snapshot.val();
-                const rankingList = document.getElementById('rankingList');
-                rankingList.innerHTML = '';
-
-                if (data) {
-                    const rankings = [];
-                    for (const id in data) {
-                        rankings.push(data[id]);
-                    }
-
-                    // Sort by number in descending order
-                    rankings.sort((a, b) => b.number - a.number);
-                    rankings.forEach(item => {
-                        console.log('Appending:', item);
-                        const listItem = document.createElement('li');
-                        listItem.textContent = `${item.name}: ${item.number}`;
-                        rankingList.appendChild(listItem);
-                    });
-                } else {
-                    console.log('No data available');
-                }
-            }, (error) => {
-                console.error('Error fetching data:', error);
-            });
-        }
-
-        // Fetch rankings once the document has loaded
-        document.addEventListener('DOMContentLoaded', fetchRankings);
-    </script>
+    <script src="server.js" defer></script>
 </head>
 
 <body>
     <h1>Rankings</h1>
     <ul id="rankingList"></ul>
     <br>
-    <a href="index.html">Submit a New Entry</a> <!-- Link back to Submission page -->
+    <a href="index.html">Submit a New Entry</a>
 </body>
 
 </html>

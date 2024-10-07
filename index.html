@@ -8,49 +8,7 @@
     <!-- Firebase App and Database SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js"></script>
-    <script>
-        // Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyD_4kINWig7n6YqB11yM2M-EuxGNz5uekI",
-            authDomain: "roll202-c0b0d.firebaseapp.com",
-            databaseURL: "https://roll202-c0b0d-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "roll202-c0b0d",
-            storageBucket: "roll202-c0b0d.appspot.com",
-            messagingSenderId: "607661730400",
-            appId: "1:607661730400:web:b4b3f97a12cfae373e7105",
-            measurementId: "G-6X5L39W56C"
-        };
-
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        console.log('Firebase initialized');
-        const db = firebase.database();
-
-        // Function to submit data to Firebase
-        async function submitData() {
-            const name = document.getElementById('name').value;
-            const number = parseInt(document.getElementById('number').value);
-
-            if (name && !isNaN(number)) {
-                try {
-                    const reference = db.ref('rankings/');
-                    await reference.push({
-                        name,
-                        number
-                    });
-                    alert('Data submitted successfully!');
-                    console.log('Data submitted:', { name, number });
-                    document.getElementById('name').value = '';
-                    document.getElementById('number').value = '';
-                } catch (error) {
-                    console.error('Error submitting data:', error);
-                    alert('Failed to submit data. Please try again.');
-                }
-            } else {
-                alert('Please enter a valid name and number.');
-            }
-        }
-    </script>
+    <script src="server.js" defer></script>
 </head>
 
 <body>
@@ -59,9 +17,9 @@
     <input type="text" id="name" required>
     <label for="number">Number:</label>
     <input type="number" id="number" required>
-    <button onclick="submitData()">Submit</button>
+    <button id="submit-button">Submit</button>
     <br><br>
-    <a href="group.html">View Rankings</a> <!-- Link to Group Rankings page -->
+    <a href="group.html">View Rankings</a>
 </body>
 
 </html>
