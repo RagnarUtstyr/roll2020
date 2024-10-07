@@ -29,6 +29,7 @@
         async function fetchRankings() {
             const reference = db.ref('rankings/');
             reference.on('value', (snapshot) => {
+                console.log('Data fetched from Firebase:', snapshot.val());
                 const data = snapshot.val();
                 const rankingList = document.getElementById('rankingList');
                 rankingList.innerHTML = '';
@@ -42,11 +43,16 @@
                     // Sort by number in descending order
                     rankings.sort((a, b) => b.number - a.number);
                     rankings.forEach(item => {
+                        console.log('Appending:', item);
                         const listItem = document.createElement('li');
                         listItem.textContent = `${item.name}: ${item.number}`;
                         rankingList.appendChild(listItem);
                     });
+                } else {
+                    console.log('No data available');
                 }
+            }, (error) => {
+                console.error('Error fetching data:', error);
             });
         }
 

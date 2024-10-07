@@ -31,14 +31,20 @@
             const number = parseInt(document.getElementById('number').value);
 
             if (name && !isNaN(number)) {
-                const reference = db.ref('rankings/');
-                await reference.push({
-                    name,
-                    number
-                });
-                alert('Data submitted successfully!');
-                document.getElementById('name').value = '';
-                document.getElementById('number').value = '';
+                try {
+                    const reference = db.ref('rankings/');
+                    await reference.push({
+                        name,
+                        number
+                    });
+                    alert('Data submitted successfully!');
+                    console.log('Data submitted:', { name, number });
+                    document.getElementById('name').value = '';
+                    document.getElementById('number').value = '';
+                } catch (error) {
+                    console.error('Error submitting data:', error);
+                    alert('Failed to submit data. Please try again.');
+                }
             } else {
                 alert('Please enter a valid name and number.');
             }
