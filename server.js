@@ -1,6 +1,6 @@
 // Import necessary Firebase modules from the SDK
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
 // Firebase Configuration
 const firebaseConfig = {
@@ -49,24 +49,38 @@ function fetchRankings() {
         rankingList.innerHTML = '';
 
         if (data) {
-            const rankings = [];
             for (const id in data) {
-                rankings.push(data[id]);
-            }
-
-            // Sort by number in descending order
-            rankings.sort((a, b) => b.number - a.number);
-            rankings.forEach(item => {
                 const listItem = document.createElement('li');
-                listItem.textContent = `${item.name}: ${item.number}`;
+                listItem.textContent = `${data[id].name}: ${data[id].number} `;
+
+                // Create a remove button for each item
+                const removeButton = document.createElement('button');
+                removeButton.textContent = 'Remove';
+                removeButton.addEventListener('click', () => removeEntry(id));
+
+                listItem.appendChild(removeButton);
                 rankingList.appendChild(listItem);
-            });
+            }
         } else {
             console.log('No data available');
         }
     }, (error) => {
         console.error('Error fetching data:', error);
     });
+}
+
+// Function to remove an entry from Firebase
+function removeEntry(id) {
+    const reference = ref(db, `rankings/${id}`);
+    remove(reference)
+        .then(() => {
+            console.log(`Entry with id ${id} removed successfully`);
+            alert('Entry removed successfully!');
+        })
+        .catch((error) => {
+            console.error('Error removing entry:', error);
+            alert('Failed to remove the entry. Please try again.');
+        });
 }
 
 // Event listeners for page-specific actions
