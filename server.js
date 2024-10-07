@@ -1,4 +1,4 @@
-// Import the necessary Firebase SDK modules
+// Import necessary Firebase modules from the SDK
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
 import { getDatabase, ref, push, onValue, remove, set } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
@@ -29,12 +29,18 @@ export async function addEntryToFirebase(name, number) {
     }
 }
 
-// Function to fetch and display rankings from Firebase in group.html
+// Function to fetch and display rankings from Firebase
 export function fetchRankings() {
     const reference = ref(db, 'rankings/');
     onValue(reference, (snapshot) => {
         const data = snapshot.val();
         const rankingList = document.getElementById('rankingList');
+
+        if (!rankingList) {
+            console.error('Element with id "rankingList" not found');
+            return;
+        }
+
         rankingList.innerHTML = ''; // Clear existing list
 
         if (data) {
@@ -87,7 +93,9 @@ export async function clearAllEntriesFromFirebase() {
 
         // Clear the UI after deleting entries
         const rankingList = document.getElementById('rankingList');
-        rankingList.innerHTML = ''; // Clear the list in the UI as well
+        if (rankingList) {
+            rankingList.innerHTML = ''; // Clear the list in the UI as well
+        }
     } catch (error) {
         console.error('Error clearing all entries from Firebase:', error);
     }
@@ -96,8 +104,9 @@ export async function clearAllEntriesFromFirebase() {
 // Event listeners for page-specific actions
 document.addEventListener('DOMContentLoaded', () => {
     // For index.html - adding a new entry
-    if (document.getElementById('submit-button')) {
-        document.getElementById('submit-button').addEventListener('click', async () => {
+    const submitButton = document.getElementById('submit-button');
+    if (submitButton) {
+        submitButton.addEventListener('click', async () => {
             const name = document.getElementById('name').value;
             const number = parseInt(document.getElementById('number').value);
 
@@ -112,28 +121,35 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // For group.html - fetching rankings, adding new entry, and deleting entries
-    if (document.getElementById('rankingList')) {
+    const rankingListElement = document.getElementById('rankingList');
+    if (rankingListElement) {
         fetchRankings(); // Fetch existing rankings
 
         // Adding a new entry from group.html
-        document.getElementById('add-local-button').addEventListener('click', async () => {
-            const name = document.getElementById('localName').value;
-            const number = parseInt(document.getElementById('localNumber').value);
+        const addLocalButton = document.getElementById('add-local-button');
+        if (addLocalButton) {
+            addLocalButton.addEventListener('click', async () => {
+                const name = document.getElementById('localName').value;
+                const number = parseInt(document.getElementById('localNumber').value);
 
-            if (name && !isNaN(number)) {
-                await addEntryToFirebase(name, number);
-                document.getElementById('localName').value = '';
-                document.getElementById('localNumber').value = '';
-            } else {
-                alert('Please enter a valid name and number.');
-            }
-        });
+                if (name && !isNaN(number)) {
+                    await addEntryToFirebase(name, number);
+                    document.getElementById('localName').value = '';
+                    document.getElementById('localNumber').value = '';
+                } else {
+                    alert('Please enter a valid name and number.');
+                }
+            });
+        }
 
         // Clear all entries from Firebase
-        document.getElementById('clear-all-button').addEventListener('click', () => {
-            if (confirm('Are you sure you want to delete all entries?')) {
-                clearAllEntriesFromFirebase();
-            }
-        });
+        const clearAllButton = document.getElementById('clear-all-button');
+        if (clearAllButton) {
+            clearAllButton.addEventListener('click', () => {
+                if (confirm('Are you sure you want to delete all entries?')) {
+                    clearAllEntriesFromFirebase();
+                }
+            });
+        }
     }
 });
