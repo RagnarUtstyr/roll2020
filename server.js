@@ -2,7 +2,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
 import { getDatabase, ref, push, onValue, remove, set } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
-// Firebase Configuration
+// Firebase Configuration from your provided SDK
 const firebaseConfig = {
     apiKey: "AIzaSyD_4kINWig7n6YqB11yM2M-EuxGNz5uekI",
     authDomain: "roll202-c0b0d.firebaseapp.com",
@@ -93,3 +93,39 @@ export async function clearAllEntriesFromFirebase() {
         console.error('Error clearing all entries from Firebase:', error);
     }
 }
+
+// Event listeners for DOM actions
+document.addEventListener('DOMContentLoaded', () => {
+    if (document.getElementById('submit-button')) {
+        document.getElementById('submit-button').addEventListener('click', async () => {
+            const name = document.getElementById('name').value;
+            const number = parseInt(document.getElementById('number').value);
+
+            if (name && !isNaN(number)) {
+                try {
+                    await addEntryToFirebase(name, number);
+                    alert('Entry submitted successfully!');
+                    document.getElementById('name').value = '';
+                    document.getElementById('number').value = '';
+                } catch (error) {
+                    console.error('Error submitting entry:', error);
+                    alert('Failed to submit entry. Please try again.');
+                }
+            } else {
+                alert('Please enter a valid name and number.');
+            }
+        });
+    }
+
+    if (document.getElementById('rankingList')) {
+        fetchRankings(); // Fetch and display rankings if on group.html page
+    }
+
+    if (document.getElementById('clear-all-button')) {
+        document.getElementById('clear-all-button').addEventListener('click', () => {
+            if (confirm('Are you sure you want to delete all entries?')) {
+                clearAllEntriesFromFirebase();
+            }
+        });
+    }
+});

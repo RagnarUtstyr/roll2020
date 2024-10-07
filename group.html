@@ -29,43 +29,6 @@
 
     <br><br>
     <a href="index.html">Submit a New Entry to Firebase Directly</a> <!-- Link back to Submission page -->
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Fetch existing rankings from Firebase (function is in server.js)
-            if (document.getElementById('rankingList')) {
-                fetchRankings(); // Fetch rankings from Firebase and update the UI
-            }
-
-            // Add a new entry to the rankings list and push to Firebase
-            document.getElementById('add-local-button').addEventListener('click', async () => {
-                const name = document.getElementById('localName').value;
-                const number = parseInt(document.getElementById('localNumber').value);
-
-                if (name && !isNaN(number)) {
-                    try {
-                        // Add to Firebase to ensure persistence
-                        await addEntryToFirebase(name, number);
-                        document.getElementById('localName').value = '';
-                        document.getElementById('localNumber').value = '';
-                    } catch (error) {
-                        console.error('Error adding entry:', error);
-                        alert('Failed to add entry. Please try again.');
-                    }
-                } else {
-                    alert('Please enter a valid name and number.');
-                }
-            });
-
-            // Clear all entries from Firebase
-            document.getElementById('clear-all-button').addEventListener('click', () => {
-                if (confirm('Are you sure you want to delete all entries?')) {
-                    clearAllEntriesFromFirebase(); // Clear all entries from Firebase
-                }
-            });
-        });
-    </script>
-
 </body>
 
 </html>

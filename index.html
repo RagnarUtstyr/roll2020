@@ -17,32 +17,6 @@
     <button id="submit-button">Submit</button>
     <br><br>
     <a href="group.html">View Rankings</a> <!-- Link to View Rankings page -->
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('submit-button').addEventListener('click', async () => {
-                const name = document.getElementById('name').value;
-                const number = parseInt(document.getElementById('number').value);
-
-                if (name && !isNaN(number)) {
-                    try {
-                        // Call the function to add the entry to Firebase
-                        await addEntryToFirebase(name, number);
-                        alert('Entry submitted successfully!');
-                        
-                        // Clear the input fields after submission
-                        document.getElementById('name').value = '';
-                        document.getElementById('number').value = '';
-                    } catch (error) {
-                        console.error('Error submitting entry:', error);
-                        alert('Failed to submit entry. Please try again.');
-                    }
-                } else {
-                    alert('Please enter a valid name and number.');
-                }
-            });
-        });
-    </script>
 </body>
 
 </html>
