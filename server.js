@@ -1,6 +1,6 @@
 // Import necessary Firebase modules from the SDK
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+import { getDatabase, ref, push, onValue, remove, set } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
 // Firebase Configuration
 const firebaseConfig = {
@@ -29,7 +29,7 @@ export function fetchRankings() {
         if (data) {
             const rankings = [];
             for (const id in data) {
-                rankings.push(data[id]);
+                rankings.push({ id, ...data[id] });
             }
 
             // Sort by number in descending order
@@ -37,6 +37,15 @@ export function fetchRankings() {
             rankings.forEach(item => {
                 const listItem = document.createElement('li');
                 listItem.textContent = `${item.name}: ${item.number}`;
+
+                // Add a delete button to each entry
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.addEventListener('click', () => {
+                    removeEntryFromFirebase(item.id);
+                });
+
+                listItem.appendChild(deleteButton);
                 rankingList.appendChild(listItem);
             });
         } else {
@@ -56,6 +65,28 @@ export async function addEntryToFirebase(name, number) {
         // Automatically updates the list as onValue listener is set
     } catch (error) {
         console.error('Error adding entry to Firebase:', error);
+    }
+}
+
+// Function to remove an individual entry from Firebase
+export async function removeEntryFromFirebase(entryId) {
+    try {
+        const entryRef = ref(db, `rankings/${entryId}`);
+        await remove(entryRef);
+        console.log('Entry removed from Firebase:', entryId);
+    } catch (error) {
+        console.error('Error removing entry from Firebase:', error);
+    }
+}
+
+// Function to clear all entries from Firebase
+export async function clearAllEntriesFromFirebase() {
+    try {
+        const reference = ref(db, 'rankings/');
+        await set(reference, null); // Setting the reference to null deletes all data at that location
+        console.log('All entries removed from Firebase.');
+    } catch (error) {
+        console.error('Error clearing all entries from Firebase:', error);
     }
 }
 

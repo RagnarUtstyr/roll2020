@@ -25,13 +25,16 @@
     <button id="add-local-button">Add Entry</button>
 
     <br><br>
+    <button id="clear-all-button">Clear All Entries</button>
+
+    <br><br>
     <a href="index.html">Submit a New Entry to Firebase Directly</a> <!-- Link back to Submission page -->
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // Fetch existing rankings from Firebase (function is in server.js)
             if (document.getElementById('rankingList')) {
-                fetchRankings(); // Ensure this function is defined in server.js and successfully loads data
+                fetchRankings();
             }
 
             // Add locally to the rankings list and also push to Firebase
@@ -40,7 +43,6 @@
                 const number = parseInt(document.getElementById('localNumber').value);
 
                 if (name && !isNaN(number)) {
-                    // Add to Firebase to ensure persistence
                     addEntryToFirebase(name, number);
 
                     // Clear the input fields
@@ -48,6 +50,13 @@
                     document.getElementById('localNumber').value = '';
                 } else {
                     alert('Please enter a valid name and number.');
+                }
+            });
+
+            // Clear all entries from Firebase
+            document.getElementById('clear-all-button').addEventListener('click', () => {
+                if (confirm('Are you sure you want to delete all entries?')) {
+                    clearAllEntriesFromFirebase();
                 }
             });
         });
