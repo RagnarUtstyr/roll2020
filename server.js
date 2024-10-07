@@ -56,14 +56,26 @@ function fetchRankings() {
             // Create list items for each ranking and append to the DOM
             rankings.forEach(({ id, name, number }) => {
                 const listItem = document.createElement('li');
-                listItem.textContent = `${name}: ${number} `;
 
-                // Create a remove button for each item
+                // Create separate containers for name, number, and button
+                const nameDiv = document.createElement('div');
+                nameDiv.className = 'name';
+                nameDiv.textContent = name;
+
+                const numberDiv = document.createElement('div');
+                numberDiv.className = 'number';
+                numberDiv.textContent = number;
+
                 const removeButton = document.createElement('button');
                 removeButton.textContent = 'Remove';
                 removeButton.addEventListener('click', () => removeEntry(id));
 
+                // Append all parts to the list item
+                listItem.appendChild(nameDiv);
+                listItem.appendChild(numberDiv);
                 listItem.appendChild(removeButton);
+
+                // Append the list item to the ranking list
                 rankingList.appendChild(listItem);
             });
         } else {
