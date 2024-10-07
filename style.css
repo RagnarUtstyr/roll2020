@@ -26,6 +26,41 @@ body {
     box-sizing: border-box;
 }
 
+/* Input Fields */
+input[type="text"], input[type="number"] {
+    padding: 10px;
+    border: 2px solid #D4AF37; /* Gold border for input fields */
+    border-radius: 5px;
+    width: calc(100% - 20px);
+    margin-bottom: 15px;
+    box-sizing: border-box;
+    background-color: rgba(255, 255, 255, 0.15); /* Slightly transparent white with opacity for a mystical look */
+    color: #E0D8B0; /* Parchment-like text color for input text */
+    font-family: 'MedievalSharp', serif; /* Apply fantasy font */
+    font-size: 1em;
+    outline: none; /* Remove default outline */
+}
+
+input[type="text"]::placeholder, input[type="number"]::placeholder {
+    color: #E0D8B0; /* Placeholder text color to match theme */
+    font-family: 'MedievalSharp', serif; /* Apply fantasy font to placeholder */
+}
+
+/* On Focus of Input Fields */
+input[type="text"]:focus, input[type="number"]:focus {
+    border: 2px solid #8C5A4A; /* Darker reddish-brown border on focus */
+    background-color: rgba(255, 255, 255, 0.25); /* Slightly brighter background on focus */
+}
+
+/* Headings */
+h1, h2 {
+    color: #D4AF37; /* Gold color for headings */
+    font-weight: bold;
+    font-family: 'MedievalSharp', serif;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
 /* Rankings Container */
 #rankingList {
     max-width: 400px;
