@@ -1,6 +1,6 @@
 // Import necessary Firebase modules from the SDK
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+import { getDatabase, ref, push, onValue, remove, set } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
 // Firebase Configuration
 const firebaseConfig = {
@@ -81,6 +81,20 @@ function removeEntry(id) {
         });
 }
 
+// Function to clear all entries from Firebase
+function clearAllEntries() {
+    const reference = ref(db, 'rankings/');
+    set(reference, null)
+        .then(() => {
+            console.log('All entries removed successfully');
+            // Optionally clear the displayed list immediately
+            document.getElementById('rankingList').innerHTML = '';
+        })
+        .catch((error) => {
+            console.error('Error clearing all entries:', error);
+        });
+}
+
 // Event listeners for page-specific actions
 document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('submit-button')) {
@@ -88,5 +102,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (document.getElementById('rankingList')) {
         fetchRankings();
+    }
+    if (document.getElementById('clear-list-button')) {
+        document.getElementById('clear-list-button').addEventListener('click', clearAllEntries);
     }
 });
