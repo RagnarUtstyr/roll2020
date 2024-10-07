@@ -84,11 +84,12 @@ function removeEntry(id) {
 // Function to clear all entries from Firebase
 function clearAllEntries() {
     const reference = ref(db, 'rankings/');
-    set(reference, null)
+    set(reference, null) // Sets the entire 'rankings' node to null, deleting all data.
         .then(() => {
             console.log('All entries removed successfully');
-            // Optionally clear the displayed list immediately
-            document.getElementById('rankingList').innerHTML = '';
+            // Clear the displayed list immediately
+            const rankingList = document.getElementById('rankingList');
+            rankingList.innerHTML = ''; // Explicitly clear the UI
         })
         .catch((error) => {
             console.error('Error clearing all entries:', error);
