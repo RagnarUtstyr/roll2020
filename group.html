@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Group Rankings</title>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js"></script>
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            databaseURL: "YOUR_DATABASE_URL",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.getDatabase(app);
+
+        // Fetch and Display Rankings
+        async function fetchRankings() {
+            const reference = firebase.ref(db, 'rankings/');
+            firebase.onValue(reference, (snapshot) => {
+                const data = snapshot.val();
+                const rankingList = document.getElementById('rankingList');
+                rankingList.innerHTML = '';
+
+                const rankings = [];
+                for (const id in data) {
+                    rankings.push(data[id]);
+                }
+
+                rankings.sort((a, b) => b.number - a.number);
+                rankings.forEach(item => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `${item.name}: ${item.number}`;
+                    rankingList.appendChild(listItem);
+                });
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchRankings);
+    </script>
+</head>
+
+<body>
+    <h1>Rankings</h1>
+    <ul id="rankingList"></ul>
+</body>
+
+</html>
