@@ -1,3 +1,7 @@
+// Import necessary Firebase modules from the SDK
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+
 // Firebase Configuration
 const firebaseConfig = {
     apiKey: "AIzaSyD_4kINWig7n6YqB11yM2M-EuxGNz5uekI",
@@ -11,8 +15,8 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
 // Function to submit data to Firebase
 async function submitData() {
@@ -21,8 +25,8 @@ async function submitData() {
 
     if (name && !isNaN(number)) {
         try {
-            const reference = db.ref('rankings/');
-            await reference.push({ name, number });
+            const reference = ref(db, 'rankings/');
+            await push(reference, { name, number });
             alert('Data submitted successfully!');
             console.log('Data submitted:', { name, number });
             document.getElementById('name').value = '';
@@ -37,9 +41,9 @@ async function submitData() {
 }
 
 // Function to fetch and display rankings
-async function fetchRankings() {
-    const reference = db.ref('rankings/');
-    reference.on('value', (snapshot) => {
+function fetchRankings() {
+    const reference = ref(db, 'rankings/');
+    onValue(reference, (snapshot) => {
         const data = snapshot.val();
         const rankingList = document.getElementById('rankingList');
         rankingList.innerHTML = '';
