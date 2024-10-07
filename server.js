@@ -27,16 +27,16 @@ async function submitData() {
         try {
             const reference = ref(db, 'rankings/');
             await push(reference, { name, number });
-            alert('Data submitted successfully!');
-            console.log('Data submitted:', { name, number });
+            console.log('Data submitted successfully:', { name, number });
+
+            // Clear input fields after successful submission
             document.getElementById('name').value = '';
             document.getElementById('number').value = '';
         } catch (error) {
             console.error('Error submitting data:', error);
-            alert('Failed to submit data. Please try again.');
         }
     } else {
-        alert('Please enter a valid name and number.');
+        console.log('Please enter a valid name and number.');
     }
 }
 
@@ -75,11 +75,9 @@ function removeEntry(id) {
     remove(reference)
         .then(() => {
             console.log(`Entry with id ${id} removed successfully`);
-            alert('Entry removed successfully!');
         })
         .catch((error) => {
             console.error('Error removing entry:', error);
-            alert('Failed to remove the entry. Please try again.');
         });
 }
 
