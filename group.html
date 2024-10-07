@@ -5,22 +5,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Group Rankings</title>
-    <script type="module" src="server.js" defer></script> <!-- Load the server.js -->
+    <script type="module" src="server.js" defer></script>
+	<link rel="stylesheet" href="style.css">
+	<link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
+
 </head>
 
 <body>
-    <h1>Rankings</h1>
-    <ul id="rankingList"></ul>
-    <br>
-    <button id="clear-list-button">Clear List</button>
-    <br><br>
-    <h2>Submit a New Entry</h2>
-    <label for="name">Character:</label>
-    <input type="text" id="name" required>
-    <label for="number">Initiative:</label>
-    <input type="number" id="number" required>
-    <button id="submit-button">Submit</button>
-    <br><br>
+	<div class="container">
+		<h1>Rankings</h1>
+		<ul id="rankingList"></ul>
+		<br>
+		<button id="clear-list-button">Clear List</button>
+		<br><br>
+		<h2>Submit a New Entry</h2>
+		<label for="name">Name:</label>
+		<input type="text" id="name" required>
+		<label for="number">Number:</label>
+		<input type="number" id="number" required>
+		<button id="submit-button">Submit</button>
+    </div>
+	<br><br>
     <a href="index.html">Go to Submission Page</a>
 </body>
 
