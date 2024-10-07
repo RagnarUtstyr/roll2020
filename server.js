@@ -18,6 +18,18 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
+// Function to add a new entry to Firebase
+export async function addEntryToFirebase(name, number) {
+    try {
+        const reference = ref(db, 'rankings/');
+        await push(reference, { name, number });
+        console.log('Entry added to Firebase:', { name, number });
+    } catch (error) {
+        console.error('Error adding entry to Firebase:', error);
+        throw error; // Re-throw the error so it can be caught in the calling function
+    }
+}
+
 // Function to fetch and display rankings from Firebase
 export function fetchRankings() {
     const reference = ref(db, 'rankings/');
@@ -56,17 +68,6 @@ export function fetchRankings() {
     });
 }
 
-// Function to add a new entry to Firebase
-export async function addEntryToFirebase(name, number) {
-    try {
-        const reference = ref(db, 'rankings/');
-        await push(reference, { name, number });
-        console.log('Entry added to Firebase:', { name, number });
-    } catch (error) {
-        console.error('Error adding entry to Firebase:', error);
-    }
-}
-
 // Function to remove an individual entry from Firebase
 export async function removeEntryFromFirebase(entryId) {
     try {
@@ -92,17 +93,3 @@ export async function clearAllEntriesFromFirebase() {
         console.error('Error clearing all entries from Firebase:', error);
     }
 }
-
-// Event listeners for page-specific actions
-document.addEventListener('DOMContentLoaded', () => {
-    if (document.getElementById('submit-button')) {
-        document.getElementById('submit-button').addEventListener('click', () => {
-            const name = document.getElementById('name').value;
-            const number = parseInt(document.getElementById('number').value);
-            addEntryToFirebase(name, number);
-        });
-    }
-    if (document.getElementById('rankingList')) {
-        fetchRankings();
-    }
-});

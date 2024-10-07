@@ -38,16 +38,25 @@
             }
 
             // Add locally to the rankings list and also push to Firebase
-            document.getElementById('add-local-button').addEventListener('click', () => {
+            document.getElementById('add-local-button').addEventListener('click', async () => {
                 const name = document.getElementById('localName').value;
                 const number = parseInt(document.getElementById('localNumber').value);
 
                 if (name && !isNaN(number)) {
-                    addEntryToFirebase(name, number);
+                    try {
+                        // Add to Firebase to ensure persistence
+                        await addEntryToFirebase(name, number);
 
-                    // Clear the input fields
-                    document.getElementById('localName').value = '';
-                    document.getElementById('localNumber').value = '';
+                        // The fetchRankings function will be triggered automatically 
+                        // because the 'onValue' listener updates when Firebase data changes
+                        
+                        // Clear the input fields
+                        document.getElementById('localName').value = '';
+                        document.getElementById('localNumber').value = '';
+                    } catch (error) {
+                        console.error('Error adding entry:', error);
+                        alert('Failed to add entry. Please try again.');
+                    }
                 } else {
                     alert('Please enter a valid name and number.');
                 }
