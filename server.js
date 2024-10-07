@@ -78,3 +78,18 @@ export async function removeEntryFromFirebase(entryId) {
         console.error('Error removing entry from Firebase:', error);
     }
 }
+
+// Function to clear all entries from Firebase
+export async function clearAllEntriesFromFirebase() {
+    try {
+        const reference = ref(db, 'rankings/');
+        await set(reference, null); // Setting the reference to null deletes all data at that location
+        console.log('All entries removed from Firebase.');
+
+        // Clear the UI after deleting entries
+        const rankingList = document.getElementById('rankingList');
+        rankingList.innerHTML = ''; // Clear the list in the UI as well
+    } catch (error) {
+        console.error('Error clearing all entries from Firebase:', error);
+    }
+}

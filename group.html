@@ -16,7 +16,7 @@
 
     <br>
 
-    <!-- Form to add entries locally (which will be stored in Firebase and cookies) -->
+    <!-- Form to add entries which will be stored directly in Firebase -->
     <h2>Add a New Entry</h2>
     <label for="localName">Name:</label>
     <input type="text" id="localName" required>
@@ -31,77 +31,13 @@
     <a href="index.html">Submit a New Entry to Firebase Directly</a> <!-- Link back to Submission page -->
 
     <script>
-        // Utility functions to handle cookies
-        function setCookie(name, value, days) {
-            const date = new Date();
-            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-            const expires = "expires=" + date.toUTCString();
-            document.cookie = name + "=" + JSON.stringify(value) + ";" + expires + ";path=/";
-        }
-
-        function getCookie(name) {
-            const nameEQ = name + "=";
-            const ca = document.cookie.split(';');
-            for (let i = 0; i < ca.length; i++) {
-                let c = ca[i];
-                while (c.charAt(0) == ' ') c = c.substring(1);
-                if (c.indexOf(nameEQ) == 0) {
-                    return JSON.parse(c.substring(nameEQ.length, c.length));
-                }
-            }
-            return null;
-        }
-
-        function deleteCookie(name) {
-            document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-        }
-
-        // Manage local entries with cookies
-        function addLocalEntry(name, number) {
-            // Add to the list on the UI
-            const rankingList = document.getElementById('rankingList');
-            const listItem = document.createElement('li');
-            listItem.textContent = `${name}: ${number}`;
-
-            // Add a delete button to remove this local entry
-            const deleteButton = document.createElement('button');
-            deleteButton.textContent = 'Delete';
-            deleteButton.addEventListener('click', () => {
-                rankingList.removeChild(listItem);
-                deleteEntryFromFirebase(name, number); // Also delete from Firebase
-                deleteCookie(`localEntry_${name}_${number}`); // Also delete from cookies
-            });
-
-            listItem.appendChild(deleteButton);
-            rankingList.appendChild(listItem);
-
-            // Store in cookies for persistence
-            setCookie(`localEntry_${name}_${number}`, { name, number }, 7); // Expires in 7 days
-        }
-
-        function loadLocalEntries() {
-            // Load all local entries from cookies
-            const cookies = document.cookie.split(';');
-            cookies.forEach(cookie => {
-                const trimmedCookie = cookie.trim();
-                if (trimmedCookie.startsWith('localEntry_')) {
-                    const value = trimmedCookie.substring(trimmedCookie.indexOf('=') + 1);
-                    if (value) {
-                        const entry = JSON.parse(value);
-                        addLocalEntry(entry.name, entry.number);
-                    }
-                }
-            });
-        }
-
         document.addEventListener('DOMContentLoaded', () => {
             // Fetch existing rankings from Firebase (function is in server.js)
             if (document.getElementById('rankingList')) {
-                fetchRankings();
-                loadLocalEntries(); // Load local entries from cookies
+                fetchRankings(); // Fetch rankings from Firebase and update the UI
             }
 
-            // Add locally to the rankings list and also push to Firebase
+            // Add a new entry to the rankings list and push to Firebase
             document.getElementById('add-local-button').addEventListener('click', async () => {
                 const name = document.getElementById('localName').value;
                 const number = parseInt(document.getElementById('localNumber').value);
@@ -110,10 +46,7 @@
                     try {
                         // Add to Firebase to ensure persistence
                         await addEntryToFirebase(name, number);
-                        // Add to local list and store in cookies
-                        addLocalEntry(name, number);
-
-                        // Clear the input fields
+                        // No need to manually add to the UI as fetchRankings() will update automatically
                         document.getElementById('localName').value = '';
                         document.getElementById('localNumber').value = '';
                     } catch (error) {
@@ -125,22 +58,10 @@
                 }
             });
 
-            // Clear all entries from Firebase and cookies
+            // Clear all entries from Firebase
             document.getElementById('clear-all-button').addEventListener('click', () => {
                 if (confirm('Are you sure you want to delete all entries?')) {
-                    clearAllEntriesFromFirebase();
-                    // Clear all local entries from cookies
-                    const cookies = document.cookie.split(';');
-                    cookies.forEach(cookie => {
-                        const trimmedCookie = cookie.trim();
-                        if (trimmedCookie.startsWith('localEntry_')) {
-                            const name = trimmedCookie.split('=')[0];
-                            deleteCookie(name);
-                        }
-                    });
-
-                    // Clear the UI
-                    document.getElementById('rankingList').innerHTML = '';
+                    clearAllEntriesFromFirebase(); // Clear all entries from Firebase
                 }
             });
         });
