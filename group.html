@@ -5,46 +5,52 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Group Rankings</title>
+    <!-- Firebase App and Database SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js"></script>
     <script>
         // Firebase Configuration
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            databaseURL: "YOUR_DATABASE_URL",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyD_4kINWig7n6YqB11yM2M-EuxGNz5uekI",
+            authDomain: "roll202-c0b0d.firebaseapp.com",
+            databaseURL: "https://roll202-c0b0d-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "roll202-c0b0d",
+            storageBucket: "roll202-c0b0d.appspot.com",
+            messagingSenderId: "607661730400",
+            appId: "1:607661730400:web:b4b3f97a12cfae373e7105",
+            measurementId: "G-6X5L39W56C"
         };
 
         // Initialize Firebase
-        const app = firebase.initializeApp(firebaseConfig);
-        const db = firebase.getDatabase(app);
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-        // Fetch and Display Rankings
+        // Function to fetch and display rankings
         async function fetchRankings() {
-            const reference = firebase.ref(db, 'rankings/');
-            firebase.onValue(reference, (snapshot) => {
+            const reference = db.ref('rankings/');
+            reference.on('value', (snapshot) => {
                 const data = snapshot.val();
                 const rankingList = document.getElementById('rankingList');
                 rankingList.innerHTML = '';
 
-                const rankings = [];
-                for (const id in data) {
-                    rankings.push(data[id]);
-                }
+                if (data) {
+                    const rankings = [];
+                    for (const id in data) {
+                        rankings.push(data[id]);
+                    }
 
-                rankings.sort((a, b) => b.number - a.number);
-                rankings.forEach(item => {
-                    const listItem = document.createElement('li');
-                    listItem.textContent = `${item.name}: ${item.number}`;
-                    rankingList.appendChild(listItem);
-                });
+                    // Sort by number in descending order
+                    rankings.sort((a, b) => b.number - a.number);
+                    rankings.forEach(item => {
+                        const listItem = document.createElement('li');
+                        listItem.textContent = `${item.name}: ${item.number}`;
+                        rankingList.appendChild(listItem);
+                    });
+                }
             });
         }
 
+        // Fetch rankings once the document has loaded
         document.addEventListener('DOMContentLoaded', fetchRankings);
     </script>
 </head>
@@ -52,6 +58,8 @@
 <body>
     <h1>Rankings</h1>
     <ul id="rankingList"></ul>
+    <br>
+    <a href="index.html">Submit a New Entry</a> <!-- Link back to Submission page -->
 </body>
 
 </html>

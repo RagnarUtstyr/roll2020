@@ -5,32 +5,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Submit Your Name and Number</title>
+    <!-- Firebase App and Database SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js"></script>
     <script>
         // Firebase Configuration
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            databaseURL: "YOUR_DATABASE_URL",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyD_4kINWig7n6YqB11yM2M-EuxGNz5uekI",
+            authDomain: "roll202-c0b0d.firebaseapp.com",
+            databaseURL: "https://roll202-c0b0d-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "roll202-c0b0d",
+            storageBucket: "roll202-c0b0d.appspot.com",
+            messagingSenderId: "607661730400",
+            appId: "1:607661730400:web:b4b3f97a12cfae373e7105",
+            measurementId: "G-6X5L39W56C"
         };
 
         // Initialize Firebase
-        const app = firebase.initializeApp(firebaseConfig);
-        const db = firebase.getDatabase(app);
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-        // Submit Data
+        // Function to submit data to Firebase
         async function submitData() {
             const name = document.getElementById('name').value;
             const number = parseInt(document.getElementById('number').value);
 
             if (name && !isNaN(number)) {
-                const reference = firebase.ref(db, 'rankings/');
-                firebase.push(reference, {
+                const reference = db.ref('rankings/');
+                await reference.push({
                     name,
                     number
                 });
@@ -51,8 +53,8 @@
     <label for="number">Number:</label>
     <input type="number" id="number" required>
     <button onclick="submitData()">Submit</button>
-
-    <a href="group.html">View Rankings</a>
+    <br><br>
+    <a href="group.html">View Rankings</a> <!-- Link to Group Rankings page -->
 </body>
 
 </html>
