@@ -145,6 +145,7 @@ a.button-link {
     display: inline-block;
     background-color: #2E1B18;
     color: #E0D8B0;
+    max-width: 100px;
     border: 2px solid #D4AF37;
     padding: 10px 15px;
     cursor: pointer;
