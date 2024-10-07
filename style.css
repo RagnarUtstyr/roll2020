@@ -20,73 +20,65 @@ body {
     width: 100%;
     margin: 0 auto;
     padding: 20px;
-    background-color: rgba(74, 44, 42, 0.8); /* Dark brown with opacity as an overlay */
+    background-color: rgba(46, 27, 24, 0.8); /* Darker brown with opacity */
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
     border-radius: 10px;
     box-sizing: border-box;
 }
 
-/* Headings */
-h1, h2 {
-    color: #D4AF37; /* Gold color for headings */
-    font-weight: bold;
-    font-family: 'MedievalSharp', serif;
-    text-align: center;
-    margin-bottom: 15px;
-}
-
-/* Unordered List */
-ul {
+/* Rankings Container */
+#rankingList {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 10px;
+    background-color: rgba(46, 27, 24, 0.9); /* Dark brown background */
+    border-radius: 10px;
     list-style-type: none;
-    padding: 0;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
 }
 
 /* List Items */
 li {
-    background-color: rgba(165, 123, 91, 0.9); /* Lighter brown with opacity */
-    color: #2E1B18; /* Dark brown text for contrast */
-    padding: 10px;
-    margin: 10px 0;
-    border-radius: 5px;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap; /* Ensure items wrap neatly on small screens */
+    justify-content: space-between;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #8C5A4A; /* Dark reddish-brown border for separation */
+    border-radius: 5px;
+    background-color: rgba(165, 123, 91, 0.8); /* Lighter brown for list item background */
 }
 
-/* Buttons */
-button {
-    background-color: #2E1B18; /* Dark brown button color */
+/* Name Styling */
+li .name {
+    flex: 1;
+    text-align: left;
     color: #E0D8B0; /* Parchment-like text color */
-    border: 2px solid #D4AF37; /* Gold border color */
-    padding: 8px 12px;
-    cursor: pointer;
-    border-radius: 5px;
-    transition: background-color 0.3s, color 0.3s;
-    margin-top: 10px;
     font-size: 1em;
 }
 
-button:hover {
-    background-color: #8C5A4A; /* Lighter brown for hover effect */
-    color: #2E1B18; /* Darker text color for contrast */
+/* Number Styling */
+li .number {
+    flex: 1;
+    text-align: center;
+    color: #D4AF37; /* Gold text color for numbers */
+    font-size: 1.2em;
 }
 
-/* Labels */
-label {
-    display: block;
-    margin: 10px 0 5px;
-}
-
-/* Input Fields */
-input[type="text"], input[type="number"] {
-    padding: 10px;
-    border: 2px solid #D4AF37; /* Gold border for input fields */
+/* Remove Button Styling */
+li button {
+    background-color: #2E1B18; /* Darker brown button color */
+    color: #E0D8B0; /* Parchment-like text color */
+    border: none;
+    cursor: pointer;
+    padding: 5px 10px;
     border-radius: 5px;
-    width: calc(100% - 20px);
-    margin-bottom: 15px;
-    box-sizing: border-box;
-    background-color: rgba(255, 255, 255, 0.9); /* Slightly transparent white */
+    transition: background-color 0.3s, color 0.3s;
+}
+
+li button:hover {
+    background-color: #8C5A4A; /* Rich reddish-brown for hover effect */
+    color: #2E1B18; /* Change text color for contrast */
 }
 
 /* Submit and Clear List Buttons */
@@ -105,88 +97,4 @@ input[type="text"], input[type="number"] {
 #submit-button:hover, #clear-list-button:hover {
     background-color: #8C5A4A;
     color: #2E1B18; /* Change text color for contrast */
-}
-
-/* Links */
-a {
-    color: #D4AF37; /* Gold color for links */
-    text-decoration: none;
-    display: inline-block;
-    margin-top: 10px;
-}
-
-a:hover {
-    text-decoration: underline;
-}
-
-/* Media Queries for Mobile Devices */
-@media (max-width: 768px) {
-    body {
-        padding: 10px;
-    }
-
-    .container {
-        padding: 15px;
-    }
-
-    h1, h2 {
-        font-size: 1.5em;
-        margin-bottom: 10px;
-    }
-
-    ul {
-        padding: 0;
-    }
-
-    li {
-        padding: 8px;
-        margin: 8px 0;
-        font-size: 0.9em;
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    button {
-        padding: 8px;
-        font-size: 0.9em;
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    input[type="text"], input[type="number"] {
-        padding: 8px;
-        width: calc(100% - 16px);
-        margin-bottom: 10px;
-    }
-
-    #submit-button, #clear-list-button {
-        padding: 10px;
-        width: calc(50% - 12px);
-        margin-right: 0;
-        margin-bottom: 10px;
-        font-size: 0.9em;
-    }
-
-    #rankingList {
-        margin-bottom: 20px;
-    }
-}
-
-/* Media Queries for Smaller Screens (Mobile Portrait) */
-@media (max-width: 480px) {
-    h1, h2 {
-        font-size: 1.2em;
-    }
-
-    button {
-        font-size: 0.8em;
-    }
-
-    #submit-button, #clear-list-button {
-        width: 100%;
-    }
-
-    input[type="text"], input[type="number"] {
-        width: calc(100% - 10px);
-    }
 }
