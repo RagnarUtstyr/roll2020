@@ -62,7 +62,6 @@ export async function addEntryToFirebase(name, number) {
         const reference = ref(db, 'rankings/');
         await push(reference, { name, number });
         console.log('Entry added to Firebase:', { name, number });
-        // Automatically updates the list as onValue listener is set
     } catch (error) {
         console.error('Error adding entry to Firebase:', error);
     }
@@ -85,6 +84,10 @@ export async function clearAllEntriesFromFirebase() {
         const reference = ref(db, 'rankings/');
         await set(reference, null); // Setting the reference to null deletes all data at that location
         console.log('All entries removed from Firebase.');
+
+        // Clear the UI after deleting entries
+        const rankingList = document.getElementById('rankingList');
+        rankingList.innerHTML = ''; // Clear the list in the UI as well
     } catch (error) {
         console.error('Error clearing all entries from Firebase:', error);
     }
