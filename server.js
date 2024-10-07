@@ -49,9 +49,14 @@ function fetchRankings() {
         rankingList.innerHTML = '';
 
         if (data) {
-            for (const id in data) {
+            // Convert the data object into an array and sort it
+            const rankings = Object.entries(data).map(([id, entry]) => ({ id, ...entry }));
+            rankings.sort((a, b) => b.number - a.number); // Sort in descending order based on the 'number' value
+
+            // Create list items for each ranking and append to the DOM
+            rankings.forEach(({ id, name, number }) => {
                 const listItem = document.createElement('li');
-                listItem.textContent = `${data[id].name}: ${data[id].number} `;
+                listItem.textContent = `${name}: ${number} `;
 
                 // Create a remove button for each item
                 const removeButton = document.createElement('button');
@@ -60,7 +65,7 @@ function fetchRankings() {
 
                 listItem.appendChild(removeButton);
                 rankingList.appendChild(listItem);
-            }
+            });
         } else {
             console.log('No data available');
         }
