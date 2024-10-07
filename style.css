@@ -67,7 +67,7 @@ h1, h2 {
 
 /* Rankings Container */
 #rankingList {
-    max-width: 400px;
+    max-width: 800px;
     margin: 0 auto;
     padding: 10px;
     background-color: rgba(46, 27, 24, 0.9); /* Dark brown background */
