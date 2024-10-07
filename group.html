@@ -5,14 +5,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Group Rankings</title>
-    <script type="module" src="server.js" defer></script> <!-- Load the app.js -->
+    <script type="module" src="server.js" defer></script> <!-- Load the server.js -->
 </head>
 
 <body>
     <h1>Rankings</h1>
     <ul id="rankingList"></ul>
     <br>
-    <a href="index.html">Submit a New Entry</a>
+    <h2>Submit a New Entry</h2>
+    <label for="name">Name:</label>
+    <input type="text" id="name" required>
+    <label for="number">Number:</label>
+    <input type="number" id="number" required>
+    <button id="submit-button">Submit</button>
+    <br><br>
+    <a href="index.html">Go to Submission Page</a>
 </body>
 
 </html>
