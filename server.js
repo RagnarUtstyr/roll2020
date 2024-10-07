@@ -18,35 +18,13 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// Function to submit data to Firebase
-async function submitData() {
-    const name = document.getElementById('name').value;
-    const number = parseInt(document.getElementById('number').value);
-
-    if (name && !isNaN(number)) {
-        try {
-            const reference = ref(db, 'rankings/');
-            await push(reference, { name, number });
-            alert('Data submitted successfully!');
-            console.log('Data submitted:', { name, number });
-            document.getElementById('name').value = '';
-            document.getElementById('number').value = '';
-        } catch (error) {
-            console.error('Error submitting data:', error);
-            alert('Failed to submit data. Please try again.');
-        }
-    } else {
-        alert('Please enter a valid name and number.');
-    }
-}
-
-// Function to fetch and display rankings
-function fetchRankings() {
+// Function to fetch and display rankings from Firebase
+export function fetchRankings() {
     const reference = ref(db, 'rankings/');
     onValue(reference, (snapshot) => {
         const data = snapshot.val();
         const rankingList = document.getElementById('rankingList');
-        rankingList.innerHTML = '';
+        rankingList.innerHTML = ''; // Clear existing list
 
         if (data) {
             const rankings = [];
@@ -69,10 +47,26 @@ function fetchRankings() {
     });
 }
 
+// Function to add a new entry to Firebase
+export async function addEntryToFirebase(name, number) {
+    try {
+        const reference = ref(db, 'rankings/');
+        await push(reference, { name, number });
+        console.log('Entry added to Firebase:', { name, number });
+        // Automatically updates the list as onValue listener is set
+    } catch (error) {
+        console.error('Error adding entry to Firebase:', error);
+    }
+}
+
 // Event listeners for page-specific actions
 document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('submit-button')) {
-        document.getElementById('submit-button').addEventListener('click', submitData);
+        document.getElementById('submit-button').addEventListener('click', () => {
+            const name = document.getElementById('name').value;
+            const number = parseInt(document.getElementById('number').value);
+            addEntryToFirebase(name, number);
+        });
     }
     if (document.getElementById('rankingList')) {
         fetchRankings();
