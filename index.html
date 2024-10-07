@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Submit Your Name and Number</title>
-    <script type="module" src="server.js" defer></script> <!-- Load the app.js -->
+    <script type="module" src="server.js" defer></script> <!-- Load the server.js -->
 </head>
 
 <body>
@@ -16,7 +16,33 @@
     <input type="number" id="number" required>
     <button id="submit-button">Submit</button>
     <br><br>
-    <a href="group.html">View Rankings</a>
+    <a href="group.html">View Rankings</a> <!-- Link to View Rankings page -->
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('submit-button').addEventListener('click', async () => {
+                const name = document.getElementById('name').value;
+                const number = parseInt(document.getElementById('number').value);
+
+                if (name && !isNaN(number)) {
+                    try {
+                        // Call the function to add the entry to Firebase
+                        await addEntryToFirebase(name, number);
+                        alert('Entry submitted successfully!');
+                        
+                        // Clear the input fields after submission
+                        document.getElementById('name').value = '';
+                        document.getElementById('number').value = '';
+                    } catch (error) {
+                        console.error('Error submitting entry:', error);
+                        alert('Failed to submit entry. Please try again.');
+                    }
+                } else {
+                    alert('Please enter a valid name and number.');
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>

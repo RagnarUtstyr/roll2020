@@ -46,7 +46,6 @@
                     try {
                         // Add to Firebase to ensure persistence
                         await addEntryToFirebase(name, number);
-                        // No need to manually add to the UI as fetchRankings() will update automatically
                         document.getElementById('localName').value = '';
                         document.getElementById('localNumber').value = '';
                     } catch (error) {
