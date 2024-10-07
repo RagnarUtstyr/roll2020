@@ -1,8 +1,8 @@
-// Import necessary Firebase modules from the SDK
+// Import the necessary Firebase SDK modules
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
 import { getDatabase, ref, push, onValue, remove, set } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
-// Firebase Configuration from your provided SDK
+// Firebase configuration
 const firebaseConfig = {
     apiKey: "AIzaSyD_4kINWig7n6YqB11yM2M-EuxGNz5uekI",
     authDomain: "roll202-c0b0d.firebaseapp.com",
@@ -26,11 +26,10 @@ export async function addEntryToFirebase(name, number) {
         console.log('Entry added to Firebase:', { name, number });
     } catch (error) {
         console.error('Error adding entry to Firebase:', error);
-        throw error; // Re-throw the error so it can be caught in the calling function
     }
 }
 
-// Function to fetch and display rankings from Firebase
+// Function to fetch and display rankings from Firebase in group.html
 export function fetchRankings() {
     const reference = ref(db, 'rankings/');
     onValue(reference, (snapshot) => {
@@ -94,34 +93,43 @@ export async function clearAllEntriesFromFirebase() {
     }
 }
 
-// Event listeners for DOM actions
+// Event listeners for page-specific actions
 document.addEventListener('DOMContentLoaded', () => {
+    // For index.html - adding a new entry
     if (document.getElementById('submit-button')) {
         document.getElementById('submit-button').addEventListener('click', async () => {
             const name = document.getElementById('name').value;
             const number = parseInt(document.getElementById('number').value);
 
             if (name && !isNaN(number)) {
-                try {
-                    await addEntryToFirebase(name, number);
-                    alert('Entry submitted successfully!');
-                    document.getElementById('name').value = '';
-                    document.getElementById('number').value = '';
-                } catch (error) {
-                    console.error('Error submitting entry:', error);
-                    alert('Failed to submit entry. Please try again.');
-                }
+                await addEntryToFirebase(name, number);
+                document.getElementById('name').value = '';
+                document.getElementById('number').value = '';
             } else {
                 alert('Please enter a valid name and number.');
             }
         });
     }
 
+    // For group.html - fetching rankings, adding new entry, and deleting entries
     if (document.getElementById('rankingList')) {
-        fetchRankings(); // Fetch and display rankings if on group.html page
-    }
+        fetchRankings(); // Fetch existing rankings
 
-    if (document.getElementById('clear-all-button')) {
+        // Adding a new entry from group.html
+        document.getElementById('add-local-button').addEventListener('click', async () => {
+            const name = document.getElementById('localName').value;
+            const number = parseInt(document.getElementById('localNumber').value);
+
+            if (name && !isNaN(number)) {
+                await addEntryToFirebase(name, number);
+                document.getElementById('localName').value = '';
+                document.getElementById('localNumber').value = '';
+            } else {
+                alert('Please enter a valid name and number.');
+            }
+        });
+
+        // Clear all entries from Firebase
         document.getElementById('clear-all-button').addEventListener('click', () => {
             if (confirm('Are you sure you want to delete all entries?')) {
                 clearAllEntriesFromFirebase();
