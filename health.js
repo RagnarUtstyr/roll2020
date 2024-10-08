@@ -1,4 +1,4 @@
-import { getDatabase, ref, update, onValue } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+import { getDatabase, ref, update, onValue, remove } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
 const db = getDatabase();
 
@@ -42,6 +42,7 @@ function fetchRankings() {
                     // Event listener for pressing Enter key to apply damage
                     healthInput.addEventListener('keypress', (event) => {
                         if (event.key === 'Enter') {
+                            event.preventDefault(); // Prevent the default "focus next input" behavior
                             const damage = parseInt(healthInput.value);
                             if (!isNaN(damage) && health > 0) {
                                 const updatedHealth = health - damage > 0 ? health - damage : 0; // Ensure health doesn't go below 0
@@ -53,11 +54,13 @@ function fetchRankings() {
                     listItem.appendChild(healthInput);
                 }
 
-                // Add the remove button (which already exists in your current server.js)
+                // Add the remove button
                 const removeButton = document.createElement('button');
                 removeButton.textContent = 'Remove';
                 removeButton.className = 'remove-button';
-                removeButton.addEventListener('click', () => removeEntry(id));
+                removeButton.addEventListener('click', () => {
+                    removeEntry(id, listItem); // Pass listItem to remove it from DOM
+                });
 
                 // If health is 0 or less, show the remove button only
                 if (health === 0) {
@@ -99,12 +102,14 @@ function updateHealth(id, newHealth, listItem, healthDiv, healthInput, removeBut
         });
 }
 
-// Function to remove an entry from Firebase
-function removeEntry(id) {
+// Function to remove an entry from Firebase and the DOM
+function removeEntry(id, listItem) {
     const reference = ref(db, `rankings/${id}`);
     remove(reference)
         .then(() => {
             console.log(`Entry with id ${id} removed successfully`);
+            // Remove the corresponding list item from the DOM
+            listItem.remove();
         })
         .catch((error) => {
             console.error('Error removing entry:', error);
