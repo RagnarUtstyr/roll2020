@@ -7,16 +7,19 @@
 }
 
 /* Keep the original button styles */
-#apply-damage-button, #next-button {
-    background-color: #2E1B18; /* Dark brown background */
-    color: #E0D8B0; /* Parchment-like text color */
-    border: 2px solid #D4AF37; /* Gold border */
-    padding: 10px 20px;
-    cursor: pointer;
-    border-radius: 5px;
-    font-family: 'MedievalSharp', serif;
-    font-size: 1em;
-    transition: background-color 0.3s, color 0.3s;
+    #next-button {
+        background-color: #2E1B18; /* Dark brown background */
+        color: #E0D8B0; /* Parchment-like text color */
+        border: 2px solid #D4AF37; /* Gold border */
+        padding: 10px 20px; /* Larger padding for the button */
+        cursor: pointer;
+        border-radius: 5px; /* Rounded corners */
+        font-family: 'MedievalSharp', serif; /* Use the same font */
+        font-size: 1em;
+        transition: background-color 0.3s, color 0.3s; /* Smooth hover effect */
+        width: fit-content; /* Adjust the width to the content */
+        margin: 20px auto; /* Center the button */
+        display: block;
 }
 
 #apply-damage-button:hover, #next-button:hover {
