@@ -38,18 +38,8 @@ function fetchRankings() {
                     healthInput.placeholder = '-';
                     healthInput.className = 'damage-input';
                     healthInput.style.width = '50px';  // Small input field
-
-                    // Event listener for pressing Enter key to apply damage
-                    healthInput.addEventListener('keydown', (event) => {
-                        if (event.key === 'Enter' || event.keyCode === 13) {
-                            event.preventDefault(); // Prevent the default "focus next input" behavior
-                            const damage = parseInt(healthInput.value);
-                            if (!isNaN(damage) && health > 0) {
-                                const updatedHealth = health - damage > 0 ? health - damage : 0; // Ensure health doesn't go below 0
-                                updateHealth(id, updatedHealth, listItem, healthDiv, healthInput, removeButton);
-                            }
-                        }
-                    });
+                    healthInput.dataset.entryId = id;  // Store the entry ID in a custom data attribute
+                    healthInput.dataset.currentHealth = health;  // Store the current health
 
                     listItem.appendChild(healthInput);
                 }
@@ -81,20 +71,37 @@ function fetchRankings() {
     });
 }
 
+// Function to apply damage to all entries
+function applyDamageToAll() {
+    const damageInputs = document.querySelectorAll('.damage-input');  // Select all damage inputs
+    damageInputs.forEach(input => {
+        const entryId = input.dataset.entryId;  // Get the entry ID from the data attribute
+        const currentHealth = parseInt(input.dataset.currentHealth);  // Get the current health
+        const damage = parseInt(input.value);  // Get the entered damage
+
+        if (!isNaN(damage) && currentHealth > 0) {
+            const updatedHealth = currentHealth - damage > 0 ? currentHealth - damage : 0;  // Ensure health doesn't go below 0
+            updateHealth(entryId, updatedHealth, input);  // Update health for this entry
+        }
+    });
+}
+
 // Function to update health in Firebase and toggle input/remove button
-function updateHealth(id, newHealth, listItem, healthDiv, healthInput, removeButton) {
+function updateHealth(id, newHealth, healthInput) {
     const reference = ref(db, `rankings/${id}`);
     update(reference, { health: newHealth })
         .then(() => {
             console.log(`Health updated to ${newHealth}`);
-            healthDiv.textContent = `HP: ${newHealth}`; // Update health display
+            const healthDiv = healthInput.parentElement.querySelector('.health');
+            healthDiv.textContent = `HP: ${newHealth}`;  // Update health display
 
             // If health reaches 0, remove the input field and show the remove button
             if (newHealth <= 0) {
-                if (healthInput) {
-                    healthInput.remove(); // Remove input field
+                healthInput.remove();  // Remove input field
+                const removeButton = healthInput.parentElement.querySelector('.remove-button');
+                if (removeButton) {
+                    removeButton.style.display = 'inline';  // Show remove button
                 }
-                listItem.appendChild(removeButton); // Show remove button
             }
         })
         .catch((error) => {
@@ -120,5 +127,11 @@ function removeEntry(id, listItem) {
 document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('rankingList')) {
         fetchRankings();
+    }
+
+    // Add event listener for the global "Apply Damage" button
+    const applyDamageButton = document.getElementById('apply-damage-button');
+    if (applyDamageButton) {
+        applyDamageButton.addEventListener('click', applyDamageToAll);
     }
 });
