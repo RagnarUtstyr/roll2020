@@ -35,7 +35,7 @@ function fetchRankings() {
                 if (health !== null && health !== undefined && health > 0) {
                     const healthInput = document.createElement('input');
                     healthInput.type = 'number';
-                    healthInput.placeholder = '-';
+                    healthInput.placeholder = 'Damage';
                     healthInput.className = 'damage-input';
                     healthInput.style.width = '50px';  // Small input field
                     healthInput.dataset.entryId = id;  // Store the entry ID in a custom data attribute
@@ -79,7 +79,7 @@ function applyDamageToAll() {
         const currentHealth = parseInt(input.dataset.currentHealth);  // Get the current health
         const damage = parseInt(input.value);  // Get the entered damage
 
-        if (!isNaN(damage) && currentHealth > 0) {
+        if (!isNaN(damage) && damage > 0 && currentHealth > 0) {
             const updatedHealth = currentHealth - damage > 0 ? currentHealth - damage : 0;  // Ensure health doesn't go below 0
             updateHealth(entryId, updatedHealth, input);  // Update health for this entry
         }
@@ -102,6 +102,9 @@ function updateHealth(id, newHealth, healthInput) {
                 if (removeButton) {
                     removeButton.style.display = 'inline';  // Show remove button
                 }
+            } else {
+                // Update the data-current-health attribute with the new health value
+                healthInput.dataset.currentHealth = newHealth;
             }
         })
         .catch((error) => {
