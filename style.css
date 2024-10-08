@@ -1,10 +1,10 @@
 /* General Body Styling */
 body {
-    background: url('background.jpg') no-repeat center center fixed; /* Ensure background image */
+    background: url('background.jpg') no-repeat center center fixed;
     background-size: cover;
     position: relative;
-    color: #E0D8B0; /* Parchment-like text color */
-    font-family: 'MedievalSharp', serif; /* Fantasy-inspired font from Google Fonts */
+    color: #E0D8B0;
+    font-family: 'MedievalSharp', serif;
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -36,7 +36,7 @@ body::before {
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
     border-radius: 10px;
     box-sizing: border-box;
-    text-align: center; /* Center all content */
+    text-align: center;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -52,9 +52,9 @@ input[type="text"], input[type="number"] {
     box-sizing: border-box;
     background-color: rgba(255, 255, 255, 0.15); /* Slightly transparent white */
     color: #E0D8B0; /* Parchment-like text color for input text */
-    font-family: 'MedievalSharp', serif; /* Fantasy font */
+    font-family: 'MedievalSharp', serif;
     font-size: 1em;
-    outline: none; /* Remove default outline */
+    outline: none;
 }
 
 /* Input Field Placeholder Text Styling */
@@ -95,55 +95,57 @@ h1, h2 {
 li {
     display: flex;
     align-items: center;
-    justify-content: space-between; /* Spread items across the width */
+    justify-content: space-between;
+    flex-wrap: wrap;
     padding: 10px;
     margin-bottom: 10px;
-    border: 1px solid #8C5A4A; /* Dark reddish-brown border */
+    border: 1px solid #8C5A4A;
     border-radius: 5px;
-    background-color: rgba(165, 123, 91, 0.8); /* Lighter brown for list item background */
+    background-color: rgba(165, 123, 91, 0.8);
     max-width: 600px;
     margin: 0 auto 10px auto;
 }
 
 /* Name Styling */
 li .name {
-    flex: 1; /* Take up available space on the left */
+    flex: 1 1 100%; /* Make name take full width */
     text-align: left;
-    color: #E0D8B0; /* Parchment-like text color */
+    color: #E0D8B0;
     font-size: 1em;
 }
 
 /* Initiative (Number) Styling */
 li .number {
-    flex: 1;
-    text-align: center;
+    flex: 1 1 100%; /* Make initiative take full width */
+    text-align: left;
     color: #D4AF37; /* Gold text color for initiative */
     font-size: 1.2em;
 }
 
 /* Health Styling */
 li .health {
-    flex: 1;
-    text-align: center;
+    flex: 1 1 100%; /* Make health take full width */
+    text-align: left;
     color: #D4AF37; /* Gold text color for health */
     font-size: 1.2em;
 }
 
 /* Remove Button Styling */
 li button {
-    flex-shrink: 0;
-    background-color: #2E1B18; /* Darker brown button */
+    flex: 1 1 100%; /* Make button take full width */
+    background-color: #2E1B18;
     color: #E0D8B0;
     border: none;
     cursor: pointer;
     padding: 5px 10px;
     border-radius: 5px;
+    margin-top: 10px;
     transition: background-color 0.3s, color 0.3s;
 }
 
 li button:hover {
     background-color: #8C5A4A; /* Rich reddish-brown hover */
-    color: #2E1B18; /* Change text color for contrast */
+    color: #2E1B18;
 }
 
 /* Submit and Clear List Buttons */
@@ -183,23 +185,19 @@ a.button-link:hover {
 
 /* Media Queries for Mobile Devices */
 @media (max-width: 768px) {
-    .container {
-        padding: 15px;
-        align-items: center;
-    }
-
+    /* Make each part of the list item take its own line */
     li {
-        flex-direction: column;
-        align-items: center;
+        flex-direction: column; /* Stack each element vertically */
+        align-items: flex-start;
     }
 
-    #submit-button, #clear-list-button {
-        width: 100%;
-        margin: 5px 0;
+    li .name, li .number, li .health, li button {
+        flex: 1 1 100%; /* Make each element take the full width */
+        text-align: left; /* Align text to the left */
     }
 
-    a.button-link {
-        width: 100%;
-        margin-top: 20px;
+    /* Additional mobile styling adjustments if needed */
+    li button {
+        margin-top: 10px; /* Add spacing for the button */
     }
 }
