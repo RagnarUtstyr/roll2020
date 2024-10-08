@@ -29,21 +29,21 @@ function fetchRankings() {
                 healthDiv.className = 'health';
                 healthDiv.textContent = `HP: ${health || 'N/A'}`;
 
-                // Input and button to subtract health
+                // Smaller input for health (damage)
                 const healthInput = document.createElement('input');
                 healthInput.type = 'number';
-                healthInput.placeholder = 'Damage';
+                healthInput.placeholder = '-';
                 healthInput.className = 'damage-input';
+                healthInput.style.width = '50px';  // Smaller input field
 
-                const healthButton = document.createElement('button');
-                healthButton.textContent = 'Apply Damage';
-                healthButton.className = 'apply-damage-button';
-
-                healthButton.addEventListener('click', () => {
-                    const damage = parseInt(healthInput.value);
-                    if (!isNaN(damage) && health !== null && health > 0) {
-                        const updatedHealth = health - damage > 0 ? health - damage : 0; // Ensure health doesn't go below 0
-                        updateHealth(id, updatedHealth);
+                // Event listener for pressing Enter key to apply damage
+                healthInput.addEventListener('keypress', (event) => {
+                    if (event.key === 'Enter') {
+                        const damage = parseInt(healthInput.value);
+                        if (!isNaN(damage) && health !== null && health > 0) {
+                            const updatedHealth = health - damage > 0 ? health - damage : 0; // Ensure health doesn't go below 0
+                            updateHealth(id, updatedHealth);
+                        }
                     }
                 });
 
@@ -52,7 +52,6 @@ function fetchRankings() {
                 listItem.appendChild(numberDiv);
                 listItem.appendChild(healthDiv);
                 listItem.appendChild(healthInput);
-                listItem.appendChild(healthButton);
 
                 rankingList.appendChild(listItem);
             });
@@ -80,4 +79,3 @@ document.addEventListener('DOMContentLoaded', () => {
         fetchRankings();
     }
 });
-
