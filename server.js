@@ -74,7 +74,11 @@ function fetchRankings() {
 
                 const healthDiv = document.createElement('div');
                 healthDiv.className = 'health';
-                healthDiv.textContent = `HP: ${health !== null ? health : 'N/A'}`; // Added HP prefix
+                if (health !== null && health !== undefined) {
+                    healthDiv.textContent = `HP: ${health}`; // Add HP prefix if health is defined
+                } else {
+                    healthDiv.textContent = ''; // Empty if no health value
+                }
 
                 const removeButton = document.createElement('button');
                 removeButton.textContent = 'Remove';
@@ -83,7 +87,9 @@ function fetchRankings() {
                 // Append all parts to the list item
                 listItem.appendChild(nameDiv);
                 listItem.appendChild(numberDiv);
-                listItem.appendChild(healthDiv);
+                if (healthDiv.textContent !== '') {
+                    listItem.appendChild(healthDiv); // Only append HP if there is a value
+                }
                 listItem.appendChild(removeButton);
 
                 // Append the list item to the ranking list
