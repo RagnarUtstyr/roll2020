@@ -6,28 +6,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Group Rankings</title>
     <script type="module" src="server.js" defer></script>
-	<link rel="stylesheet" href="style.css">
-	<link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
-
+    <link rel="stylesheet" href="style.css"> <!-- Link to the external CSS file -->
+    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet"> <!-- Link to MedievalSharp from Google Fonts -->
 </head>
 
 <body>
-	<div class="container">
-		<h1>Rankings</h1>
-		<ul id="rankingList"></ul>
-		<br>
-		<button id="clear-list-button">Clear List</button>
-		<br><br>
-		<h2>Submit a New Entry</h2>
-		<label for="name">Name:</label>
-		<input type="text" id="name" required>
-		<label for="number">Number:</label>
-		<input type="number" id="number" required>
-		<button id="submit-button">Submit</button>
-		<a href="index.html" class="button-link">Go to Submission Page</a>
-	</div>
-	
-    
+    <div class="container">
+        <h1>Rankings</h1>
+
+        <!-- Rankings List -->
+        <ul id="rankingList"></ul>
+
+        <!-- Button to clear the list -->
+        <br>
+        <button id="clear-list-button">Clear List</button>
+
+        <!-- Form to submit a new entry -->
+        <br><br>
+        <h2>Submit a New Entry</h2>
+        <label for="name">Name:</label>
+        <input type="text" id="name" required>
+        <label for="number">Number:</label>
+        <input type="number" id="number" required>
+        <button id="submit-button">Submit</button>
+
+        <!-- Link to go back to the index page -->
+        <br><br>
+        <a href="index.html" class="button-link">Go to Submission Page</a>
+    </div>
+
+    <script>
+        // Get the "Clear List" button and audio element
+        const clearListButton = document.getElementById('clear-list-button');
+        const swordSound = document.getElementById('sword-sound');
+
+        // Play sound when the submit button is clicked
+        const submitButton = document.getElementById('submit-button');
+        submitButton.addEventListener('click', (event) => {
+            swordSound.play();
+        });
+    </script>
 </body>
 
 </html>
