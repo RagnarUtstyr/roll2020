@@ -17,10 +17,8 @@ const firebaseConfig = {
 // Initialize Firebase only if it's not already initialized
 let app;
 if (!getApps().length) {
-    // Initialize a new Firebase app if no apps have been initialized
     app = initializeApp(firebaseConfig);
 } else {
-    // Use the existing Firebase app
     app = getApp();
 }
 
@@ -34,24 +32,17 @@ const deleteButton = document.getElementById('delete-list-button');
 const listNameInput = document.getElementById('list-name');
 const savedListsContainer = document.getElementById('savedLists');
 
-// Fetch the current list from Firebase
-function getCurrentListFromFirebase() {
-    const dbRef = ref(db);
-    return get(child(dbRef, 'currentList'))
-        .then((snapshot) => {
-            if (snapshot.exists()) {
-                return snapshot.val();
-            } else {
-                alert('No current list found.');
-                return null;
-            }
-        })
-        .catch((error) => {
-            console.error('Error fetching current list:', error);
-        });
+// Function to retrieve the ranking list from localStorage (stored by server.js)
+function getRankingListFromLocalStorage() {
+    const rankingList = JSON.parse(localStorage.getItem('rankingList'));
+    if (!rankingList) {
+        alert('No ranking list found. Please create the list in group.html first.');
+        return null;
+    }
+    return rankingList;
 }
 
-// Save the current list from Firebase to a new saved list node
+// Save the ranking list from localStorage to Firebase with the provided name
 function saveList() {
     const listName = listNameInput.value.trim();
     if (!listName) {
@@ -59,18 +50,21 @@ function saveList() {
         return;
     }
 
-    getCurrentListFromFirebase().then((currentList) => {
-        if (currentList) {
-            set(ref(db, 'savedLists/' + listName), { list: currentList })
-                .then(() => {
-                    alert(`List "${listName}" saved successfully!`);
-                    loadSavedLists();
-                })
-                .catch((error) => {
-                    console.error('Error saving list:', error);
-                });
-        }
-    });
+    // Fetch the list from localStorage
+    const rankingList = getRankingListFromLocalStorage();
+    if (!rankingList) {
+        return; // Exit if no ranking list is found
+    }
+
+    // Save the rankingList to Firebase under the specified name
+    set(ref(db, 'savedLists/' + listName), { list: rankingList })
+        .then(() => {
+            alert(`List "${listName}" saved successfully!`);
+            loadSavedLists(); // Reload the saved lists
+        })
+        .catch((error) => {
+            console.error('Error saving list:', error);
+        });
 }
 
 // Load a saved list from Firebase and sync it to the 'currentList' node
@@ -114,7 +108,7 @@ function deleteList() {
     remove(ref(db, `savedLists/${listName}`))
         .then(() => {
             alert(`List "${listName}" deleted successfully!`);
-            loadSavedLists();
+            loadSavedLists(); // Reload the saved lists after deletion
         })
         .catch((error) => {
             console.error('Error deleting the list:', error);
@@ -128,6 +122,7 @@ function loadSavedLists() {
         .then((snapshot) => {
             if (snapshot.exists()) {
                 savedListsContainer.innerHTML = ''; // Clear the current list
+
                 const savedLists = snapshot.val();
                 Object.keys(savedLists).forEach((listName) => {
                     const listItem = document.createElement('li');
