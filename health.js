@@ -8,11 +8,11 @@ function fetchRankings() {
     onValue(reference, (snapshot) => {
         const data = snapshot.val();
         const rankingList = document.getElementById('rankingList');
-        rankingList.innerHTML = '';
+        rankingList.innerHTML = ''; // Clear existing list before updating
 
         if (data) {
             const rankings = Object.entries(data).map(([id, entry]) => ({ id, ...entry }));
-            rankings.sort((a, b) => b.number - a.number);
+            rankings.sort((a, b) => b.number - a.number); // Sort by initiative
 
             rankings.forEach(({ id, name, number, health }) => {
                 const listItem = document.createElement('li');
@@ -28,16 +28,16 @@ function fetchRankings() {
                 const healthDiv = document.createElement('div');
                 healthDiv.className = 'health';
                 
-                // Show "N/A" if no health is provided
+                // Display "N/A" if health is not provided
                 healthDiv.textContent = `HP: ${health !== null && health !== undefined ? health : 'N/A'}`;
 
-                // Add input field for damage if health is provided and greater than 0
+                // Only show the input if health is greater than 0
                 if (health !== null && health !== undefined && health > 0) {
                     const healthInput = document.createElement('input');
                     healthInput.type = 'number';
                     healthInput.placeholder = '-';
                     healthInput.className = 'damage-input';
-                    healthInput.style.width = '50px';  // Smaller input field
+                    healthInput.style.width = '50px';  // Small input field
 
                     // Event listener for pressing Enter key to apply damage
                     healthInput.addEventListener('keypress', (event) => {
@@ -53,11 +53,12 @@ function fetchRankings() {
                     listItem.appendChild(healthInput);
                 }
 
-                // Append the elements to the list item
+                // Append elements to the list item
                 listItem.appendChild(nameDiv);
                 listItem.appendChild(numberDiv);
                 listItem.appendChild(healthDiv);
 
+                // Append the list item to the ranking list
                 rankingList.appendChild(listItem);
             });
         } else {
@@ -66,16 +67,16 @@ function fetchRankings() {
     });
 }
 
-// Function to update health in Firebase and handle UI changes
+// Function to update health in Firebase and handle removing the entire list item when health reaches 0
 function updateHealth(id, newHealth, listItem) {
     const reference = ref(db, `rankings/${id}`);
     update(reference, { health: newHealth })
         .then(() => {
             console.log(`Health updated to ${newHealth}`);
 
-            // If health reaches 0, remove the entire list item
+            // If health reaches 0, remove the entire list item from the UI
             if (newHealth <= 0) {
-                listItem.remove(); // Remove the entire item from the list
+                listItem.remove(); // Remove the item from the DOM
             }
         })
         .catch((error) => {
