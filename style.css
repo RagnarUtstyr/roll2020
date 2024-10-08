@@ -57,10 +57,16 @@ input[type="text"], input[type="number"] {
     outline: none;
 }
 
-/* Input Field Placeholder Text Styling */
-input[type="text"]::placeholder, input[type="number"]::placeholder {
-    color: #E0D8B0; /* Placeholder text color to match the theme */
-    font-family: 'MedievalSharp', serif;
+/* Remove arrows from input[type="number"] in Chrome, Safari, Edge, and Opera */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Remove arrows from input[type="number"] in Firefox */
+input[type="number"] {
+    -moz-appearance: textfield;
 }
 
 /* Focused Input Fields */
@@ -78,86 +84,55 @@ h1, h2 {
     margin-bottom: 15px;
 }
 
-/* Rankings Container */
-#rankingList {
-    max-width: 600px;
-    width: 100%;
-    margin: 0 auto;
-    padding: 10px;
-    background-color: rgba(46, 27, 24, 0.9); /* Dark brown background */
-    border-radius: 10px;
-    list-style-type: none;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
-    text-align: center;
-}
-
 /* List Items */
 li {
-    display: flex;
-    align-items: center;
-    justify-content: space-between; /* Spread items evenly across the line */
+    display: flex; /* Make the list item a flex container */
+    align-items: center; /* Vertically align elements in the center */
+    justify-content: space-between; /* Distribute elements evenly */
     padding: 10px;
     margin-bottom: 10px;
     border: 1px solid #8C5A4A;
     border-radius: 5px;
     background-color: rgba(165, 123, 91, 0.8);
-    max-width: 600px;
-    margin: 0 auto 10px auto;
-    flex-wrap: nowrap; /* Prevents wrapping of content on smaller screens */
-    gap: 10px; /* Adds space between elements */
+    max-width: 600px; /* Limit the total width */
+    margin: 0 auto 10px auto; /* Center the list item */
+    gap: 10px; /* Adds spacing between elements */
 }
 
-/* Name Styling */
-li .name {
-    flex: 2; /* Name takes up more space */
-    text-align: left;
-    color: #E0D8B0;
-    font-size: 1em;
-    white-space: nowrap; /* Prevents text from breaking into multiple lines */
+/* Flex properties for the name, number, and health elements */
+li .name, li .number, li .health {
+    flex: 2; /* Make these elements take up more space */
+    white-space: nowrap; /* Prevent text from breaking into multiple lines */
     overflow: hidden;
-    text-overflow: ellipsis; /* Adds ellipsis (...) if name is too long */
+    text-overflow: ellipsis; /* Add ellipsis (...) if content overflows */
 }
 
-/* Initiative (Int) Styling */
-li .number {
-    flex: 1;
-    text-align: center; /* Center Int */
-    color: #D4AF37;
-    font-size: 1.2em;
-    white-space: nowrap;
-}
-
-/* Health (HP) Styling */
-li .health {
-    flex: 1;
-    text-align: right; /* Align HP to the right */
-    color: #D4AF37;
-    font-size: 1.2em;
-    white-space: nowrap;
-}
-
-/* Remove Button Styling */
-li button {
-    flex-shrink: 0; /* Prevent shrinking */
-    background-color: #2E1B18;
-    color: #E0D8B0;
-    border: none;
-    cursor: pointer;
-    padding: 5px 10px;
+/* Input fields inside list items */
+input.damage-input {
+    flex: 1; /* Allow the input to take up only as much space as it needs */
+    min-width: 50px; /* Minimum width for the input */
+    max-width: 80px; /* Maximum width for the input */
+    padding: 5px;
+    border: 2px solid #D4AF37; /* Gold border */
     border-radius: 5px;
-    transition: background-color 0.3s, color 0.3s;
-    white-space: nowrap;
-    width: auto; /* Reduce the button width */
-    min-width: 80px; /* Ensure the button doesn't shrink too much */
+    background-color: rgba(255, 255, 255, 0.15); /* Slightly transparent white */
+    color: #E0D8B0; /* Parchment-like text color */
+    font-family: 'MedievalSharp', serif;
+    font-size: 1em;
+    outline: none;
+    text-align: center; /* Center the number inside the input */
 }
 
-li button:hover {
-    background-color: #8C5A4A; /* Rich reddish-brown hover */
-    color: #2E1B18;
+/* Defeated class for list items with 0 HP */
+.defeated {
+    background-color: #8B0000; /* Dark red background */
+    color: white; /* White text for better contrast */
+    border: 2px solid #FF0000; /* Optional: Red border to emphasize the defeated state */
+    transition: background-color 0.3s ease; /* Smooth transition when the item becomes defeated */
 }
 
 /* Submit and Clear List Buttons */
-#submit-button, #clear-list-button {
+#submit-button, #clear-list-button, #apply-damage-button {
     background-color: #2E1B18;
     color: #E0D8B0;
     border: 2px solid #D4AF37;
@@ -167,6 +142,27 @@ li button:hover {
     margin-top: 10px;
     font-size: 1em;
     width: fit-content;
+}
+
+/* Apply Damage button styling */
+#apply-damage-button {
+    background-color: #2E1B18; /* Dark brown background */
+    color: #E0D8B0; /* Parchment-like text color */
+    border: 2px solid #D4AF37; /* Gold border */
+    padding: 10px 20px; /* Larger padding for the button */
+    cursor: pointer;
+    border-radius: 5px; /* Rounded corners */
+    font-family: 'MedievalSharp', serif; /* Use the same font */
+    font-size: 1em;
+    transition: background-color 0.3s, color 0.3s; /* Smooth hover effect */
+    width: fit-content; /* Adjust the width to the content */
+    margin: 20px auto; /* Center the button */
+    display: block; /* Make sure the button is a block element */
+}
+
+#apply-damage-button:hover {
+    background-color: #8C5A4A; /* Rich reddish-brown hover background */
+    color: #2E1B18; /* Dark text on hover */
 }
 
 /* Link Styled as Button */
@@ -204,55 +200,4 @@ a.button-link:hover {
         flex: 1;
         text-align: center; /* Center text on smaller screens */
     }
-}
-
-.damage-input {
-    padding: 5px;
-    size: 10px;
-    border: 2px solid #D4AF37;
-    border-radius: 5px;
-    background-color: rgba(255, 255, 255, 0.15);
-    color: #E0D8B0;
-    font-family: 'MedievalSharp', serif;
-    font-size: 0.9em;
-    text-align: center;
-}
-
-#apply-damage-button {
-    background-color: #2E1B18; /* Dark brown background */
-    color: #E0D8B0; /* Parchment-like text color */
-    border: 2px solid #D4AF37; /* Gold border */
-    padding: 10px 20px; /* Larger padding for the button */
-    cursor: pointer;
-    border-radius: 5px; /* Rounded corners */
-    font-family: 'MedievalSharp', serif; /* Use the same font */
-    font-size: 1em;
-    transition: background-color 0.3s, color 0.3s; /* Smooth hover effect */
-    width: fit-content; /* Adjust the width to the content */
-    margin: 20px auto; /* Center the button */
-    display: block; /* Make sure the button is a block element */
-}
-
-#apply-damage-button:hover {
-    background-color: #8C5A4A; /* Rich reddish-brown hover background */
-    color: #2E1B18; /* Dark text on hover */
-}
-
-/* Defeated class for list items with 0 HP */
-.defeated {
-    background-color: #8B0000; /* Dark red background */
-    color: white; /* White text for better contrast */
-    border: 2px solid #FF0000; /* Optional: Red border to emphasize the defeated state */
-    transition: background-color 0.3s ease; /* Smooth transition when the item becomes defeated */
-}
-
-input[type="number"]::-webkit-outer-spin-button,
-input[type="number"]::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
-
-/* Remove arrows from input[type="number"] in Firefox */
-input[type="number"] {
-    -moz-appearance: textfield;
 }
