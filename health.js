@@ -27,31 +27,36 @@ function fetchRankings() {
 
                 const healthDiv = document.createElement('div');
                 healthDiv.className = 'health';
-                healthDiv.textContent = `HP: ${health || 'N/A'}`;
+                
+                // Show "N/A" if no health is provided
+                healthDiv.textContent = `HP: ${health !== null && health !== undefined ? health : 'N/A'}`;
 
-                // Smaller input for health (damage)
-                const healthInput = document.createElement('input');
-                healthInput.type = 'number';
-                healthInput.placeholder = '-';
-                healthInput.className = 'damage-input';
-                healthInput.style.width = '50px';  // Smaller input field
+                // Add input field for damage if health is provided and greater than 0
+                if (health !== null && health !== undefined && health > 0) {
+                    const healthInput = document.createElement('input');
+                    healthInput.type = 'number';
+                    healthInput.placeholder = '-';
+                    healthInput.className = 'damage-input';
+                    healthInput.style.width = '50px';  // Smaller input field
 
-                // Event listener for pressing Enter key to apply damage
-                healthInput.addEventListener('keypress', (event) => {
-                    if (event.key === 'Enter') {
-                        const damage = parseInt(healthInput.value);
-                        if (!isNaN(damage) && health !== null && health > 0) {
-                            const updatedHealth = health - damage > 0 ? health - damage : 0; // Ensure health doesn't go below 0
-                            updateHealth(id, updatedHealth);
+                    // Event listener for pressing Enter key to apply damage
+                    healthInput.addEventListener('keypress', (event) => {
+                        if (event.key === 'Enter') {
+                            const damage = parseInt(healthInput.value);
+                            if (!isNaN(damage) && health !== null && health > 0) {
+                                const updatedHealth = health - damage > 0 ? health - damage : 0; // Ensure health doesn't go below 0
+                                updateHealth(id, updatedHealth, listItem, healthDiv, healthInput);
+                            }
                         }
-                    }
-                });
+                    });
+
+                    listItem.appendChild(healthInput);
+                }
 
                 // Append the elements to the list item
                 listItem.appendChild(nameDiv);
                 listItem.appendChild(numberDiv);
                 listItem.appendChild(healthDiv);
-                listItem.appendChild(healthInput);
 
                 rankingList.appendChild(listItem);
             });
@@ -61,12 +66,19 @@ function fetchRankings() {
     });
 }
 
-// Function to update health in Firebase
-function updateHealth(id, newHealth) {
+// Function to update health in Firebase and handle UI changes
+function updateHealth(id, newHealth, listItem, healthDiv, healthInput) {
     const reference = ref(db, `rankings/${id}`);
     update(reference, { health: newHealth })
         .then(() => {
             console.log(`Health updated to ${newHealth}`);
+            // Update health in the DOM
+            healthDiv.textContent = `HP: ${newHealth}`;
+
+            // If health reaches 0, remove the input field
+            if (newHealth <= 0 && healthInput) {
+                healthInput.remove();
+            }
         })
         .catch((error) => {
             console.error('Error updating health:', error);
