@@ -15,7 +15,18 @@ function highlightNextEntry() {
     listItems[currentHighlightIndex].classList.add('highlighted');
 }
 
-// Start the highlight loop
+// Function to move the highlight manually when the "Next" button is clicked
+function moveHighlightNext() {
+    highlightNextEntry();
+}
+
+// Start the highlight loop automatically
 document.addEventListener('DOMContentLoaded', () => {
-    setInterval(highlightNextEntry, 2000); // Change highlight every 2 seconds
+    setInterval(highlightNextEntry, 2000); // Automatically highlight next every 2 seconds
+
+    // Add an event listener to the "Next" button
+    const nextButton = document.getElementById('next-button');
+    if (nextButton) {
+        nextButton.addEventListener('click', moveHighlightNext);
+    }
 });

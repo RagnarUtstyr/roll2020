@@ -6,3 +6,24 @@
     box-shadow: 0 0 10px #FFD700; /* Glowing effect */
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
+
+/* Styling for the Next button */
+#next-button {
+    background-color: #2E1B18; /* Dark brown background */
+    color: #E0D8B0; /* Parchment-like text color */
+    border: 2px solid #D4AF37; /* Gold border */
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-family: 'MedievalSharp', serif;
+    font-size: 1em;
+    transition: background-color 0.3s, color 0.3s;
+    width: fit-content;
+    margin: 20px auto; /* Center the button */
+    display: block; /* Make sure the button is a block element */
+}
+
+#next-button:hover {
+    background-color: #8C5A4A; /* Rich reddish-brown hover background */
+    color: #2E1B18; /* Dark text on hover */
+}
