@@ -22,9 +22,11 @@ const db = getDatabase(app);
 async function submitData() {
     const name = document.getElementById('name').value;
     const number = parseInt(document.getElementById('initiative') ? document.getElementById('initiative').value : document.getElementById('number').value);
-    const health = document.getElementById('health') ? parseInt(document.getElementById('health').value) : null;
+    const healthInput = document.getElementById('health') ? document.getElementById('health').value : null; // Handle optional Health field
+    const health = healthInput !== '' && healthInput !== null ? parseInt(healthInput) : null; // Handle empty health as null if present
 
-    if (name && !isNaN(number) && (health === null || !isNaN(health))) {
+    // Ensure name and number are valid, health can be null
+    if (name && !isNaN(number)) {
         try {
             const reference = ref(db, 'rankings/');
             await push(reference, { name, number, health });
@@ -44,7 +46,7 @@ async function submitData() {
             console.error('Error submitting data:', error);
         }
     } else {
-        console.log('Please enter valid name, initiative, and health values.');
+        console.log('Please enter valid name and initiative values.');
     }
 }
 
