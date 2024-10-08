@@ -29,18 +29,26 @@ function fetchAndDisplayHealthList() {
                 const healthDiv = document.createElement('div');
                 healthDiv.className = 'health';
 
-                // Display current health as clickable
+                // Display current health
                 const healthDisplay = document.createElement('span');
                 healthDisplay.textContent = `HP: ${health !== undefined && health !== null ? health : 0}`;
-                healthDisplay.className = 'health-display';
-                healthDisplay.style.cursor = 'pointer'; // Makes HP clickable
+                healthDiv.appendChild(healthDisplay);
 
-                // When HP is clicked, show the popup to subtract HP
-                healthDisplay.addEventListener('click', () => {
-                    openHealthPopup(id, health);
+                // Create input field to subtract from health
+                const healthInput = document.createElement('input');
+                healthInput.type = 'number';
+                healthInput.placeholder = 'Subtract HP';
+                healthInput.className = 'health-input';
+
+                // Add event listener to subtract from health when changed
+                healthInput.addEventListener('change', () => {
+                    const subtractValue = parseInt(healthInput.value);
+                    if (!isNaN(subtractValue) && subtractValue > 0) {
+                        updateHealth(id, health, subtractValue); // Subtract health
+                    }
                 });
 
-                healthDiv.appendChild(healthDisplay);
+                healthDiv.appendChild(healthInput);
 
                 const removeButton = document.createElement('button');
                 removeButton.textContent = 'Remove';
@@ -59,29 +67,6 @@ function fetchAndDisplayHealthList() {
     }, (error) => {
         console.error('Error fetching data:', error);
     });
-}
-
-// Function to open a modal for subtracting HP
-function openHealthPopup(id, currentHealth) {
-    const modal = document.getElementById('healthModal');
-    const modalInput = document.getElementById('healthModalInput');
-    const modalSubmit = document.getElementById('healthModalSubmit');
-
-    // Clear previous input
-    modalInput.value = '';
-
-    // Display the modal
-    modal.style.display = 'block';
-
-    // Handle the submit action
-    modalSubmit.onclick = () => {
-        const subtractValue = parseInt(modalInput.value);
-        if (!isNaN(subtractValue) && subtractValue > 0) {
-            updateHealth(id, currentHealth, subtractValue); // Subtract health
-        }
-        // Hide the modal after submission
-        modal.style.display = 'none';
-    };
 }
 
 // Function to update health in Firebase by subtracting the new input value
