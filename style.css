@@ -87,7 +87,7 @@ li {
     border: 1px solid #8C5A4A; /* Dark reddish-brown border for separation */
     border-radius: 5px;
     background-color: rgba(165, 123, 91, 0.8); /* Lighter brown for list item background */
-    max-width: 400px;
+    max-width: 700px;
     margin: 0 auto 10px auto; /* Center list items on the container */
 }
 
