@@ -52,3 +52,11 @@
     background-color: #8C5A4A; /* Rich reddish-brown hover background */
     color: #2E1B18; /* Dark text on hover */
 }
+
+.highlighted {
+    background-color: #D4AF37; /* Gold background */
+    color: #2E1B18; /* Dark text */
+    border: 2px solid #FFD700; /* Bright gold border */
+    box-shadow: 0 0 10px #FFD700; /* Glowing effect */
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
