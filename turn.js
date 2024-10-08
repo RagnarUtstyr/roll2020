@@ -20,10 +20,8 @@ function moveHighlightNext() {
     highlightNextEntry();
 }
 
-// Start the highlight loop automatically
+// Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
-    setInterval(highlightNextEntry, 2000); // Automatically highlight next every 2 seconds
-
     // Add an event listener to the "Next" button
     const nextButton = document.getElementById('next-button');
     if (nextButton) {
