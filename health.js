@@ -40,8 +40,8 @@ function fetchRankings() {
                     healthInput.style.width = '50px';  // Small input field
 
                     // Event listener for pressing Enter key to apply damage
-                    healthInput.addEventListener('keypress', (event) => {
-                        if (event.key === 'Enter') {
+                    healthInput.addEventListener('keydown', (event) => {
+                        if (event.key === 'Enter' || event.keyCode === 13) {
                             event.preventDefault(); // Prevent the default "focus next input" behavior
                             const damage = parseInt(healthInput.value);
                             if (!isNaN(damage) && health > 0) {
