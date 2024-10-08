@@ -17,74 +17,60 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// Function to save the list from group.html
-function saveListFromGroup() {
-    const listName = prompt('Enter a name to save the list:').trim();
-    
-    if (!listName) {
-        alert('Please provide a valid name for the list.');
-        return;
-    }
+// HTML elements for saving and loading lists in save.html
+const savedListsContainer = document.getElementById('savedLists');
+const goBackButton = document.getElementById('go-back-button');
 
-    const listItems = [];
-    const items = document.querySelectorAll('#rankingList li'); // Fetch the list items from group.html
+// Load the list of saved lists from Firebase and display them in save.html
+function loadSavedLists() {
+    const dbRef = ref(db);
 
-    // Extract the necessary data from each list item
-    items.forEach((item) => {
-        const name = item.querySelector('.name').textContent;
-        const number = item.querySelector('.number').textContent.replace('Int: ', '');
-        const health = item.querySelector('.health').textContent.replace('HP: ', '');
-        listItems.push({ name, number, health });
-    });
+    get(child(dbRef, 'savedLists')).then((snapshot) => {
+        if (snapshot.exists()) {
+            const savedLists = snapshot.val();
+            savedListsContainer.innerHTML = ''; // Clear the list before populating
 
-    // Save the list to Firebase
-    set(ref(db, 'savedLists/' + listName), {
-        list: listItems
-    }).then(() => {
-        alert(`List "${listName}" saved successfully!`);
+            // Populate the list of saved lists
+            Object.keys(savedLists).forEach(listName => {
+                const listItem = document.createElement('li');
+                listItem.textContent = listName;
+                listItem.className = 'saved-list-item';
+                listItem.addEventListener('click', () => loadListToGroup(listName)); // Click event to load the list
+                savedListsContainer.appendChild(listItem);
+            });
+        } else {
+            savedListsContainer.innerHTML = '<li>No saved lists found.</li>';
+        }
     }).catch((error) => {
-        console.error('Error saving list:', error);
-        alert('Failed to save the list. Please try again.');
+        console.error('Error loading saved lists:', error);
+        savedListsContainer.innerHTML = '<li>Failed to load saved lists.</li>';
     });
 }
 
-// Load a list from Firebase by name
-function loadList(listName) {
+// Function to load the selected list and redirect to group.html
+function loadListToGroup(listName) {
     const dbRef = ref(db);
 
     get(child(dbRef, `savedLists/${listName}`)).then((snapshot) => {
         if (snapshot.exists()) {
             const savedList = snapshot.val().list;
-            displayRankings(savedList); // Assuming you have a function to display the list on group.html
-            alert(`List "${listName}" loaded successfully!`);
+            localStorage.setItem('loadedList', JSON.stringify(savedList)); // Temporarily store the list in localStorage
+
+            alert(`List "${listName}" loaded successfully! Redirecting to the group page.`);
+            window.location.href = 'group.html'; // Redirect to group.html
         } else {
             alert(`No list found with the name "${listName}".`);
         }
     }).catch((error) => {
-        console.error('Error loading list:', error);
+        console.error('Error loading the list:', error);
         alert('Failed to load the list. Please try again.');
     });
 }
 
-// Display the list on the page (group.html)
-function displayRankings(rankings) {
-    const rankingList = document.getElementById('rankingList');
-    rankingList.innerHTML = ''; // Clear the current list
+// Go back to the main page (optional)
+goBackButton.addEventListener('click', () => {
+    window.location.href = 'index.html'; // Redirect to your main page if needed
+});
 
-    rankings.forEach(({ name, number, health }) => {
-        const listItem = document.createElement('li');
-        listItem.innerHTML = `
-            <div class="name">${name}</div>
-            <div class="number">Int: ${number}</div>
-            <div class="health">HP: ${health}</div>
-            ${health > 0 ? `<input type="number" class="damage-input" placeholder="Damage" />` : ''}
-        `;
-        rankingList.appendChild(listItem);
-    });
-}
-
-// Attach the save function to a button (you need a Save button in group.html)
-const saveButton = document.getElementById('save-list-button');
-if (saveButton) {
-    saveButton.addEventListener('click', saveListFromGroup);
-}
+// Load the saved lists when save.html loads
+document.addEventListener('DOMContentLoaded', loadSavedLists);
