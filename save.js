@@ -1,5 +1,5 @@
-// Import Firebase modules from the CDN
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+// Import Firebase modules
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
 import { getDatabase, ref, set, get, child, remove } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
 // Firebase configuration (NEW SDK details)
@@ -14,8 +14,17 @@ const firebaseConfig = {
   measurementId: "G-L3JB5YC43M"
 };
 
-// Initialize Firebase with the new configuration
-const app = initializeApp(firebaseConfig);
+// Initialize Firebase only if it's not already initialized
+let app;
+if (!getApps().length) {
+    // Initialize a new Firebase app if no apps have been initialized
+    app = initializeApp(firebaseConfig);
+} else {
+    // Use the existing Firebase app
+    app = getApp();
+}
+
+// Initialize Realtime Database
 const db = getDatabase(app);
 
 // DOM elements
@@ -25,10 +34,10 @@ const deleteButton = document.getElementById('delete-list-button');
 const listNameInput = document.getElementById('list-name');
 const savedListsContainer = document.getElementById('savedLists');
 
-// Fetch the current list from Firebase (assuming it's stored under 'currentList')
+// Fetch the current list from Firebase
 function getCurrentListFromFirebase() {
     const dbRef = ref(db);
-    return get(child(dbRef, 'currentList')) // Assuming your current list is stored under 'currentList' node
+    return get(child(dbRef, 'currentList'))
         .then((snapshot) => {
             if (snapshot.exists()) {
                 return snapshot.val();
@@ -42,7 +51,7 @@ function getCurrentListFromFirebase() {
         });
 }
 
-// Save the current list from Firebase to a new node in Firebase
+// Save the current list from Firebase to a new saved list node
 function saveList() {
     const listName = listNameInput.value.trim();
     if (!listName) {
@@ -50,14 +59,12 @@ function saveList() {
         return;
     }
 
-    // Fetch the current list from Firebase and save it under the specified name
     getCurrentListFromFirebase().then((currentList) => {
         if (currentList) {
-            // Save the current list under the specified name
             set(ref(db, 'savedLists/' + listName), { list: currentList })
                 .then(() => {
                     alert(`List "${listName}" saved successfully!`);
-                    loadSavedLists(); // Reload the saved lists
+                    loadSavedLists();
                 })
                 .catch((error) => {
                     console.error('Error saving list:', error);
@@ -75,11 +82,10 @@ function loadList() {
     }
 
     const dbRef = ref(db);
-    get(child(dbRef, `savedLists/${listName}`)) // Fetch the saved list from 'savedLists'
+    get(child(dbRef, `savedLists/${listName}`))
         .then((snapshot) => {
             if (snapshot.exists()) {
                 const savedList = snapshot.val().list;
-                // Sync the saved list back to the 'currentList' node
                 set(ref(db, 'currentList'), savedList)
                     .then(() => {
                         alert(`List "${listName}" loaded successfully!`);
@@ -105,10 +111,10 @@ function deleteList() {
         return;
     }
 
-    remove(ref(db, `savedLists/${listName}`)) // Delete the list from 'savedLists'
+    remove(ref(db, `savedLists/${listName}`))
         .then(() => {
             alert(`List "${listName}" deleted successfully!`);
-            loadSavedLists(); // Reload the saved lists after deletion
+            loadSavedLists();
         })
         .catch((error) => {
             console.error('Error deleting the list:', error);
@@ -122,7 +128,6 @@ function loadSavedLists() {
         .then((snapshot) => {
             if (snapshot.exists()) {
                 savedListsContainer.innerHTML = ''; // Clear the current list
-
                 const savedLists = snapshot.val();
                 Object.keys(savedLists).forEach((listName) => {
                     const listItem = document.createElement('li');
