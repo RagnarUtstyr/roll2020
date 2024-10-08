@@ -3,9 +3,9 @@ let currentHighlightIndex = 0;
 function highlightNextEntry() {
     const listItems = document.querySelectorAll('#rankingList li');
 
-    if (listItems.length === 0) return; // If no items, exit
+    if (listItems.length === 0) return; // Exit if no items are present
 
-    // Ensure the current index does not exceed the number of items
+    // Ensure the current index doesn't exceed the number of list items
     if (currentHighlightIndex >= listItems.length) {
         currentHighlightIndex = 0;
     }
@@ -22,26 +22,26 @@ function moveHighlightNext() {
 
     if (listItems.length === 0) return; // Exit if there are no items
 
-    // Move to the next item, or loop back to the first
+    // Move to the next item or loop back to the first one
     currentHighlightIndex = (currentHighlightIndex + 1) % listItems.length;
 
-    // Highlight the next item
+    // Apply the new highlight
     highlightNextEntry();
 }
 
-// Function to refresh highlighting after removal
+// Function to refresh the highlight when an item is removed
 function refreshHighlightAfterRemoval() {
     const listItems = document.querySelectorAll('#rankingList li');
 
-    // If no items, exit
+    // If no items are left, do nothing
     if (listItems.length === 0) return;
 
-    // Adjust the current index if it exceeds the new list size
+    // Adjust the current highlight index if necessary
     if (currentHighlightIndex >= listItems.length) {
-        currentHighlightIndex = 0;
+        currentHighlightIndex = 0; // Reset to first item if we exceeded the new length
     }
 
-    // Reapply the highlight to the correct item
+    // Reapply the highlight to the current item
     highlightNextEntry();
 }
 
@@ -51,7 +51,7 @@ function removeEntry(id, listItem) {
     remove(reference)
         .then(() => {
             console.log(`Entry with id ${id} removed successfully`);
-            listItem.remove(); // Remove the item from the DOM
+            listItem.remove(); // Remove the corresponding list item from the DOM
             refreshHighlightAfterRemoval(); // Refresh highlight after removal
         })
         .catch((error) => {
