@@ -24,17 +24,24 @@ const deleteButton = document.getElementById('delete-list-button');
 const listNameInput = document.getElementById('list-name');
 const savedListsContainer = document.getElementById('savedLists');
 
-// Fetch the current list from localStorage (created in group.html)
-function getCurrentListFromLocalStorage() {
-    const currentList = JSON.parse(localStorage.getItem('currentList'));
-    if (!currentList) {
-        alert('No current list found.');
-        return null;
-    }
-    return currentList;
+// Fetch the current list from Firebase (assuming there is a 'currentList' node in Firebase)
+function getCurrentListFromFirebase() {
+    const dbRef = ref(db);
+    return get(child(dbRef, `currentList`)) // Assuming your current list is stored under 'currentList' node
+        .then((snapshot) => {
+            if (snapshot.exists()) {
+                return snapshot.val();
+            } else {
+                alert('No current list found.');
+                return null;
+            }
+        })
+        .catch((error) => {
+            console.error('Error fetching current list:', error);
+        });
 }
 
-// Save the current list (from localStorage) to Firebase with a provided name
+// Save the current list from Firebase to a new saved list node
 function saveList() {
     const listName = listNameInput.value.trim();
     if (!listName) {
@@ -42,23 +49,22 @@ function saveList() {
         return;
     }
 
-    const listItems = getCurrentListFromLocalStorage();
-    if (!listItems) {
-        return;
-    }
-
-    // Save to Firebase
-    set(ref(db, 'savedLists/' + listName), { list: listItems })
-        .then(() => {
-            alert(`List "${listName}" saved successfully!`);
-            loadSavedLists(); // Reload the saved lists
-        })
-        .catch((error) => {
-            console.error('Error saving the list:', error);
-        });
+    getCurrentListFromFirebase().then((currentList) => {
+        if (currentList) {
+            // Save the current list under a new name
+            set(ref(db, 'savedLists/' + listName), { list: currentList })
+                .then(() => {
+                    alert(`List "${listName}" saved successfully!`);
+                    loadSavedLists(); // Reload the saved lists after saving
+                })
+                .catch((error) => {
+                    console.error('Error saving list:', error);
+                });
+        }
+    });
 }
 
-// Load a list from Firebase into localStorage and redirect to group.html
+// Load a saved list from Firebase and sync it to the 'currentList' node in Firebase
 function loadList() {
     const listName = listNameInput.value.trim();
     if (!listName) {
@@ -67,23 +73,29 @@ function loadList() {
     }
 
     const dbRef = ref(db);
-    get(child(dbRef, `savedLists/${listName}`))
+    get(child(dbRef, `savedLists/${listName}`)) // Fetch the saved list
         .then((snapshot) => {
             if (snapshot.exists()) {
                 const savedList = snapshot.val().list;
-                localStorage.setItem('loadedList', JSON.stringify(savedList));
-                alert(`List "${listName}" loaded successfully!`);
-                window.location.href = 'group.html'; // Redirect to group.html
+                // Sync the saved list back to the 'currentList' node
+                set(ref(db, 'currentList'), savedList)
+                    .then(() => {
+                        alert(`List "${listName}" loaded successfully!`);
+                        window.location.href = 'group.html'; // Redirect to group.html to view the updated list
+                    })
+                    .catch((error) => {
+                        console.error('Error loading the list:', error);
+                    });
             } else {
                 alert(`No list found with the name "${listName}".`);
             }
         })
         .catch((error) => {
-            console.error('Error loading the list:', error);
+            console.error('Error fetching saved list:', error);
         });
 }
 
-// Delete a list from Firebase by name
+// Delete a saved list from Firebase
 function deleteList() {
     const listName = listNameInput.value.trim();
     if (!listName) {
@@ -91,10 +103,10 @@ function deleteList() {
         return;
     }
 
-    remove(ref(db, `savedLists/${listName}`))
+    remove(ref(db, `savedLists/${listName}`)) // Delete the list
         .then(() => {
             alert(`List "${listName}" deleted successfully!`);
-            loadSavedLists(); // Reload the saved lists
+            loadSavedLists(); // Reload the saved lists after deletion
         })
         .catch((error) => {
             console.error('Error deleting the list:', error);
@@ -126,22 +138,27 @@ function loadSavedLists() {
         });
 }
 
-// Load a list and redirect to group.html (for clicking on saved lists)
+// Load a list directly by clicking on a saved list name
 function loadListToGroup(listName) {
     const dbRef = ref(db);
     get(child(dbRef, `savedLists/${listName}`))
         .then((snapshot) => {
             if (snapshot.exists()) {
                 const savedList = snapshot.val().list;
-                localStorage.setItem('loadedList', JSON.stringify(savedList));
-                alert(`List "${listName}" loaded successfully! Redirecting to group.html.`);
-                window.location.href = 'group.html'; // Redirect to group.html
+                set(ref(db, 'currentList'), savedList)
+                    .then(() => {
+                        alert(`List "${listName}" loaded successfully! Redirecting to group.html.`);
+                        window.location.href = 'group.html'; // Redirect to group.html
+                    })
+                    .catch((error) => {
+                        console.error('Error loading the list:', error);
+                    });
             } else {
                 alert(`No list found with the name "${listName}".`);
             }
         })
         .catch((error) => {
-            console.error('Error loading the list:', error);
+            console.error('Error loading saved list:', error);
         });
 }
 
