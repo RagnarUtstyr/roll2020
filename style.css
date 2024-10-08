@@ -245,3 +245,14 @@ a.button-link:hover {
     border: 2px solid #FF0000; /* Optional: Red border to emphasize the defeated state */
     transition: background-color 0.3s ease; /* Smooth transition when the item becomes defeated */
 }
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Remove arrows from input[type="number"] in Firefox */
+input[type="number"] {
+    -moz-appearance: textfield;
+}
