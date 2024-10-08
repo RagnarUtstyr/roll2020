@@ -111,7 +111,7 @@ li .name, li .number, li .health {
 input.damage-input {
     flex: 1; /* Allow the input to take up only as much space as it needs */
     min-width: 50px; /* Minimum width for the input */
-    max-width: 80px; /* Maximum width for the input */
+    max-width: 50px; /* Maximum width for the input */
     padding: 5px;
     border: 2px solid #D4AF37; /* Gold border */
     border-radius: 5px;
