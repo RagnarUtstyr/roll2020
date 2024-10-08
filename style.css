@@ -204,3 +204,26 @@ a.button-link:hover {
         text-align: center; /* Center the text for smaller screens */
     }
 }
+
+/* Style for the gathered list */
+#rankingList {
+    max-width: 800px; /* Increase max-width to make the list wider */
+    width: 100%; /* Ensure it takes full width up to max-width */
+    margin: 0 auto; /* Center the list */
+    padding: 0;
+    list-style-type: none; /* Remove default bullet points */
+}
+
+/* Individual List Items (li) */
+li {
+    display: flex; /* Flexbox layout */
+    align-items: center; /* Vertically align elements */
+    justify-content: space-between; /* Space between elements */
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #8C5A4A;
+    border-radius: 5px;
+    background-color: rgba(165, 123, 91, 0.8);
+    width: 100%; /* Take full width of the container */
+    gap: 10px; /* Space between child elements */
+}
