@@ -95,8 +95,7 @@ h1, h2 {
 li {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
+    justify-content: space-between; /* Spread items evenly across the line */
     padding: 10px;
     margin-bottom: 10px;
     border: 1px solid #8C5A4A;
@@ -104,43 +103,50 @@ li {
     background-color: rgba(165, 123, 91, 0.8);
     max-width: 600px;
     margin: 0 auto 10px auto;
+    flex-wrap: nowrap; /* Prevents wrapping of content on smaller screens */
+    gap: 10px; /* Adds space between elements */
 }
 
 /* Name Styling */
 li .name {
-    flex: 1 1 100%; /* Make name take full width */
+    flex: 2; /* Name takes up more space */
     text-align: left;
     color: #E0D8B0;
     font-size: 1em;
+    white-space: nowrap; /* Prevents text from breaking into multiple lines */
+    overflow: hidden;
+    text-overflow: ellipsis; /* Adds ellipsis (...) if name is too long */
 }
 
-/* Initiative (Number) Styling */
+/* Initiative (Int) Styling */
 li .number {
-    flex: 1 1 100%; /* Make initiative take full width */
+    flex: 1;
     text-align: center;
-    color: #D4AF37; /* Gold text color for initiative */
+    color: #D4AF37;
     font-size: 1.2em;
+    white-space: nowrap;
 }
 
-/* Health Styling */
+/* Health (HP) Styling */
 li .health {
-    flex: 1 1 100%; /* Make health take full width */
-    text-align: right;
-    color: #D4AF37; /* Gold text color for health */
+    flex: 1;
+    text-align: center;
+    color: #D4AF37;
     font-size: 1.2em;
+    white-space: nowrap;
 }
 
 /* Remove Button Styling */
 li button {
-    flex: 1 1 100%; /* Make button take full width */
+    flex-shrink: 0; /* Prevent shrinking */
     background-color: #2E1B18;
     color: #E0D8B0;
     border: none;
     cursor: pointer;
     padding: 5px 10px;
     border-radius: 5px;
-    margin-top: 10px;
     transition: background-color 0.3s, color 0.3s;
+    white-space: nowrap;
 }
 
 li button:hover {
@@ -185,19 +191,15 @@ a.button-link:hover {
 
 /* Media Queries for Mobile Devices */
 @media (max-width: 768px) {
-    /* Make each part of the list item take its own line */
     li {
-        flex-direction: column; /* Stack each element vertically */
-        align-items: flex-start;
+        flex-direction: row; /* Ensures the elements remain in one line */
+        align-items: center;
+        gap: 5px; /* Adds small gap between elements */
+        flex-wrap: nowrap; /* Prevent wrapping of items */
     }
-
+    
     li .name, li .number, li .health, li button {
-        flex: 1 1 100%; /* Make each element take the full width */
-        text-align: left; /* Align text to the left */
-    }
-
-    /* Additional mobile styling adjustments if needed */
-    li button {
-        margin-top: 10px; /* Add spacing for the button */
+        flex: 1;
+        text-align: center; /* Center text on smaller screens */
     }
 }
