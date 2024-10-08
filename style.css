@@ -121,7 +121,7 @@ li .name {
 /* Initiative (Int) Styling */
 li .number {
     flex: 1;
-    text-align: center;
+    text-align: center; /* Center Int */
     color: #D4AF37;
     font-size: 1.2em;
     white-space: nowrap;
@@ -130,7 +130,7 @@ li .number {
 /* Health (HP) Styling */
 li .health {
     flex: 1;
-    text-align: center;
+    text-align: right; /* Align HP to the right */
     color: #D4AF37;
     font-size: 1.2em;
     white-space: nowrap;
@@ -147,6 +147,8 @@ li button {
     border-radius: 5px;
     transition: background-color 0.3s, color 0.3s;
     white-space: nowrap;
+    width: auto; /* Reduce the button width */
+    min-width: 80px; /* Ensure the button doesn't shrink too much */
 }
 
 li button:hover {
