@@ -3,54 +3,68 @@ let currentHighlightIndex = 0;
 function highlightCurrentEntry() {
     const listItems = document.querySelectorAll('#rankingList li');
 
-    // Debugging: Log the list items found
-    console.log('List Items Found:', listItems.length);
-
+    // If there are no items, exit the function
     if (listItems.length === 0) {
-        console.log('No items to highlight.');
-        return; // Exit if there are no items
+        return;
     }
 
-    // Ensure the index is within bounds
+    // Ensure currentHighlightIndex is within bounds
     if (currentHighlightIndex >= listItems.length) {
-        currentHighlightIndex = 0;
+        currentHighlightIndex = 0; // Reset to first item if out of bounds
     }
 
-    // Remove the 'highlighted' class from all items
-    listItems.forEach((item) => item.classList.remove('highlighted'));
+    // Remove highlight from all items
+    listItems.forEach(item => item.classList.remove('highlighted'));
 
-    // Apply the 'highlighted' class to the current item
+    // Highlight the current item
     listItems[currentHighlightIndex].classList.add('highlighted');
-
-    // Debugging: Log the current highlighted item
-    console.log('Current Highlight Index:', currentHighlightIndex);
 }
 
 function moveToNextEntry() {
     const listItems = document.querySelectorAll('#rankingList li');
 
+    // If there are no items, exit the function
     if (listItems.length === 0) {
-        return; // Exit if there are no items
+        return;
     }
 
-    // Increment the index and wrap around if necessary
+    // Move to the next item, or loop back to the first if at the end
     currentHighlightIndex = (currentHighlightIndex + 1) % listItems.length;
 
-    // Highlight the next item
+    // Apply the new highlight
     highlightCurrentEntry();
 }
 
-// Initialize the page
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('Page Loaded');
+function refreshHighlightAfterRemoval() {
+    const listItems = document.querySelectorAll('#rankingList li');
 
-    // Attach event listener to the "Next" button
+    // If there are no items left, do nothing
+    if (listItems.length === 0) {
+        return;
+    }
+
+    // Adjust currentHighlightIndex if necessary
+    if (currentHighlightIndex >= listItems.length) {
+        currentHighlightIndex = 0; // Reset to first item if out of bounds
+    }
+
+    // Reapply highlight to the current item
+    highlightCurrentEntry();
+}
+
+function removeEntry(id, listItem) {
+    // Simulate removing from database (assuming `remove` is a function you have)
+    listItem.remove(); // Remove the DOM element
+    refreshHighlightAfterRemoval(); // Refresh highlight after removal
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Attach event listener to "Next" button
     const nextButton = document.getElementById('next-button');
     if (nextButton) {
         nextButton.addEventListener('click', moveToNextEntry);
-        console.log('Next button event listener attached.');
     }
 
-    // Highlight the first item when the page loads
+    // Highlight the first item when the page loads, if there are any items
     highlightCurrentEntry();
 });
