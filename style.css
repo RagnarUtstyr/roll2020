@@ -1,3 +1,31 @@
+/* General Body Styling */
+body {
+    background: url('background.jpg') no-repeat center center fixed; /* Ensure background image */
+    background-size: cover;
+    position: relative;
+    color: #E0D8B0; /* Parchment-like text color */
+    font-family: 'MedievalSharp', serif; /* Fantasy-inspired font from Google Fonts */
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* Opaque Overlay to darken the background */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(46, 27, 24, 0.9); /* Dark brown overlay */
+    z-index: -1;
+}
+
 /* Main Container */
 .container {
     max-width: 800px;
@@ -14,10 +42,46 @@
     align-items: center;
 }
 
+/* Input Fields */
+input[type="text"], input[type="number"] {
+    padding: 10px;
+    border: 2px solid #D4AF37; /* Gold border for input fields */
+    border-radius: 5px;
+    width: calc(100% - 20px);
+    margin-bottom: 15px;
+    box-sizing: border-box;
+    background-color: rgba(255, 255, 255, 0.15); /* Slightly transparent white */
+    color: #E0D8B0; /* Parchment-like text color for input text */
+    font-family: 'MedievalSharp', serif; /* Fantasy font */
+    font-size: 1em;
+    outline: none; /* Remove default outline */
+}
+
+/* Input Field Placeholder Text Styling */
+input[type="text"]::placeholder, input[type="number"]::placeholder {
+    color: #E0D8B0; /* Placeholder text color to match the theme */
+    font-family: 'MedievalSharp', serif;
+}
+
+/* Focused Input Fields */
+input[type="text"]:focus, input[type="number"]:focus {
+    border: 2px solid #8C5A4A; /* Darker reddish-brown border on focus */
+    background-color: rgba(255, 255, 255, 0.25); /* Slightly brighter background on focus */
+}
+
+/* Headings */
+h1, h2 {
+    color: #D4AF37; /* Gold color for headings */
+    font-weight: bold;
+    font-family: 'MedievalSharp', serif;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
 /* Rankings Container */
 #rankingList {
-    max-width: 600px; /* Increase this to widen the list */
-    width: 100%; /* Ensure it takes up the full available width */
+    max-width: 600px;
+    width: 100%;
     margin: 0 auto;
     padding: 10px;
     background-color: rgba(46, 27, 24, 0.9); /* Dark brown background */
@@ -34,11 +98,11 @@ li {
     justify-content: space-between; /* Spread items across the width */
     padding: 10px;
     margin-bottom: 10px;
-    border: 1px solid #8C5A4A; /* Dark reddish-brown border for separation */
+    border: 1px solid #8C5A4A; /* Dark reddish-brown border */
     border-radius: 5px;
     background-color: rgba(165, 123, 91, 0.8); /* Lighter brown for list item background */
-    max-width: 600px; /* Control the overall width of the list item */
-    margin: 0 auto 10px auto; /* Center the list items in the container */
+    max-width: 600px;
+    margin: 0 auto 10px auto;
 }
 
 /* Name Styling */
@@ -49,19 +113,27 @@ li .name {
     font-size: 1em;
 }
 
-/* Number Styling */
+/* Initiative (Number) Styling */
 li .number {
-    flex: 1; /* Take up space in the center */
-    text-align: center; /* Align number to the center */
-    color: #D4AF37; /* Gold text color for numbers */
+    flex: 1;
+    text-align: center;
+    color: #D4AF37; /* Gold text color for initiative */
+    font-size: 1.2em;
+}
+
+/* Health Styling */
+li .health {
+    flex: 1;
+    text-align: center;
+    color: #D4AF37; /* Gold text color for health */
     font-size: 1.2em;
 }
 
 /* Remove Button Styling */
 li button {
-    flex-shrink: 0; /* Prevent the button from shrinking */
-    background-color: #2E1B18; /* Darker brown button color */
-    color: #E0D8B0; /* Parchment-like text color */
+    flex-shrink: 0;
+    background-color: #2E1B18; /* Darker brown button */
+    color: #E0D8B0;
     border: none;
     cursor: pointer;
     padding: 5px 10px;
@@ -70,14 +142,14 @@ li button {
 }
 
 li button:hover {
-    background-color: #8C5A4A; /* Rich reddish-brown for hover effect */
+    background-color: #8C5A4A; /* Rich reddish-brown hover */
     color: #2E1B18; /* Change text color for contrast */
 }
 
 /* Submit and Clear List Buttons */
 #submit-button, #clear-list-button {
     background-color: #2E1B18;
-    color: #E0D8B0; /* Light text color for buttons */
+    color: #E0D8B0;
     border: 2px solid #D4AF37;
     padding: 10px 15px;
     cursor: pointer;

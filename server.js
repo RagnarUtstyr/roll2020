@@ -22,21 +22,29 @@ const db = getDatabase(app);
 async function submitData() {
     const name = document.getElementById('name').value;
     const number = parseInt(document.getElementById('number').value);
+    const health = parseInt(document.getElementById('health').value);
 
-    if (name && !isNaN(number)) {
+    if (name && !isNaN(number) && !isNaN(health)) {
         try {
             const reference = ref(db, 'rankings/');
-            await push(reference, { name, number });
-            console.log('Data submitted successfully:', { name, number });
+            await push(reference, { name, number, health });
+            console.log('Data submitted successfully:', { name, number, health });
 
             // Clear input fields after successful submission
             document.getElementById('name').value = '';
             document.getElementById('number').value = '';
+            document.getElementById('health').value = '';
+
+            // Play sword sound after submission
+            const swordSound = document.getElementById('sword-sound');
+            if (swordSound) {
+                swordSound.play();
+            }
         } catch (error) {
             console.error('Error submitting data:', error);
         }
     } else {
-        console.log('Please enter a valid name and number.');
+        console.log('Please enter valid name, initiative, and health values.');
     }
 }
 
@@ -49,22 +57,24 @@ function fetchRankings() {
         rankingList.innerHTML = '';
 
         if (data) {
-            // Convert the data object into an array and sort it
             const rankings = Object.entries(data).map(([id, entry]) => ({ id, ...entry }));
-            rankings.sort((a, b) => b.number - a.number); // Sort in descending order based on the 'number' value
+            rankings.sort((a, b) => b.number - a.number); // Sort by initiative (number)
 
-            // Create list items for each ranking and append to the DOM
-            rankings.forEach(({ id, name, number }) => {
+            rankings.forEach(({ id, name, number, health }) => {
                 const listItem = document.createElement('li');
 
-                // Create separate containers for name, number, and button
+                // Create separate containers for name, initiative, health, and button
                 const nameDiv = document.createElement('div');
                 nameDiv.className = 'name';
                 nameDiv.textContent = name;
 
                 const numberDiv = document.createElement('div');
                 numberDiv.className = 'number';
-                numberDiv.textContent = number;
+                numberDiv.textContent = `Initiative: ${number}`;
+
+                const healthDiv = document.createElement('div');
+                healthDiv.className = 'health';
+                healthDiv.textContent = `Health: ${health}`;
 
                 const removeButton = document.createElement('button');
                 removeButton.textContent = 'Remove';
@@ -73,6 +83,7 @@ function fetchRankings() {
                 // Append all parts to the list item
                 listItem.appendChild(nameDiv);
                 listItem.appendChild(numberDiv);
+                listItem.appendChild(healthDiv);
                 listItem.appendChild(removeButton);
 
                 // Append the list item to the ranking list
