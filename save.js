@@ -1,8 +1,7 @@
-// Import the necessary Firebase modules for app initialization and database functionality
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
-// Firebase Configuration (your provided credentials)
+// Firebase Configuration (use your provided config)
 const firebaseConfig = {
     apiKey: "AIzaSyD_4kINWig7n6YqB11yM2M-EuxGNz5uekI",
     authDomain: "roll202-c0b0d.firebaseapp.com",
@@ -14,85 +13,64 @@ const firebaseConfig = {
     measurementId: "G-6X5L39W56C"
 };
 
-// Initialize Firebase with the provided configuration
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// HTML elements for saving and loading lists
-const saveButton = document.getElementById('save-list-button');
-const loadButton = document.getElementById('load-list-button');
-const listNameInput = document.getElementById('list-name');
-const rankingList = document.getElementById('rankingList');
+// Get references to the DOM elements
+const savedListsContainer = document.getElementById('savedLists');
+const goBackButton = document.getElementById('go-back-button');
 
-// Save the current list to Firebase
-function saveList() {
-    const listName = listNameInput.value.trim(); // Get the list name from the input
-    if (!listName) {
-        alert('Please provide a name for the list.');
-        return;
-    }
+// Load the list of saved lists from Firebase and display them
+function loadSavedLists() {
+    const dbRef = ref(db);
 
-    const listItems = [];
-    const items = document.querySelectorAll('#rankingList li');
-    
-    // Collect the current list's data (name, initiative, health)
-    items.forEach((item) => {
-        const name = item.querySelector('.name').textContent;
-        const number = item.querySelector('.number').textContent.replace('Int: ', '');
-        const health = item.querySelector('.health').textContent.replace('HP: ', '');
-        listItems.push({ name, number, health });
-    });
-
-    // Save the list to Firebase under the provided name
-    set(ref(db, 'savedLists/' + listName), {
-        list: listItems
-    }).then(() => {
-        alert(`List "${listName}" saved successfully!`);
+    get(child(dbRef, 'savedLists')).then((snapshot) => {
+        if (snapshot.exists()) {
+            const savedLists = snapshot.val();
+            savedListsContainer.innerHTML = ''; // Clear the list before populating
+            
+            // Populate the list of saved lists
+            Object.keys(savedLists).forEach(listName => {
+                const listItem = document.createElement('li');
+                listItem.textContent = listName;
+                listItem.className = 'saved-list-item';
+                listItem.addEventListener('click', () => loadList(listName)); // Click event to load the list
+                savedListsContainer.appendChild(listItem);
+            });
+        } else {
+            savedListsContainer.innerHTML = '<li>No saved lists found.</li>';
+        }
     }).catch((error) => {
-        console.error('Error saving list:', error);
-        alert('Failed to save the list. Please try again.');
+        console.error('Error loading saved lists:', error);
+        savedListsContainer.innerHTML = '<li>Failed to load saved lists.</li>';
     });
 }
 
-// Load a list from Firebase by name
-function loadList() {
-    const listName = listNameInput.value.trim(); // Get the list name from the input
-    if (!listName) {
-        alert('Please provide the name of the list to load.');
-        return;
-    }
-
+// Load the selected list and redirect back to the main page
+function loadList(listName) {
     const dbRef = ref(db);
+    
     get(child(dbRef, `savedLists/${listName}`)).then((snapshot) => {
         if (snapshot.exists()) {
             const savedList = snapshot.val().list;
-            displayRankings(savedList); // Call a function to display the list on the page
-            alert(`List "${listName}" loaded successfully!`);
+            localStorage.setItem('loadedList', JSON.stringify(savedList)); // Temporarily store the list in localStorage
+            
+            alert(`List "${listName}" loaded successfully! Redirecting to the main page.`);
+            window.location.href = 'index.html'; // Redirect to your main page (adjust as needed)
         } else {
             alert(`No list found with the name "${listName}".`);
         }
     }).catch((error) => {
-        console.error('Error loading list:', error);
+        console.error('Error loading the list:', error);
         alert('Failed to load the list. Please try again.');
     });
 }
 
-// Display rankings on the page
-function displayRankings(rankings) {
-    rankingList.innerHTML = ''; // Clear the current list
+// Go back to the main page
+goBackButton.addEventListener('click', () => {
+    window.location.href = 'index.html'; // Redirect to your main page
+});
 
-    rankings.forEach(({ name, number, health }) => {
-        const listItem = document.createElement('li');
-        listItem.innerHTML = `
-            <div class="name">${name}</div>
-            <div class="number">Int: ${number}</div>
-            <div class="health">HP: ${health}</div>
-            ${health > 0 ? `<input type="number" class="damage-input" placeholder="Damage" />` : ''}
-        `;
-        rankingList.appendChild(listItem);
-    });
-}
-
-// Attach event listeners to save and load buttons
-saveButton.addEventListener('click', saveList);
-loadButton.addEventListener('click', loadList);
+// Load the saved lists when the page loads
+document.addEventListener('DOMContentLoaded', loadSavedLists);
