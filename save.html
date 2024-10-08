@@ -15,11 +15,17 @@
     </head>
 <body>
     <div class="container">
+        <div class="list-controls">
+            <input type="text" id="list-name" placeholder="Enter list name" />
+            <button id="save-list-button">Save List</button>
+            <button id="load-list-button">Load List</button>
+        </div>
+        
         <h1>Saved Lists</h1>
         <ul id="savedLists"> <!-- This is where the saved lists will appear -->
             <!-- List of saved lists will be dynamically populated here -->
         </ul>
-        <button id="go-back-button">Go Back to Main Page</button> <!-- Button to go back -->
+        <a href="group.html" class="button-link">To Initiative</a>
     </div>
 
     <script src="save.js"></script> <!-- Link to the save.js file -->
