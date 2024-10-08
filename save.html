@@ -4,54 +4,37 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="icon" type="image/png" sizes="64x64" href="favicon-64x64.png">
-        <title>Initiative</title>
+        <title>Lists</title>
         <script type="module" src="server.js" defer></script>
-        <script type="module" src="health.js" defer></script> 
+        <script type="module" src="health.js" defer></script>
+        <script src="save.js"></script> 
         <link rel="stylesheet" href="style.css"> 
         <link rel="stylesheet" href="turn.css"> 
         <link rel="stylesheet" href="save.css"> 
         <script src="turn.js" defer></script> 
         <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet"> 
     </head>
+<body>
     <div class="container">
-        <h1>Group List</h1>
+        <h1>Manage Saved Lists</h1>
 
-        <!-- List that is managed by group.html -->
-        <ul id="rankingList">
-            <!-- List items will be dynamically added here -->
+        <!-- Naming field for saving and loading lists -->
+        <div class="list-controls">
+            <input type="text" id="list-name" placeholder="Enter list name" />
+            <button id="save-list-button">Save List</button>
+            <button id="load-list-button">Load List</button>
+            <button id="delete-list-button">Delete List</button>
+        </div>
+
+        <!-- List of saved lists will appear here -->
+        <h2>Saved Lists</h2>
+        <ul id="savedLists">
+            <!-- List of saved lists will be dynamically populated here -->
         </ul>
+
+        <button id="go-back-button">Go Back to Main Page</button> <!-- Optional button to go back -->
     </div>
 
-    <script src="save.js"></script> <!-- Link to the save.js script -->
-    <script>
-        // Check if there's a loaded list in localStorage and display it
-        document.addEventListener('DOMContentLoaded', () => {
-            const loadedList = localStorage.getItem('loadedList');
-
-            if (loadedList) {
-                const listData = JSON.parse(loadedList);
-                displayRankings(listData); // Function to display the list data in group.html
-                localStorage.removeItem('loadedList'); // Clear the loaded list from storage
-            }
-        });
-
-        // Function to display the rankings in group.html
-        function displayRankings(rankings) {
-            const rankingList = document.getElementById('rankingList');
-            rankingList.innerHTML = ''; // Clear the current list
-
-            rankings.forEach(({ name, number, health }) => {
-                const listItem = document.createElement('li');
-                listItem.innerHTML = `
-                    <div class="name">${name}</div>
-                    <div class="number">Int: ${number}</div>
-                    <div class="health">HP: ${health}</div>
-                    ${health > 0 ? `<input type="number" class="damage-input" placeholder="Damage" />` : ''}
-                `;
-                rankingList.appendChild(listItem);
-            });
-        }
-    </script>
-    <a href="group.html" class="button-link">To Initiative</a>
+    
 </body>
 </html>

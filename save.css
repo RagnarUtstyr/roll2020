@@ -44,3 +44,19 @@ ul#savedLists li:hover {
 #go-back-button:hover {
     background-color: #8C5A4A;
 }
+/* Container styling */
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: rgba(46, 27, 24, 0.9); /* Dark background with opacity */
+    border-radius: 10px;
+    text-align: center;
+    color: #E0D8B0; /* Parchment-like text color */
+}
+
+/* List of saved lists */
+ul#savedLists {
+    list-style: none;
+    padding: 0;
+    margin:
