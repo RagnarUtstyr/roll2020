@@ -101,6 +101,7 @@ li {
 
 /* Flex properties for the name, number, and health elements */
 li .name, li .number, li .health {
+    padding: 0 5px; /* Add a little padding to the left and right */
     flex: 2; /* Make these elements take up more space */
     white-space: nowrap; /* Prevent text from breaking into multiple lines */
     overflow: hidden;
@@ -109,9 +110,9 @@ li .name, li .number, li .health {
 
 /* Input fields inside list items */
 input.damage-input {
-    flex: 1; /* Allow the input to take up only as much space as it needs */
-    min-width: 50px; /* Minimum width for the input */
-    max-width: 50px; /* Maximum width for the input */
+    flex: 0 0 auto; /* Do not let the input box grow unnecessarily */
+    width: 60px; /* Limit the width for mobile */
+    height: 30px; /* Set a consistent height */
     padding: 5px;
     border: 2px solid #D4AF37; /* Gold border */
     border-radius: 5px;
@@ -121,6 +122,9 @@ input.damage-input {
     font-size: 1em;
     outline: none;
     text-align: center; /* Center the number inside the input */
+    vertical-align: middle; /* Align it vertically */
+    margin: 0; /* Remove extra margins to better align it with other elements */
+    box-sizing: border-box; /* Ensure padding doesn't affect overall width */
 }
 
 /* Defeated class for list items with 0 HP */
@@ -189,15 +193,14 @@ a.button-link:hover {
 
 /* Media Queries for Mobile Devices */
 @media (max-width: 768px) {
-    li {
-        flex-direction: row; /* Ensures the elements remain in one line */
-        align-items: center;
-        gap: 5px; /* Adds small gap between elements */
-        flex-wrap: nowrap; /* Prevent wrapping of items */
+    input.damage-input {
+        width: 50px; /* Reduce width even further on mobile */
+        height: 25px; /* Adjust height for smaller screens */
+        font-size: 0.9em; /* Slightly smaller font size */
     }
-    
-    li .name, li .number, li .health, li button {
-        flex: 1;
-        text-align: center; /* Center text on smaller screens */
+
+    li .name, li .number, li .health {
+        flex: 1; /* Ensure better distribution of space on smaller screens */
+        text-align: center; /* Center the text for smaller screens */
     }
 }
