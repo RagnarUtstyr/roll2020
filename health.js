@@ -64,6 +64,11 @@ function fetchRankings() {
 
                 // Append the list item to the ranking list
                 rankingList.appendChild(listItem);
+
+                // If health is 0, apply the "defeated" class to change the background color
+                if (health === 0) {
+                    listItem.classList.add('defeated');  // Add defeated class to the list item
+                }
             });
         } else {
             console.log('No data available');
@@ -95,9 +100,12 @@ function updateHealth(id, newHealth, healthInput) {
             const healthDiv = healthInput.parentElement.querySelector('.health');
             healthDiv.textContent = `HP: ${newHealth}`;  // Update health display
 
-            // If health reaches 0, remove the input field and show the remove button
+            const listItem = healthInput.parentElement;
+
+            // If health reaches 0, remove the input field, show the remove button, and apply defeated class
             if (newHealth <= 0) {
                 healthInput.remove();  // Remove input field
+                listItem.classList.add('defeated');  // Add defeated class to the list item
                 const removeButton = healthInput.parentElement.querySelector('.remove-button');
                 if (removeButton) {
                     removeButton.style.display = 'inline';  // Show remove button

@@ -236,3 +236,11 @@ a.button-link:hover {
     background-color: #8C5A4A; /* Rich reddish-brown hover background */
     color: #2E1B18; /* Dark text on hover */
 }
+
+/* Defeated class for list items with 0 HP */
+.defeated {
+    background-color: #8B0000; /* Dark red background */
+    color: white; /* White text for better contrast */
+    border: 2px solid #FF0000; /* Optional: Red border to emphasize the defeated state */
+    transition: background-color 0.3s ease; /* Smooth transition when the item becomes defeated */
+}
