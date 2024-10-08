@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
 import { getDatabase, ref, set, get, child, remove } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
-// Firebase Configuration (your provided config)
+// Firebase Configuration (use your provided config)
 const firebaseConfig = {
     apiKey: "AIzaSyD_4kINWig7n6YqB11yM2M-EuxGNz5uekI",
     authDomain: "roll202-c0b0d.firebaseapp.com",
@@ -25,7 +25,17 @@ const listNameInput = document.getElementById('list-name');
 const savedListsContainer = document.getElementById('savedLists');
 const goBackButton = document.getElementById('go-back-button');
 
-// Save the current list to Firebase with the provided name
+// Function to fetch the current list from localStorage (saved in group.html)
+function getCurrentListFromLocalStorage() {
+    const currentList = JSON.parse(localStorage.getItem('currentList')); // Assuming group.html saves it in localStorage
+    if (!currentList) {
+        alert('No current list found in group.html.');
+        return null;
+    }
+    return currentList;
+}
+
+// Save the current list (fetched from localStorage) to Firebase with the provided name
 function saveList() {
     const listName = listNameInput.value.trim(); // Get the list name from the input
     if (!listName) {
@@ -33,10 +43,9 @@ function saveList() {
         return;
     }
 
-    const listItems = JSON.parse(localStorage.getItem('loadedList')); // Get the currently loaded list from localStorage
+    const listItems = getCurrentListFromLocalStorage(); // Get the current list from localStorage
     if (!listItems) {
-        alert('No list data found to save.');
-        return;
+        return; // Exit if no list is found
     }
 
     // Save the list to Firebase under the provided name

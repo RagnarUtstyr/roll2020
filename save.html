@@ -1,19 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="icon" type="image/png" sizes="64x64" href="favicon-64x64.png">
-        <title>Lists</title>
-        <script type="module" src="server.js" defer></script>
-        <script type="module" src="health.js" defer></script>
-        <script src="save.js"></script> 
-        <link rel="stylesheet" href="style.css"> 
-        <link rel="stylesheet" href="turn.css"> 
-        <link rel="stylesheet" href="save.css"> 
-        <script src="turn.js" defer></script> 
-        <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet"> 
-    </head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saved Lists</title>
+    <link rel="stylesheet" href="save.css">
+</head>
 <body>
     <div class="container">
         <h1>Manage Saved Lists</h1>
@@ -32,9 +24,9 @@
             <!-- List of saved lists will be dynamically populated here -->
         </ul>
 
-        <a href="group.html" class="button-link">View Rankings</a>
+        <button id="go-back-button">Go Back to Main Page</button>
     </div>
 
-    
+    <script src="save.js"></script> <!-- Link to save.js -->
 </body>
 </html>
