@@ -21,12 +21,10 @@ const db = getDatabase(app);
 // Function to submit data to Firebase
 async function submitData() {
     const name = document.getElementById('name').value;
-    const number = parseInt(document.getElementById('initiative').value);
-    const healthInput = document.getElementById('health').value;
-    const health = healthInput !== '' ? parseInt(healthInput) : null; // Handle empty health as null
+    const number = parseInt(document.getElementById('initiative') ? document.getElementById('initiative').value : document.getElementById('number').value);
+    const health = document.getElementById('health') ? parseInt(document.getElementById('health').value) : null;
 
-    // Ensure name and number are valid, health can be null
-    if (name && !isNaN(number)) {
+    if (name && !isNaN(number) && (health === null || !isNaN(health))) {
         try {
             const reference = ref(db, 'rankings/');
             await push(reference, { name, number, health });
@@ -34,8 +32,8 @@ async function submitData() {
 
             // Clear input fields after successful submission
             document.getElementById('name').value = '';
-            document.getElementById('initiative').value = '';
-            document.getElementById('health').value = '';
+            document.getElementById('initiative') ? document.getElementById('initiative').value = '' : document.getElementById('number').value = '';
+            if (document.getElementById('health')) document.getElementById('health').value = '';
 
             // Play sword sound after submission
             const swordSound = document.getElementById('sword-sound');
@@ -46,7 +44,7 @@ async function submitData() {
             console.error('Error submitting data:', error);
         }
     } else {
-        console.log('Please enter valid name and initiative values.');
+        console.log('Please enter valid name, initiative, and health values.');
     }
 }
 
