@@ -27,7 +27,7 @@ function fetchRankings() {
 
                 const healthDiv = document.createElement('div');
                 healthDiv.className = 'health';
-                
+
                 // Show "N/A" if no health is provided
                 healthDiv.textContent = `HP: ${health !== null && health !== undefined ? health : 'N/A'}`;
 
@@ -43,7 +43,7 @@ function fetchRankings() {
                     healthInput.addEventListener('keypress', (event) => {
                         if (event.key === 'Enter') {
                             const damage = parseInt(healthInput.value);
-                            if (!isNaN(damage) && health !== null && health > 0) {
+                            if (!isNaN(damage) && health > 0) {
                                 const updatedHealth = health - damage > 0 ? health - damage : 0; // Ensure health doesn't go below 0
                                 updateHealth(id, updatedHealth, listItem, healthDiv, healthInput);
                             }
@@ -75,9 +75,9 @@ function updateHealth(id, newHealth, listItem, healthDiv, healthInput) {
             // Update health in the DOM
             healthDiv.textContent = `HP: ${newHealth}`;
 
-            // If health reaches 0, remove the input field
+            // If health reaches 0, remove the input field but keep the item
             if (newHealth <= 0 && healthInput) {
-                healthInput.remove();
+                healthInput.remove(); // Remove the input field when health reaches 0
             }
         })
         .catch((error) => {
