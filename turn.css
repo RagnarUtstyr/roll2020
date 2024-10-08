@@ -31,3 +31,21 @@
 #next-button {
     margin-left: auto; /* Forces the button to align to the right */
 }
+
+/* Style for the remove button to match the other buttons */
+.remove-button {
+    background-color: #2E1B18; /* Dark brown background */
+    color: #E0D8B0; /* Parchment-like text color */
+    border: 2px solid #D4AF37; /* Gold border */
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-family: 'MedievalSharp', serif;
+    font-size: 0.9em; /* Slightly smaller font size for remove button */
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.remove-button:hover {
+    background-color: #8C5A4A; /* Rich reddish-brown hover background */
+    color: #2E1B18; /* Dark text on hover */
+}
