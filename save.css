@@ -10,24 +10,19 @@
     font-family: 'MedievalSharp', cursive; /* Consistent medieval font */
 }
 
-/* Styling for the input and buttons */
-.list-controls {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px; /* Space between input and buttons */
-    margin-bottom: 20px;
+/* Styling for the input field */
+.input-controls {
+    margin-bottom: 20px; /* Space below the input field */
+    text-align: center;
 }
 
-/* Input field for list name */
 #list-name {
     padding: 10px;
     border: 2px solid #D4AF37; /* Gold border */
     border-radius: 5px;
     font-size: 16px;
-    width: 250px;
+    width: 300px; /* Adjusted width */
     font-family: 'MedievalSharp', cursive; /* Medieval theme */
-    margin-right: 10px;
     background-color: #2E1B18; /* Dark input background */
     color: #E0D8B0; /* Light text */
 }
@@ -38,7 +33,15 @@ input:focus {
     box-shadow: 0 0 5px #D4AF37; /* Golden glow around focused input */
 }
 
-/* Button styling for Save, Load, and Delete buttons */
+/* Button container styling */
+.button-controls {
+    display: flex;
+    justify-content: center;
+    gap: 15px; /* Space between buttons */
+    margin-bottom: 20px; /* Space below buttons */
+}
+
+/* Button styling */
 button {
     background-color: #2E1B18; /* Dark brown background */
     color: #E0D8B0; /* Light parchment text */
@@ -104,11 +107,4 @@ ul#savedLists li:hover {
 #go-back-button:hover {
     background-color: #8C5A4A;
     color: #2E1B18;
-}
-
-/* Optional additional styling for the saved list */
-.saved-list-item {
-    font-size: 18px;
-    font-family: 'MedievalSharp', cursive; /* Consistent medieval font */
-    text-align: left;
 }
