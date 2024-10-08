@@ -28,16 +28,24 @@ function fetchAndDisplayHealthList() {
 
                 const healthDiv = document.createElement('div');
                 healthDiv.className = 'health';
-                
-                // Create input field to modify health
+
+                // Display current health
+                const healthDisplay = document.createElement('span');
+                healthDisplay.textContent = `HP: ${health !== undefined && health !== null ? health : 0}`;
+                healthDiv.appendChild(healthDisplay);
+
+                // Create input field to subtract from health
                 const healthInput = document.createElement('input');
                 healthInput.type = 'number';
-                healthInput.value = health !== undefined && health !== null ? health : 0; // Default to 0 if health is missing
+                healthInput.placeholder = 'Subtract HP';
                 healthInput.className = 'health-input';
 
-                // Add event listener to update health when changed
+                // Add event listener to subtract from health when changed
                 healthInput.addEventListener('change', () => {
-                    updateHealth(id, healthInput.value); // Update health in Firebase
+                    const subtractValue = parseInt(healthInput.value);
+                    if (!isNaN(subtractValue) && subtractValue > 0) {
+                        updateHealth(id, health, subtractValue); // Subtract health
+                    }
                 });
 
                 healthDiv.appendChild(healthInput);
@@ -61,16 +69,22 @@ function fetchAndDisplayHealthList() {
     });
 }
 
-// Function to update health in Firebase
-function updateHealth(id, newHealthValue) {
+// Function to update health in Firebase by subtracting the new input value
+function updateHealth(id, currentHealth, subtractValue) {
+    const newHealth = currentHealth - subtractValue;
     const reference = ref(db, `rankings/${id}`);
-    update(reference, { health: parseInt(newHealthValue) })
-        .then(() => {
-            console.log(`Health updated successfully for id ${id}: ${newHealthValue}`);
-        })
-        .catch((error) => {
-            console.error('Error updating health:', error);
-        });
+    
+    if (newHealth >= 0) { // Ensure health doesn't drop below 0
+        update(reference, { health: newHealth })
+            .then(() => {
+                console.log(`Health updated successfully for id ${id}: ${newHealth}`);
+            })
+            .catch((error) => {
+                console.error('Error updating health:', error);
+            });
+    } else {
+        console.log("Health cannot be negative.");
+    }
 }
 
 // Function to remove entry (can remain in server.js if already there)
