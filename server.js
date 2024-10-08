@@ -63,18 +63,18 @@ function fetchRankings() {
             rankings.forEach(({ id, name, number, health }) => {
                 const listItem = document.createElement('li');
 
-                // Create separate containers for name, initiative, health, and button
+                // Create separate containers for name, initiative (now Int), health (now HP), and button
                 const nameDiv = document.createElement('div');
                 nameDiv.className = 'name';
                 nameDiv.textContent = name;
 
                 const numberDiv = document.createElement('div');
                 numberDiv.className = 'number';
-                numberDiv.textContent = `Initiative: ${number}`;
+                numberDiv.textContent = `Int: ${number}`; // Changed Initiative to Int
 
                 const healthDiv = document.createElement('div');
                 healthDiv.className = 'health';
-                healthDiv.textContent = `${health !== null ? health : 'N/A'}`; // Display health without prefix
+                healthDiv.textContent = `HP: ${health !== null ? health : 'N/A'}`; // Added HP prefix
 
                 const removeButton = document.createElement('button');
                 removeButton.textContent = 'Remove';
