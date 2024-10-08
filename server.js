@@ -74,7 +74,7 @@ function fetchRankings() {
 
                 const healthDiv = document.createElement('div');
                 healthDiv.className = 'health';
-                healthDiv.textContent = `Health: ${health !== null ? health : 'N/A'}`;
+                healthDiv.textContent = `${health !== null ? health : 'N/A'}`; // Display health without prefix
 
                 const removeButton = document.createElement('button');
                 removeButton.textContent = 'Remove';
@@ -96,7 +96,6 @@ function fetchRankings() {
         console.error('Error fetching data:', error);
     });
 }
-
 // Function to remove an entry from Firebase
 function removeEntry(id) {
     const reference = ref(db, `rankings/${id}`);
