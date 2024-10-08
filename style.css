@@ -205,3 +205,14 @@ a.button-link:hover {
         text-align: center; /* Center text on smaller screens */
     }
 }
+
+.damage-input {
+    padding: 5px;
+    border: 2px solid #D4AF37;
+    border-radius: 5px;
+    background-color: rgba(255, 255, 255, 0.15);
+    color: #E0D8B0;
+    font-family: 'MedievalSharp', serif;
+    font-size: 0.9em;
+    text-align: center;
+}
