@@ -1,32 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Saved Lists</title>
-    <link rel="stylesheet" href="save.css">
+    <link rel="stylesheet" href="style.css"> <!-- Link to your existing stylesheet -->
+    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet"> <!-- Keep font consistent -->
 </head>
+
 <body>
     <div class="container">
         <h1>Manage Saved Lists</h1>
 
-        <!-- Naming field for saving and loading lists -->
+        <!-- Input for list name and save/load/delete buttons -->
         <div class="list-controls">
-            <input type="text" id="list-name" placeholder="Enter list name" />
+            <input type="text" id="list-name" placeholder="Enter list name" required>
             <button id="save-list-button">Save List</button>
             <button id="load-list-button">Load List</button>
             <button id="delete-list-button">Delete List</button>
         </div>
 
-        <!-- List of saved lists will appear here -->
+        <!-- Display all saved lists -->
         <h2>Saved Lists</h2>
         <ul id="savedLists">
             <!-- List of saved lists will be dynamically populated here -->
         </ul>
 
-        <button id="go-back-button">Go Back to Main Page</button>
+        <button id="go-back-button">Go Back to Main Page</button> <!-- Optional button to go back -->
     </div>
 
     <script src="save.js"></script> <!-- Link to save.js -->
 </body>
+
 </html>
