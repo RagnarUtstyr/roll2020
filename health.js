@@ -8,11 +8,11 @@ function fetchRankings() {
     onValue(reference, (snapshot) => {
         const data = snapshot.val();
         const rankingList = document.getElementById('rankingList');
-        rankingList.innerHTML = ''; // Clear existing list before updating
+        rankingList.innerHTML = ''; // Clear the list
 
         if (data) {
             const rankings = Object.entries(data).map(([id, entry]) => ({ id, ...entry }));
-            rankings.sort((a, b) => b.number - a.number); // Sort by initiative
+            rankings.sort((a, b) => b.number - a.number); // Sort by initiative (number)
 
             rankings.forEach(({ id, name, number, health }) => {
                 const listItem = document.createElement('li');
@@ -31,7 +31,7 @@ function fetchRankings() {
                 // Display "N/A" if health is not provided
                 healthDiv.textContent = `HP: ${health !== null && health !== undefined ? health : 'N/A'}`;
 
-                // Only show the input if health is greater than 0
+                // If health is greater than 0, show the damage input field
                 if (health !== null && health !== undefined && health > 0) {
                     const healthInput = document.createElement('input');
                     healthInput.type = 'number';
@@ -45,7 +45,7 @@ function fetchRankings() {
                             const damage = parseInt(healthInput.value);
                             if (!isNaN(damage) && health > 0) {
                                 const updatedHealth = health - damage > 0 ? health - damage : 0; // Ensure health doesn't go below 0
-                                updateHealth(id, updatedHealth, listItem);
+                                updateHealth(id, updatedHealth, listItem, healthDiv, healthInput, removeButton);
                             }
                         }
                     });
@@ -53,7 +53,18 @@ function fetchRankings() {
                     listItem.appendChild(healthInput);
                 }
 
-                // Append elements to the list item
+                // Add the remove button (which already exists in your current server.js)
+                const removeButton = document.createElement('button');
+                removeButton.textContent = 'Remove';
+                removeButton.className = 'remove-button';
+                removeButton.addEventListener('click', () => removeEntry(id));
+
+                // If health is 0 or less, show the remove button only
+                if (health === 0) {
+                    listItem.appendChild(removeButton);
+                }
+
+                // Append all the elements to the list item
                 listItem.appendChild(nameDiv);
                 listItem.appendChild(numberDiv);
                 listItem.appendChild(healthDiv);
@@ -67,20 +78,36 @@ function fetchRankings() {
     });
 }
 
-// Function to update health in Firebase and handle removing the entire list item when health reaches 0
-function updateHealth(id, newHealth, listItem) {
+// Function to update health in Firebase and toggle input/remove button
+function updateHealth(id, newHealth, listItem, healthDiv, healthInput, removeButton) {
     const reference = ref(db, `rankings/${id}`);
     update(reference, { health: newHealth })
         .then(() => {
             console.log(`Health updated to ${newHealth}`);
+            healthDiv.textContent = `HP: ${newHealth}`; // Update health display
 
-            // If health reaches 0, remove the entire list item from the UI
+            // If health reaches 0, remove the input field and show the remove button
             if (newHealth <= 0) {
-                listItem.remove(); // Remove the item from the DOM
+                if (healthInput) {
+                    healthInput.remove(); // Remove input field
+                }
+                listItem.appendChild(removeButton); // Show remove button
             }
         })
         .catch((error) => {
             console.error('Error updating health:', error);
+        });
+}
+
+// Function to remove an entry from Firebase
+function removeEntry(id) {
+    const reference = ref(db, `rankings/${id}`);
+    remove(reference)
+        .then(() => {
+            console.log(`Entry with id ${id} removed successfully`);
+        })
+        .catch((error) => {
+            console.error('Error removing entry:', error);
         });
 }
 
