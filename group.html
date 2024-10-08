@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Group Rankings</title>
-    <script type="module" src="health.js" defer></script> <!-- Link to the health.js file -->
+    <script type="module" src="server.js" defer></script>
+    <script type="module" src="health.js" defer></script> 
     <link rel="stylesheet" href="style.css"> <!-- Link to the external CSS file -->
     <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet"> <!-- Link to MedievalSharp from Google Fonts -->
 </head>
@@ -24,14 +25,14 @@
         <!-- Form to submit a new entry -->
         <br><br>
         <h2>Submit a New Entry</h2>
-        <label for="name">Name:</label>
-        <input type="text" id="name" required>
-
-        <label for="initiative">Initiative:</label>
-        <input type="number" id="initiative" required>
-
-        <label for="health">Health (optional):</label>
-        <input type="number" id="health">
+		<label for="name">Name:</label>
+		<input type="text" id="name" required>
+		
+		<label for="initiative">Initiative:</label>
+		<input type="number" id="initiative" required>
+		
+		<label for="health">Health:</label>
+		<input type="number" id="health">
 
         <button id="submit-button">Submit</button>
 
@@ -39,36 +40,7 @@
         <br><br>
         <a href="index.html" class="button-link">Go to Submission Page</a>
 
-  
     </div>
-
-    <!-- Modal for subtracting HP -->
-    <div id="healthModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Subtract HP</h2>
-            <input type="number" id="healthModalInput" placeholder="Enter amount to subtract">
-            <button id="healthModalSubmit">Submit</button>
-        </div>
-    </div>
-
-    <!-- Add script to handle the modal close functionality -->
-    <script>
-        // Close modal when the "X" is clicked
-        const modal = document.getElementById('healthModal');
-        const closeModal = document.getElementsByClassName('close')[0];
-
-        closeModal.onclick = function() {
-            modal.style.display = 'none';
-        };
-
-        // Close modal when clicking outside of the modal content
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                modal.style.display = 'none';
-            }
-        };
-    </script>
 </body>
 
 </html>
