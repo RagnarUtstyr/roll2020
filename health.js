@@ -27,12 +27,12 @@ function fetchRankings() {
 
                 const healthDiv = document.createElement('div');
                 healthDiv.className = 'health';
-                
+
                 // Display "N/A" if health is not provided
                 healthDiv.textContent = `HP: ${health !== null && health !== undefined ? health : 'N/A'}`;
 
                 // If health is greater than 0, show the damage input field
-                if (health !== null && health !== undefined && health > 0) {
+                if (health !== null && health !== undefined) {
                     const healthInput = document.createElement('input');
                     healthInput.type = 'number';
                     healthInput.placeholder = 'Damage';
@@ -76,7 +76,7 @@ function fetchRankings() {
     });
 }
 
-// Function to apply damage to all entries
+// Function to apply damage to all entries (updated to handle negative damage)
 function applyDamageToAll() {
     const damageInputs = document.querySelectorAll('.damage-input');  // Select all damage inputs
     damageInputs.forEach(input => {
@@ -84,9 +84,10 @@ function applyDamageToAll() {
         const currentHealth = parseInt(input.dataset.currentHealth);  // Get the current health
         const damage = parseInt(input.value);  // Get the entered damage
 
-        if (!isNaN(damage) && damage > 0 && currentHealth > 0) {
-            const updatedHealth = currentHealth - damage > 0 ? currentHealth - damage : 0;  // Ensure health doesn't go below 0
-            updateHealth(entryId, updatedHealth, input);  // Update health for this entry
+        // Ensure damage is a valid number
+        if (!isNaN(damage)) {
+            const updatedHealth = currentHealth - damage;  // Negative damage will increase health
+            updateHealth(entryId, updatedHealth > 0 ? updatedHealth : 0, input);  // Update health and ensure it doesn't go below 0
         }
     });
 }
