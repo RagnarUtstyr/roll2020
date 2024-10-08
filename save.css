@@ -1,0 +1,33 @@
+/* Styling for save/load buttons and list input */
+.list-controls {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 10px; /* Add space between buttons and input */
+}
+
+#list-name {
+    padding: 10px;
+    border: 2px solid #D4AF37; /* Gold border */
+    border-radius: 5px;
+    font-size: 1em;
+    color: #2E1B18; /* Dark brown text color */
+    width: 200px; /* Set a reasonable width */
+    outline: none;
+}
+
+#save-list-button, #load-list-button {
+    background-color: #2E1B18; /* Dark brown background */
+    color: #E0D8B0; /* Parchment-like text color */
+    border: 2px solid #D4AF37; /* Gold border */
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 1em;
+    transition: background-color 0.3s, color 0.3s; /* Smooth hover effect */
+}
+
+#save-list-button:hover, #load-list-button:hover {
+    background-color: #8C5A4A; /* Hover effect */
+    color: #2E1B18; /* Dark text on hover */
+}
