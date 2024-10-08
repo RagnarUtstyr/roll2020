@@ -13,21 +13,45 @@
         <script src="turn.js" defer></script> 
         <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet"> 
     </head>
-<body>
     <div class="container">
-        <div class="list-controls">
-            <input type="text" id="list-name" placeholder="Enter list name" />
-            <button id="save-list-button">Save List</button>
-            <button id="load-list-button">Load List</button>
-        </div>
-        
-        <h1>Saved Lists</h1>
-        <ul id="savedLists"> <!-- This is where the saved lists will appear -->
-            <!-- List of saved lists will be dynamically populated here -->
+        <h1>Group List</h1>
+
+        <!-- List that is managed by group.html -->
+        <ul id="rankingList">
+            <!-- List items will be dynamically added here -->
         </ul>
-        <a href="group.html" class="button-link">To Initiative</a>
     </div>
 
-    <script src="save.js"></script> <!-- Link to the save.js file -->
+    <script src="save.js"></script> <!-- Link to the save.js script -->
+    <script>
+        // Check if there's a loaded list in localStorage and display it
+        document.addEventListener('DOMContentLoaded', () => {
+            const loadedList = localStorage.getItem('loadedList');
+
+            if (loadedList) {
+                const listData = JSON.parse(loadedList);
+                displayRankings(listData); // Function to display the list data in group.html
+                localStorage.removeItem('loadedList'); // Clear the loaded list from storage
+            }
+        });
+
+        // Function to display the rankings in group.html
+        function displayRankings(rankings) {
+            const rankingList = document.getElementById('rankingList');
+            rankingList.innerHTML = ''; // Clear the current list
+
+            rankings.forEach(({ name, number, health }) => {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `
+                    <div class="name">${name}</div>
+                    <div class="number">Int: ${number}</div>
+                    <div class="health">HP: ${health}</div>
+                    ${health > 0 ? `<input type="number" class="damage-input" placeholder="Damage" />` : ''}
+                `;
+                rankingList.appendChild(listItem);
+            });
+        }
+    </script>
+    <a href="group.html" class="button-link">To Initiative</a>
 </body>
 </html>
