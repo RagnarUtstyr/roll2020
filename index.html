@@ -6,22 +6,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Submit Your Name and Number</title>
     <script type="module" src="server.js" defer></script>
-	<link rel="stylesheet" href="style.css">
-	<link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
-
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
 </head>
 
 <body>
-	<div class="container">
-		<h1>Enter Name and Number</h1>
-		<label for="name">Name:</label>
-		<input type="text" id="name" required>
-		<label for="number">Number:</label>
-		<input type="number" id="number" required>
-		<button id="submit-button">Submit</button>
-		<a href="group.html" class="button-link">View Rankings</a>
-	</div>
-    
+    <div class="container">
+        <h1>Enter Name and Number</h1>
+        <label for="name">Name:</label>
+        <input type="text" id="name" required>
+        <label for="number">Number:</label>
+        <input type="number" id="number" required>
+        <button id="submit-button">Submit</button>
+
+        <!-- Link to view rankings -->
+        <a href="group.html" class="button-link">View Rankings</a>
+
+        <!-- Audio element to play sound -->
+        <audio id="sword-sound" src="sword.mp3" preload="auto"></audio>
+    </div>
 </body>
 
 </html>

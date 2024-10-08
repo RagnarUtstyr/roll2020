@@ -21,10 +21,10 @@ const db = getDatabase(app);
 // Function to submit data to Firebase
 async function submitData() {
     const name = document.getElementById('name').value;
-    const number = parseInt(document.getElementById('number').value);
-    const health = parseInt(document.getElementById('health').value);
+    const number = parseInt(document.getElementById('initiative') ? document.getElementById('initiative').value : document.getElementById('number').value);
+    const health = document.getElementById('health') ? parseInt(document.getElementById('health').value) : null;
 
-    if (name && !isNaN(number) && !isNaN(health)) {
+    if (name && !isNaN(number) && (health === null || !isNaN(health))) {
         try {
             const reference = ref(db, 'rankings/');
             await push(reference, { name, number, health });
@@ -32,8 +32,8 @@ async function submitData() {
 
             // Clear input fields after successful submission
             document.getElementById('name').value = '';
-            document.getElementById('number').value = '';
-            document.getElementById('health').value = '';
+            document.getElementById('initiative') ? document.getElementById('initiative').value = '' : document.getElementById('number').value = '';
+            if (document.getElementById('health')) document.getElementById('health').value = '';
 
             // Play sword sound after submission
             const swordSound = document.getElementById('sword-sound');
@@ -74,7 +74,7 @@ function fetchRankings() {
 
                 const healthDiv = document.createElement('div');
                 healthDiv.className = 'health';
-                healthDiv.textContent = `Health: ${health}`;
+                healthDiv.textContent = `Health: ${health !== null ? health : 'N/A'}`;
 
                 const removeButton = document.createElement('button');
                 removeButton.textContent = 'Remove';
