@@ -3,14 +3,14 @@ let currentHighlightIndex = 0;
 function highlightNextEntry() {
     const listItems = document.querySelectorAll('#rankingList li');
 
-    if (listItems.length === 0) return; // If no items, exit
+    if (listItems.length === 0) return;
 
-    // Ensure the current index does not exceed the number of items
+    // If the current highlight index exceeds the number of list items, reset to 0
     if (currentHighlightIndex >= listItems.length) {
         currentHighlightIndex = 0;
     }
 
-    // Remove highlight from all items
+    // Remove highlight from all items (in case the current one was removed)
     listItems.forEach(item => item.classList.remove('highlighted'));
 
     // Highlight the current item
@@ -19,39 +19,40 @@ function highlightNextEntry() {
 
 function moveHighlightNext() {
     const listItems = document.querySelectorAll('#rankingList li');
+    
+    if (listItems.length === 0) return;
 
-    if (listItems.length === 0) return; // Exit if there are no items
+    // Remove highlight from the current item
+    listItems[currentHighlightIndex].classList.remove('highlighted');
 
-    // Move to the next item, or loop back to the first
+    // Move to the next item, or loop back to the first item
     currentHighlightIndex = (currentHighlightIndex + 1) % listItems.length;
 
     // Highlight the next item
-    highlightNextEntry();
+    listItems[currentHighlightIndex].classList.add('highlighted');
 }
 
-// Function to refresh highlighting after removal
+// Function to refresh highlight when an item is removed
 function refreshHighlightAfterRemoval() {
     const listItems = document.querySelectorAll('#rankingList li');
 
-    // If no items, exit
-    if (listItems.length === 0) return;
-
-    // Adjust the current index if it exceeds the new list size
-    if (currentHighlightIndex >= listItems.length) {
-        currentHighlightIndex = 0;
+    // If there are still items in the list, highlight the appropriate one
+    if (listItems.length > 0) {
+        // If the removed item was the last one in the list, reset to the first item
+        if (currentHighlightIndex >= listItems.length) {
+            currentHighlightIndex = 0;
+        }
+        highlightNextEntry(); // Apply highlight
     }
-
-    // Reapply the highlight to the correct item
-    highlightNextEntry();
 }
 
-// Update the removeEntry function to refresh highlighting after an item is removed
+// Update the removeEntry function to refresh highlighting
 function removeEntry(id, listItem) {
     const reference = ref(db, `rankings/${id}`);
     remove(reference)
         .then(() => {
             console.log(`Entry with id ${id} removed successfully`);
-            listItem.remove(); // Remove the item from the DOM
+            listItem.remove(); // Remove the corresponding list item from the DOM
             refreshHighlightAfterRemoval(); // Refresh highlight after removal
         })
         .catch((error) => {
@@ -66,7 +67,4 @@ document.addEventListener('DOMContentLoaded', () => {
     if (nextButton) {
         nextButton.addEventListener('click', moveHighlightNext);
     }
-
-    // Highlight the first item when the page loads
-    highlightNextEntry();
 });
