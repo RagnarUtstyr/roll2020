@@ -83,6 +83,7 @@ li {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    width: 100%;
     padding: 10px;
     margin-bottom: 10px;
     border: 1px solid #8C5A4A; /* Dark reddish-brown border for separation */
