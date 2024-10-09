@@ -1,6 +1,6 @@
 // Import necessary Firebase modules from the SDK
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-import { getDatabase, ref, push, onValue, remove, set } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
 // Firebase Configuration
 const firebaseConfig = {
@@ -37,7 +37,7 @@ async function submitMonsterToFirebase(name, initiative, health, url) {
         addMonsterToListUI(newEntryRef.key, name, initiative, health, url);
     } catch (error) {
         console.error('Error submitting monster:', error);
-        alert('Failed to add monster.');
+        alert('Failed to add monster. Please check console for more details.');
     }
 }
 
@@ -54,5 +54,5 @@ function addMonsterToListUI(id, name, initiative, health, url) {
     rankingList.appendChild(listItem);
 }
 
-// Attach the function to the global window object
+// Attach addToList function to the global window object to be accessible from the HTML
 window.addToList = addToList;
