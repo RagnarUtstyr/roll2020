@@ -31,13 +31,17 @@ function addToList(name, health, url) {
 // Function to submit data to Firebase
 async function submitMonsterToFirebase(name, initiative, health, url) {
     try {
+        // Wait for the push to complete before proceeding
         const reference = ref(db, 'rankings/');
         const newEntryRef = await push(reference, { name, number: initiative, health, url });
-        alert('Monster added successfully!');
+
+        // If push is successful, add to the UI and show success message
         addMonsterToListUI(newEntryRef.key, name, initiative, health, url);
+        alert('Monster added successfully!');
     } catch (error) {
+        // If there's an error, show the error message
         console.error('Error submitting monster:', error);
-        alert('Failed to add monster. Please check console for more details.');
+        alert('Failed to add monster. Please check the console for more details.');
     }
 }
 
