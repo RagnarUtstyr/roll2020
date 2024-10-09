@@ -37,10 +37,11 @@ async function submitMonsterToFirebase(name, initiative, health, url) {
 
         // If push is successful, add to the UI and show success message
         addMonsterToListUI(newEntryRef.key, name, initiative, health, url);
-        console.log('Monster added successfully!');
+        alert('Monster added successfully!');
     } catch (error) {
-        // If there's an error, log it silently without notifying the user
+        // If there's an error, show the error message
         console.error('Error submitting monster:', error);
+        alert('Failed to add monster. Please check the console for more details.');
     }
 }
 
