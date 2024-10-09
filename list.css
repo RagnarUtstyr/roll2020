@@ -147,35 +147,3 @@ body {
     background-color: #8C5A4A; /* Rich reddish-brown background on hover */
     color: #2E1B18; /* Dark text on hover */
 }
-.link-button {
-    display: inline-block; /* Make sure buttons are displayed inline */
-    margin-right: 10px; /* Add spacing between the buttons */
-    vertical-align: middle; /* Align buttons properly */
-}
-
-/* Specific to the button elements inside link-button */
-.link-button button, 
-.link-button a {
-    display: inline-block;
-    background-color: #2E1B18; /* Dark brown background */
-    color: #E0D8B0; /* Parchment-like text color */
-    border: 2px solid #D4AF37; /* Gold border */
-    padding: 10px 15px;
-    text-decoration: none;
-    border-radius: 5px;
-    font-family: 'MedievalSharp', serif;
-    font-size: 1em;
-    transition: background-color 0.3s, color 0.3s; /* Smooth hover effect */
-}
-
-.link-button button:hover,
-.link-button a:hover {
-    background-color: #8C5A4A; /* Rich reddish-brown background on hover */
-    color: #2E1B18; /* Dark text on hover */
-}
-
-.table-entry .link-button-container {
-    display: flex;
-    gap: 10px; /* Adjusts spacing between buttons */
-    justify-content: flex-start; /* Align buttons to the left */
-}
