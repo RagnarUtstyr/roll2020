@@ -1,5 +1,25 @@
+// Import necessary Firebase modules from the SDK
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+
+// Firebase Configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyD_4kINWig7n6YqB11yM2M-EuxGNz5uekI",
+    authDomain: "roll202-c0b0d.firebaseapp.com",
+    databaseURL: "https://roll202-c0b0d-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "roll202-c0b0d",
+    storageBucket: "roll202-c0b0d.appspot.com",
+    messagingSenderId: "607661730400",
+    appId: "1:607661730400:web:b4b3f97a12cfae373e7105",
+    measurementId: "G-6X5L39W56C"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
 // Function to handle adding a monster to the list
-function addToList(name, health, url) {
+export function addToList(name, health, url) {
     const initiative = prompt(`Enter initiative for ${name}:`);
     if (initiative !== null && !isNaN(initiative)) {
         submitMonsterToFirebase(name, parseInt(initiative), health, url);
@@ -11,9 +31,8 @@ function addToList(name, health, url) {
 // Function to submit data to Firebase
 async function submitMonsterToFirebase(name, initiative, health, url) {
     try {
-        const db = firebase.database(); // Assuming firebase is initialized already
-        const reference = db.ref('rankings/');
-        const newEntryRef = await reference.push({ name, number: initiative, health, url });
+        const reference = ref(db, 'rankings/');
+        const newEntryRef = await push(reference, { name, number: initiative, health, url });
         alert('Monster added successfully!');
         addMonsterToListUI(newEntryRef.key, name, initiative, health, url);
     } catch (error) {
