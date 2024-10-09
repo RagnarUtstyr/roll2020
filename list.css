@@ -130,3 +130,20 @@ body {
     border: 2px solid #8C5A4A; /* Darker reddish-brown border on focus */
     background-color: rgba(255, 255, 255, 0.25); /* Slightly brighter background on focus */
 }
+.add-to-list-button {
+    display: inline-block;
+    background-color: #2E1B18; /* Dark brown background */
+    color: #E0D8B0; /* Parchment-like text color */
+    border: 2px solid #D4AF37; /* Gold border */
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    font-family: 'MedievalSharp', serif;
+    font-size: 1em;
+    transition: background-color 0.3s, color 0.3s; /* Smooth hover effect */
+}
+
+.add-to-list-button:hover {
+    background-color: #8C5A4A; /* Rich reddish-brown background on hover */
+    color: #2E1B18; /* Dark text on hover */
+}
