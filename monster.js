@@ -19,7 +19,7 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 // Function to handle adding a monster to the list
-export function addToList(name, health, url) {
+function addToList(name, health, url) {
     const initiative = prompt(`Enter initiative for ${name}:`);
     if (initiative !== null && !isNaN(initiative)) {
         submitMonsterToFirebase(name, parseInt(initiative), health, url);
@@ -53,3 +53,6 @@ function addMonsterToListUI(id, name, initiative, health, url) {
     };
     rankingList.appendChild(listItem);
 }
+
+// Attach the function to the global window object
+window.addToList = addToList;
