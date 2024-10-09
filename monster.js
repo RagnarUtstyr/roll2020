@@ -20,6 +20,7 @@ const db = getDatabase(app);
 
 // Function to handle adding a monster to the list
 function addToList(name, health, url) {
+    console.log(`Adding monster: ${name} with HP: ${health} and URL: ${url}`);
     const initiative = prompt(`Enter initiative for ${name}:`);
     if (initiative !== null && !isNaN(initiative)) {
         submitMonsterToFirebase(name, parseInt(initiative), health, url);
@@ -31,22 +32,27 @@ function addToList(name, health, url) {
 // Function to submit data to Firebase
 async function submitMonsterToFirebase(name, initiative, health, url) {
     try {
-        // Wait for the push to complete before proceeding
+        console.log('Attempting to push data to Firebase...');
         const reference = ref(db, 'rankings/');
         const newEntryRef = await push(reference, { name, number: initiative, health, url });
+        console.log('Data pushed to Firebase successfully.');
 
-        // If push is successful, add to the UI and show success message
+        // If push is successful, add to the UI
         addMonsterToListUI(newEntryRef.key, name, initiative, health, url);
-        console.log('Monster added successfully!');
     } catch (error) {
-        // If there's an error, log it silently without notifying the user
-        console.error('Error submitting monster:', error);
+        console.error('Error (possibly network-related) submitting monster, but continuing:', error);
+        // No alert, silent logging instead
     }
 }
 
 // Function to add monster to the list UI
 function addMonsterToListUI(id, name, initiative, health, url) {
     const rankingList = document.getElementById('rankingList');
+    if (!rankingList) {
+        console.error("Ranking list element not found in the DOM. Cannot add monster.");
+        return;
+    }
+
     const listItem = document.createElement('li');
     listItem.textContent = `${name} (Int: ${initiative}, HP: ${health})`;
     listItem.className = 'list-item';
@@ -58,4 +64,7 @@ function addMonsterToListUI(id, name, initiative, health, url) {
 }
 
 // Attach addToList function to the global window object to be accessible from the HTML
-window.addToList = addToList;
+document.addEventListener('DOMContentLoaded', () => {
+    window.addToList = addToList;
+    console.log("JavaScript loaded and DOM is fully ready.");
+});
