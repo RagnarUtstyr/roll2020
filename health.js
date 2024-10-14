@@ -16,21 +16,36 @@ function fetchRankings() {
             rankings.sort((a, b) => b.number - a.number); // Sort by initiative (number)
 
             // Display rankings
-            rankings.forEach(({ id, name, ac, health }) => {
+            rankings.forEach(({ id, name, ac, health, url }) => {
                 const listItem = document.createElement('li');
                 listItem.className = 'list-item';
 
-                // Name div
+                // Create container for name and AC
+                const nameAcContainer = document.createElement('div');
+                nameAcContainer.className = 'name-ac-container';
+
+                // Name div (only this will function as a button if URL exists)
                 const nameDiv = document.createElement('div');
                 nameDiv.className = 'name';
                 nameDiv.textContent = name;
-                listItem.appendChild(nameDiv);
+                
+                // Add click event to the name only if a URL exists
+                if (url) {
+                    nameDiv.style.cursor = 'pointer';
+                    nameDiv.addEventListener('click', () => {
+                        window.open(url, '_blank');
+                    });
+                }
+                nameAcContainer.appendChild(nameDiv);
 
-                // AC div (show AC instead of initiative)
+                // AC div
                 const acDiv = document.createElement('div');
                 acDiv.className = 'ac';
                 acDiv.textContent = `AC: ${ac !== null && ac !== undefined ? ac : 'N/A'}`;
-                listItem.appendChild(acDiv);
+                nameAcContainer.appendChild(acDiv);
+
+                // Append name and AC container to the list item
+                listItem.appendChild(nameAcContainer);
 
                 // Health div
                 const healthDiv = document.createElement('div');
@@ -66,7 +81,7 @@ function fetchRankings() {
                     listItem.classList.add('defeated');
                 }
 
-                // Append list item to ranking list
+                // Append the list item to ranking list
                 rankingList.appendChild(listItem);
             });
         } else {
