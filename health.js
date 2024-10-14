@@ -28,7 +28,7 @@ function fetchRankings() {
                 const nameDiv = document.createElement('div');
                 nameDiv.className = 'name';
                 nameDiv.textContent = name;
-                
+
                 // Add click event to the name only if a URL exists
                 if (url) {
                     nameDiv.style.cursor = 'pointer';
@@ -53,17 +53,15 @@ function fetchRankings() {
                 healthDiv.textContent = `HP: ${health !== null && health !== undefined ? health : 'N/A'}`;
                 listItem.appendChild(healthDiv);
 
-                // Damage input field (only if health exists)
-                if (health !== null && health !== undefined && health > 0) {
-                    const healthInput = document.createElement('input');
-                    healthInput.type = 'number';
-                    healthInput.placeholder = 'Damage';
-                    healthInput.className = 'damage-input';
-                    healthInput.style.width = '50px';  // Small input field
-                    healthInput.dataset.entryId = id;  // Store entry ID
-                    healthInput.dataset.currentHealth = health;  // Store current health
-                    listItem.appendChild(healthInput);
-                }
+                // Damage input field (always visible, even if health is 0)
+                const healthInput = document.createElement('input');
+                healthInput.type = 'number';
+                healthInput.placeholder = 'Damage';
+                healthInput.className = 'damage-input';
+                healthInput.style.width = '50px';  // Small input field
+                healthInput.dataset.entryId = id;  // Store entry ID
+                healthInput.dataset.currentHealth = health;  // Store current health
+                listItem.appendChild(healthInput);
 
                 // Add the remove button only if health is 0 or below
                 if (health === 0) {
@@ -89,7 +87,6 @@ function fetchRankings() {
         }
     });
 }
-
 
 // Function to apply damage to all entries
 function applyDamageToAll() {
@@ -117,13 +114,18 @@ function updateHealth(id, newHealth, healthInput) {
 
             const listItem = healthInput.parentElement;
 
+            // If the health is 0 or below, mark as defeated
             if (newHealth <= 0) {
-                healthInput.remove();  // Remove input field
                 listItem.classList.add('defeated');  // Add defeated class
 
-                // Add remove button when health reaches 0
+                // Ensure the damage input stays visible and usable
+                healthInput.disabled = false; // Ensure input is not disabled
+                healthInput.style.display = 'inline-block';  // Ensure it's visible
+                healthInput.dataset.currentHealth = newHealth;  // Update current health dataset
+
+                // Check if remove button exists; if not, create it
                 let removeButton = listItem.querySelector('.remove-button');
-                if (!removeButton) {  // Only add if it doesn't exist
+                if (!removeButton) {
                     removeButton = document.createElement('button');
                     removeButton.textContent = 'Remove';
                     removeButton.className = 'remove-button';
@@ -132,8 +134,11 @@ function updateHealth(id, newHealth, healthInput) {
                     });
                     listItem.appendChild(removeButton);
                 }
+
             } else {
+                // If health is greater than 0, just update the health
                 healthInput.dataset.currentHealth = newHealth;  // Update current health
+                listItem.classList.remove('defeated');  // Remove defeated class if health is restored
             }
         })
         .catch((error) => {
