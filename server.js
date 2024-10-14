@@ -25,17 +25,23 @@ async function submitData() {
     const healthInput = document.getElementById('health') ? document.getElementById('health').value : null; // Handle optional Health field
     const health = healthInput !== '' && healthInput !== null ? parseInt(healthInput) : null; // Handle empty health as null if present
 
-    // Ensure name and number are valid, health can be null
+    const acInput = document.getElementById('ac') ? document.getElementById('ac').value : null; // Handle optional AC field
+    const ac = acInput !== '' && acInput !== null ? parseInt(acInput) : null;
+
+    console.log('AC Input Value:', ac);
+
+    // Ensure name and number are valid, health and ac can be null
     if (name && !isNaN(number)) {
         try {
             const reference = ref(db, 'rankings/');
-            await push(reference, { name, number, health });
-            console.log('Data submitted successfully:', { name, number, health });
+            await push(reference, { name, number, health, ac });
+            console.log('Data submitted successfully:', { name, number, health, ac });
 
             // Clear input fields after successful submission
             document.getElementById('name').value = '';
             document.getElementById('initiative') ? document.getElementById('initiative').value = '' : document.getElementById('number').value = '';
             if (document.getElementById('health')) document.getElementById('health').value = '';
+            if (document.getElementById('ac')) document.getElementById('ac').value = '';
 
             // Play sword sound after submission
             const swordSound = document.getElementById('sword-sound');
@@ -59,42 +65,40 @@ function fetchRankings() {
         rankingList.innerHTML = '';
 
         if (data) {
+            // Convert the data into an array and include the 'number' field for sorting
             const rankings = Object.entries(data).map(([id, entry]) => ({ id, ...entry }));
             rankings.sort((a, b) => b.number - a.number); // Sort by initiative (number)
 
-            rankings.forEach(({ id, name, number, health }) => {
+            rankings.forEach(({ id, name, number, health, ac }) => {
                 const listItem = document.createElement('li');
 
-                // Create separate containers for name, initiative (now Int), health (now HP), and button
+                // Name and AC combined
                 const nameDiv = document.createElement('div');
                 nameDiv.className = 'name';
-                nameDiv.textContent = name;
-
-                const numberDiv = document.createElement('div');
-                numberDiv.className = 'number';
-                numberDiv.textContent = `Int: ${number}`; // Changed Initiative to Int
-
-                const healthDiv = document.createElement('div');
-                healthDiv.className = 'health';
-                if (health !== null && health !== undefined) {
-                    healthDiv.textContent = `HP: ${health}`; // Add HP prefix if health is defined
+                if (ac !== null && ac !== undefined) {
+                    nameDiv.textContent = `${name} (AC: ${ac})`;
                 } else {
-                    healthDiv.textContent = ''; // Empty if no health value
+                    nameDiv.textContent = name;
                 }
 
+                // Health
+                const healthDiv = document.createElement('div');
+                healthDiv.className = 'health';
+                healthDiv.textContent = health !== null && health !== undefined ? `HP: ${health}` : '';
+
+                // Remove Button
                 const removeButton = document.createElement('button');
                 removeButton.textContent = 'Remove';
                 removeButton.addEventListener('click', () => removeEntry(id));
 
-                // Append all parts to the list item
+                // Append elements to listItem
                 listItem.appendChild(nameDiv);
-                listItem.appendChild(numberDiv);
                 if (healthDiv.textContent !== '') {
-                    listItem.appendChild(healthDiv); // Only append HP if there is a value
+                    listItem.appendChild(healthDiv);
                 }
                 listItem.appendChild(removeButton);
 
-                // Append the list item to the ranking list
+                // Append the listItem to the rankingList
                 rankingList.appendChild(listItem);
             });
         } else {
@@ -104,6 +108,7 @@ function fetchRankings() {
         console.error('Error fetching data:', error);
     });
 }
+
 // Function to remove an entry from Firebase
 function removeEntry(id) {
     const reference = ref(db, `rankings/${id}`);

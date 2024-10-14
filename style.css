@@ -86,9 +86,8 @@ h1, h2 {
 
 /* List Items */
 li {
-    display: flex; /* Make the list item a flex container */
-    align-items: center; /* Vertically align elements in the center */
-    justify-content: space-between; /* Distribute elements evenly */
+    display: flex; /* Flexbox layout */
+    align-items: center; /* Vertically align elements */
     padding: 10px;
     margin-bottom: 10px;
     border: 1px solid #8C5A4A;
@@ -99,13 +98,25 @@ li {
     gap: 10px; /* Adds spacing between elements */
 }
 
-/* Flex properties for the name, number, and health elements */
-li .name, li .number, li .health {
+/* Flex properties for the name, number, health, and ac elements */
+li .name, li .number, li .health, li .ac {
     padding: 0 5px; /* Add a little padding to the left and right */
-    flex: 2; /* Make these elements take up more space */
+    flex: 1; /* Distribute space equally */
     white-space: nowrap; /* Prevent text from breaking into multiple lines */
     overflow: hidden;
     text-overflow: ellipsis; /* Add ellipsis (...) if content overflows */
+    text-align: center; /* Center the text */
+}
+
+/* Optionally make the name field wider */
+li .name {
+    flex: 2; /* Make the name field take up more space */
+}
+
+/* Specific styling for .ac class */
+li .ac {
+    color: #E0D8B0; /* Parchment-like text color */
+    font-size: 1em;
 }
 
 /* Input fields inside list items */
@@ -199,7 +210,7 @@ a.button-link:hover {
         font-size: 0.9em; /* Slightly smaller font size */
     }
 
-    li .name, li .number, li .health {
+    li .name, li .number, li .health, li .ac {
         flex: 1; /* Ensure better distribution of space on smaller screens */
         text-align: center; /* Center the text for smaller screens */
     }
@@ -218,7 +229,6 @@ a.button-link:hover {
 li {
     display: flex; /* Flexbox layout */
     align-items: center; /* Vertically align elements */
-    justify-content: space-between; /* Space between elements */
     padding: 10px;
     margin-bottom: 10px;
     border: 1px solid #8C5A4A;
@@ -226,4 +236,59 @@ li {
     background-color: rgba(165, 123, 91, 0.8);
     width: 100%; /* Take full width of the container */
     gap: 10px; /* Space between child elements */
+}
+/* Style for the name and AC container */
+.name-ac-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex: 2; /* Adjust as needed */
+    gap: 5px;
+}
+
+/* Flex properties for the name, ac, number, and health elements */
+.name-ac-container .name, .name-ac-container .ac, li .number, li .health {
+    padding: 0 5px;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+}
+
+/* Optionally adjust the flex for name and AC */
+.name-ac-container .name, .name-ac-container .ac {
+    flex: 1; /* Together they take up the space assigned to name-ac-container */
+}
+
+/* Ensure buttons don't stretch */
+li button {
+    flex: 0 0 auto;
+}
+li .name, li .health {
+    padding: 0 5px;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+}
+
+/* Adjust flex properties to center the elements */
+li {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Center the items horizontally */
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #8C5A4A;
+    border-radius: 5px;
+    background-color: rgba(165, 123, 91, 0.8);
+    width: 100%;
+    gap: 10px;
+}
+
+/* Ensure buttons don't stretch */
+li button {
+    flex: 0 0 auto;
 }
