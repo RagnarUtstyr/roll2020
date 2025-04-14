@@ -140,7 +140,7 @@ input.damage-input {
 
 /* Defeated class for list items with 0 HP */
 .defeated {
-    background-color: #06262e; /* Dark red background */
+    background-color: #530d0d; /* Dark red background */
     color: white; /* White text for better contrast */
     border: 2px solid #023754; /* Optional: Red border to emphasize the defeated state */
     transition: background-color 0.3s ease; /* Smooth transition when the item becomes defeated */
