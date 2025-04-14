@@ -162,7 +162,7 @@ input.damage-input {
 /* Apply Damage button styling */
 #apply-damage-button {
     background-color: #0b2621; /* Dark brown background */
-    color: #827b5a; /* Parchment-like text color */
+    color: #bdb382; /* Parchment-like text color */
     border: 2px solid #2d3d73; /* Gold border */
     padding: 10px 20px; /* Larger padding for the button */
     cursor: pointer;
@@ -177,7 +177,7 @@ input.damage-input {
 
 #apply-damage-button:hover {
     background-color: #1a3b4a; /* Rich reddish-brown hover background */
-    color: #0b2621; /* Dark text on hover */
+    color: #237768; /* Dark text on hover */
 }
 
 /* Link Styled as Button */
