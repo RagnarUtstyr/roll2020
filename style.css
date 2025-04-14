@@ -128,7 +128,7 @@ input.damage-input {
     border: 2px solid #2d3d73; /* Gold border */
     border-radius: 5px;
     background-color: rgba(255, 255, 255, 0.15); /* Slightly transparent white */
-    color: #6b4e33; /* Parchment-like text color */
+    color: #b68558; /* Parchment-like text color */
     font-family: 'MedievalSharp', serif;
     font-size: 1em;
     outline: none;
@@ -199,7 +199,7 @@ a.button-link {
 
 a.button-link:hover {
     background-color: #1a3b4a; /* Rich reddish-brown hover background */
-    color: #237768; /* Dark text on hover */
+    color: #075e4e; /* Dark text on hover */
 }
 
 /* Media Queries for Mobile Devices */
