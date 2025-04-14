@@ -55,7 +55,7 @@
 
 .highlighted {
     background-color: #2d3d73; /* Gold background */
-    color: #14e9c2; /* Dark text */
+    color: #069e82; /* Dark text */
     border: 2px solid #FFD700; /* Bright gold border */
     box-shadow: 0 0 10px #FFD700; /* Glowing effect */
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
