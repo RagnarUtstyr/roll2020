@@ -88,17 +88,22 @@ function fetchRankings() {
     });
 }
 
-// Function to apply damage to all entries
+// Function to apply damage to all entries, factoring in AC reduction
 function applyDamageToAll() {
     const damageInputs = document.querySelectorAll('.damage-input');
     damageInputs.forEach(input => {
         const entryId = input.dataset.entryId;
         const currentHealth = parseInt(input.dataset.currentHealth);
         const damage = parseInt(input.value);
+        const ac = parseInt(input.parentElement.querySelector('.ac').textContent.replace('AC: ', ''));
 
-        // Ensure damage is a valid number
-        if (!isNaN(damage)) {
-            const updatedHealth = currentHealth - damage;
+        // Ensure damage and AC are valid numbers
+        if (!isNaN(damage) && !isNaN(ac)) {
+            // Calculate the effective damage (damage minus AC)
+            const effectiveDamage = Math.max(damage - ac, 0); // Ensure no negative damage
+
+            // Calculate the new health
+            const updatedHealth = currentHealth - effectiveDamage;
             updateHealth(entryId, updatedHealth > 0 ? updatedHealth : 0, input);
         }
     });
@@ -164,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
         fetchRankings();
     }
 
-    // Event listener for "Apply Damage" button
+    // Ensure the apply damage button is present before attaching the event listener
     const applyDamageButton = document.getElementById('apply-damage-button');
     if (applyDamageButton) {
         applyDamageButton.addEventListener('click', applyDamageToAll);
