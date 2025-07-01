@@ -1,294 +1,333 @@
-/* General Body Styling */
 body {
-    background: url('background.jpg') no-repeat center center fixed;
-    background-size: cover;
-    position: relative;
-    color: #45341;
-    font-family: 'MedievalSharp', serif;
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
+  background: url('background.jpg') no-repeat center center fixed;
+  background-size: cover;
+  font-family: 'MedievalSharp', cursive;
+  color: #bdb382;
+  margin: 0;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
 }
-
-/* Opaque Overlay to darken the background */
-body::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(255, 255, 255, 0.0);
-    z-index: -1;
-}
-
-/* Main Container */
-.container {
-    max-width: 800px;
-    width: 100%;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: rgba(11, 41, 36, 0.8); /* Darker brown with opacity */
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
-    border-radius: 10px;
-    box-sizing: border-box;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-/* Input Fields */
-input[type="text"], input[type="number"] {
-    padding: 10px;
-    border: 2px solid #2d3d73; /* Gold border for input fields */
-    border-radius: 5px;
-    width: calc(100% - 20px);
-    margin-bottom: 15px;
-    box-sizing: border-box;
-    background-color: rgba(255, 255, 255, 0.15); /* Slightly transparent white */
-    color: #827b5a; /* Parchment-like text color for input text */
-    font-family: 'MedievalSharp', serif;
-    font-size: 1em;
-    outline: none;
-}
-
-/* Remove arrows from input[type="number"] in Chrome, Safari, Edge, and Opera */
-input[type="number"]::-webkit-outer-spin-button,
-input[type="number"]::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
-
-/* Remove arrows from input[type="number"] in Firefox */
-input[type="number"] {
-    -moz-appearance: textfield;
-}
-
-/* Focused Input Fields */
-input[type="text"]:focus, input[type="number"]:focus {
-    border: 2px solid #1a3b4a; /* Darker reddish-brown border on focus */
-    background-color: rgba(255, 255, 255, 0.25); /* Slightly brighter background on focus */
-}
-
-/* Headings */
 h1, h2 {
-    color: #2d3d73; /* Gold color for headings */
-    font-weight: bold;
-    font-family: 'MedievalSharp', serif;
-    text-align: center;
-    margin-bottom: 15px;
+  color: #e3cf95;
+  text-align: center;
 }
 
-/* List Items */
-li {
-    display: flex; /* Flexbox layout */
-    align-items: center; /* Vertically align elements */
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #1a3b4a;
-    border-radius: 5px;
-    background-color: rgba(11, 41, 36, 0.8);
-    max-width: 600px; /* Limit the total width */
-    margin: 0 auto 10px auto; /* Center the list item */
-    gap: 10px; /* Adds spacing between elements */
+input[type="text"],
+input[type="number"] {
+  padding: 10px;
+  border: 2px solid #2d3d73;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.15);
+  color: #827b5a;
+  font-size: 1em;
+  width: 100%;
+  margin-bottom: 10px;
+  box-sizing: border-box;
 }
 
-/* Flex properties for the name, number, health, and ac elements */
-li .name, li .number, li .health, li .ac {
-    padding: 0 5px; /* Add a little padding to the left and right */
-    flex: 1; /* Distribute space equally */
-    white-space: nowrap; /* Prevent text from breaking into multiple lines */
-    overflow: hidden;
-    text-overflow: ellipsis; /* Add ellipsis (...) if content overflows */
-    text-align: center; /* Center the text */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
-/* Optionally make the name field wider */
-li .name {
-    flex: 2; /* Make the name field take up more space */
+input[type="number"] {
+  appearance: textfield;
+  -moz-appearance: textfield;
 }
 
-/* Specific styling for .ac class */
-li .ac {
-    color: #669666; /* Parchment-like text color */
-    font-size: 1em;
+button {
+  background-color: #0b2621;
+  color: #bdb382;
+  border: 2px solid #2d3d73;
+  padding: 10px 15px;
+  border-radius: 5px;
+  font-family: 'MedievalSharp', cursive;
+  cursor: pointer;
+  font-size: 1em;
+  margin: 0;
 }
 
-/* Input fields inside list items */
-input.damage-input {
-    flex: 0 0 auto; /* Do not let the input box grow unnecessarily */
-    width: 60px; /* Limit the width for mobile */
-    height: 30px; /* Set a consistent height */
-    padding: 5px;
-    border: 2px solid #2d3d73; /* Gold border */
-    border-radius: 5px;
-    background-color: rgba(255, 255, 255, 0.15); /* Slightly transparent white */
-    color: #b68558; /* Parchment-like text color */
-    font-family: 'MedievalSharp', serif;
-    font-size: 1em;
-    outline: none;
-    text-align: center; /* Center the number inside the input */
-    vertical-align: middle; /* Align it vertically */
-    margin: 0; /* Remove extra margins to better align it with other elements */
-    box-sizing: border-box; /* Ensure padding doesn't affect overall width */
+button:hover {
+  background-color: #1a3b4a;
+  color: #237768;
 }
 
-/* Defeated class for list items with 0 HP */
-.defeated {
-    background-color: #530d0d; /* Dark red background */
-    color: white; /* White text for better contrast */
-    border: 2px solid #023754; /* Optional: Red border to emphasize the defeated state */
-    transition: background-color 0.3s ease; /* Smooth transition when the item becomes defeated */
-}
-
-/* Submit and Clear List Buttons */
-#submit-button, #clear-list-button, #apply-damage-button {
-    background-color: #0b2621; /* Dark brown background */
-    color: #bdb382; /* Parchment-like text color */
-    border: 2px solid #2d3d73; /* Gold border */
-    padding: 10px 15px;
-    cursor: pointer;
-    border-radius: 5px;
-    margin-top: 10px;
-    font-size: 1em;
-    width: fit-content;
-}
-
-/* Apply Damage button styling */
-#apply-damage-button {
-    background-color: #0b2621; /* Dark brown background */
-    color: #bdb382; /* Parchment-like text color */
-    border: 2px solid #2d3d73; /* Gold border */
-    padding: 10px 20px; /* Larger padding for the button */
-    cursor: pointer;
-    border-radius: 5px; /* Rounded corners */
-    font-family: 'MedievalSharp', serif; /* Use the same font */
-    font-size: 1em;
-    transition: background-color 0.3s, color 0.3s; /* Smooth hover effect */
-    width: fit-content; /* Adjust the width to the content */
-    margin: 20px auto; /* Center the button */
-    display: block; /* Make sure the button is a block element */
-}
-
-#apply-damage-button:hover {
-    background-color: #1a3b4a; /* Rich reddish-brown hover background */
-    color: #237768; /* Dark text on hover */
-}
-
-/* Link Styled as Button */
 a.button-link {
-    display: block;
-    background-color: #0b2621; /* Dark brown background */
-    color: #bdb382; /* Parchment-like text color */
-    border: 2px solid #2d3d73; /* Gold border */
-    padding: 10px 15px;
-    cursor: pointer;
-    border-radius: 5px;
-    text-decoration: none;
-    margin-top: 20px;
-    transition: background-color 0.3s, color 0.3s;
-    text-align: center;
-    width: fit-content;
-    align-self: center; /* Ensure it's centered within the flex container */
+  display: inline-block;
+  margin-right: 10px;
+  padding: 10px 15px;
+  color: #bdb382;
+  text-decoration: none;
+  border: 2px solid #2d3d73;
+  border-radius: 5px;
 }
 
 a.button-link:hover {
-    background-color: #1a3b4a; /* Rich reddish-brown hover background */
-    color: #075e4e; /* Dark text on hover */
+  background-color: #1a3b4a;
+  color: #ffffff;
 }
 
-/* Media Queries for Mobile Devices */
-@media (max-width: 768px) {
-    input.damage-input {
-        width: 50px; /* Reduce width even further on mobile */
-        height: 25px; /* Adjust height for smaller screens */
-        font-size: 0.9em; /* Slightly smaller font size */
-    }
-
-    li .name, li .number, li .health, li .ac {
-        flex: 1; /* Ensure better distribution of space on smaller screens */
-        text-align: center; /* Center the text for smaller screens */
-    }
-}
-
-/* Style for the gathered list */
 #rankingList {
-    max-width: 800px; /* Increase max-width to make the list wider */
-    width: 100%; /* Ensure it takes full width up to max-width */
-    margin: 0 auto; /* Center the list */
-    padding: 0;
-    list-style-type: none; /* Remove default bullet points */
+  list-style-type: none;
+  padding: 0;
+  margin: 0 auto;
+  max-width: 100%;
 }
 
-/* Individual List Items (li) */
-li {
-    display: flex; /* Flexbox layout */
-    align-items: center; /* Vertically align elements */
+#rankingList li {
+  background-color: rgba(11, 41, 36, 0.85);
+  color: #bdb382;
+  padding: 10px 15px;
+  margin-bottom: 10px;
+  border: 1px solid #1a3b4a;
+  border-radius: 5px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  flex-wrap: nowrap;
+  overflow: hidden;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  gap: 10px;
+}
+
+li .name,
+li .health,
+li .ac,
+li .number {
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+input.damage-input {
+  width: 60px;
+  padding: 5px;
+  border: 2px solid #2d3d73;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.15);
+  color: #b68558;
+  font-size: 1em;
+  text-align: center;
+}
+
+.remove-button {
+  background-color: #a8342d;
+  color: #fff;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: 'MedievalSharp', cursive;
+}
+
+.remove-button:hover {
+  background-color: #851f1a;
+}
+
+.container {
+  width: 100%;
+  max-width: 800px;
+  padding: 20px;
+  background-color: rgba(31, 29, 26, 0.85);
+  border-radius: 10px;
+  box-shadow: 0 0 10px #000;
+  margin: 0 auto;
+}
+ul {
+  padding: 0;
+}
+
+.list-item {
+  border-bottom: 1px solid #bdb382;
+  padding: 10px 0;
+}
+
+/* Ranking layout */
+.ranking-container {
+  width: 100%;
+  margin: 0 auto;
+  padding: 10px 15px;
+  background-color: transparent;
+  border: none;
+}
+
+.ranking-header,
+.ranking-body li {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  flex-wrap: nowrap;
+  padding: 6px 15px;
+}
+
+.ranking-body {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.ranking-header .column,
+.ranking-body li .column {
+  text-align: center;
+  font-size: 1em;
+  white-space: nowrap;
+}
+
+.column.name {
+  width: 40%;
+  font-weight: bold;
+}
+
+.column.hp {
+  width: 20%;
+}
+
+.column.dmg {
+  width: 20%;
+}
+
+.defense-input-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.defense-input {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.defense-input label {
+  font-size: 0.9em;
+  margin-bottom: 4px;
+  color: #bdb382;
+}
+
+.defense-input input {
+  padding: 6px;
+  border: 2px solid #2d3d73;
+  border-radius: 5px;
+  background-color: rgba(255, 255, 255, 0.15);
+  color: #827b5a;
+  font-family: 'MedievalSharp', serif;
+  font-size: 1em;
+}
+
+/* Defeated red background */
+#rankingList li.defeated,
+.list-item.defeated {
+  background-color: #530d0d !important;
+  color: white !important;
+}
+
+/* Global stat selector */
+.global-stat-selector {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 12px;
+  color: #bdb382;
+  font-family: 'MedievalSharp', serif;
+  flex-wrap: wrap;
+}
+
+.global-stat-selector input[type="radio"] {
+  transform: scale(1.2);
+  margin-right: 6px;
+}
+
+/* ========================== */
+/* Updated Button Container   */
+/* ========================== */
+.button-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  margin: 1em auto;
+}
+
+.button-container button {
+  flex: 1; 
+  min-width: 100px;
+  padding: 10px 15px; 
+  font-size: 1em;
+  white-space: nowrap;
+  text-align: center;
+}
+
+/* ========================== */
+
+@media (max-width: 600px) {
+  body {
     padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #1a3b4a;
-    border-radius: 5px;
-    background-color: rgba(165, 123, 91, 0.8);
-    width: 100%; /* Take full width of the container */
-    gap: 10px; /* Space between child elements */
-}
-/* Style for the name and AC container */
-.name-ac-container {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    flex: 2; /* Adjust as needed */
-    gap: 5px;
-}
+  }
 
-/* Flex properties for the name, ac, number, and health elements */
-.name-ac-container .name, .name-ac-container .ac, li .number, li .health {
-    padding: 0 5px;
-    flex: 1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    text-align: center;
-}
-
-/* Optionally adjust the flex for name and AC */
-.name-ac-container .name, .name-ac-container .ac {
-    flex: 1; /* Together they take up the space assigned to name-ac-container */
-}
-
-/* Ensure buttons don't stretch */
-li button {
-    flex: 0 0 auto;
-}
-li .name, li .health {
-    padding: 0 5px;
-    flex: 1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    text-align: center;
-}
-
-/* Adjust flex properties to center the elements */
-li {
-    display: flex;
-    align-items: center;
-    justify-content: center; /* Center the items horizontally */
+  .container {
     padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #1a3b4a;
-    border-radius: 5px;
-    background-color: rgba(11, 41, 36, 0.8);
+  }
+
+  h1, h2 {
+    font-size: 1.2em;
+  }
+
+  input[type="text"],
+  input[type="number"] {
+    font-size: 0.95em;
+  }
+
+  .ranking-header,
+  .ranking-body li {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .ranking-header .column,
+  .ranking-body li .column {
     width: 100%;
-    gap: 10px;
-}
+    text-align: left;
+  }
 
-/* Ensure buttons don't stretch */
-li button {
-    flex: 0 0 auto;
+  .defense-input-row {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .button-container {
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .button-container button {
+    width: 100%;
+    font-size: 1em;
+  }
+
+  #submit-button,
+  #clear-list-button,
+  .button-link {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  .global-stat-selector {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    font-size: 0.9em;
+  }
 }

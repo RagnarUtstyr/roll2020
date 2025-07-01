@@ -20,54 +20,39 @@ const db = getDatabase(app);
 
 // Function to submit data to Firebase
 async function submitData() {
-    const name = document.getElementById('name')?.value;
-    const numberInput = document.getElementById('initiative') || document.getElementById('number');
-    const number = numberInput ? parseInt(numberInput.value) : null;
+    const name = document.getElementById('name').value;
+    const number = parseInt(document.getElementById('initiative') ? document.getElementById('initiative').value : document.getElementById('number').value);
+    const healthInput = document.getElementById('health') ? document.getElementById('health').value : null; // Handle optional Health field
+    const health = healthInput !== '' && healthInput !== null ? parseInt(healthInput) : null; // Handle empty health as null if present
 
-    const healthInput = document.getElementById('health');
-    const health = healthInput && healthInput.value !== '' ? parseInt(healthInput.value) : null;
+    const acInput = document.getElementById('ac') ? document.getElementById('ac').value : null; // Handle optional AC field
+    const ac = acInput !== '' && acInput !== null ? parseInt(acInput) : null;
 
-    const grdInput = document.getElementById('grd');
-    const resInput = document.getElementById('res');
-    const tghInput = document.getElementById('tgh');
+    console.log('AC Input Value:', ac);
 
-    const grd = grdInput ? (grdInput.value !== '' ? parseInt(grdInput.value) : null) : undefined;
-    const res = resInput ? (resInput.value !== '' ? parseInt(resInput.value) : null) : undefined;
-    const tgh = tghInput ? (tghInput.value !== '' ? parseInt(tghInput.value) : null) : undefined;
-
+    // Ensure name and number are valid, health and ac can be null
     if (name && !isNaN(number)) {
         try {
-            const entry = { name, number };
-            if (health !== null) entry.health = health;
-            if (grd !== undefined) entry.grd = grd;
-            if (res !== undefined) entry.res = res;
-            if (tgh !== undefined) entry.tgh = tgh;
+            const reference = ref(db, 'rankings/');
+            await push(reference, { name, number, health, ac });
+            console.log('Data submitted successfully:', { name, number, health, ac });
 
-            const rankingsRef = ref(db, 'rankings/');
-            const monsterRef = ref(db, 'OpenLegendMonster/');
-
-            // Save to both locations
-            await push(rankingsRef, entry);
-            await push(monsterRef, entry);
-            console.log('Data submitted to rankings and OpenLegendMonster:', entry);
-
-            // Clear inputs
+            // Clear input fields after successful submission
             document.getElementById('name').value = '';
-            if (numberInput) numberInput.value = '';
-            if (healthInput) healthInput.value = '';
-            if (grdInput) grdInput.value = '';
-            if (resInput) resInput.value = '';
-            if (tghInput) tghInput.value = '';
+            document.getElementById('initiative') ? document.getElementById('initiative').value = '' : document.getElementById('number').value = '';
+            if (document.getElementById('health')) document.getElementById('health').value = '';
+            if (document.getElementById('ac')) document.getElementById('ac').value = '';
 
-            // Play sword sound if available
+            // Play sword sound after submission
             const swordSound = document.getElementById('sword-sound');
-            if (swordSound) swordSound.play();
-
+            if (swordSound) {
+                swordSound.play();
+            }
         } catch (error) {
             console.error('Error submitting data:', error);
         }
     } else {
-        console.log('Please enter a valid name and initiative number.');
+        console.log('Please enter valid name and initiative values.');
     }
 }
 
@@ -77,35 +62,43 @@ function fetchRankings() {
     onValue(reference, (snapshot) => {
         const data = snapshot.val();
         const rankingList = document.getElementById('rankingList');
-        if (!rankingList) return;
-
         rankingList.innerHTML = '';
 
         if (data) {
+            // Convert the data into an array and include the 'number' field for sorting
             const rankings = Object.entries(data).map(([id, entry]) => ({ id, ...entry }));
-            rankings.sort((a, b) => b.number - a.number);
+            rankings.sort((a, b) => b.number - a.number); // Sort by initiative (number)
 
-            rankings.forEach(({ id, name, number, health, grd, res, tgh }) => {
+            rankings.forEach(({ id, name, number, health, ac }) => {
                 const listItem = document.createElement('li');
 
+                // Name and AC combined
                 const nameDiv = document.createElement('div');
                 nameDiv.className = 'name';
-                nameDiv.textContent = `${name} (GRD: ${grd ?? 'N/A'}, RES: ${res ?? 'N/A'}, TGH: ${tgh ?? 'N/A'})`;
+                if (ac !== null && ac !== undefined) {
+                    nameDiv.textContent = `${name} (AC: ${ac})`;
+                } else {
+                    nameDiv.textContent = name;
+                }
 
+                // Health
                 const healthDiv = document.createElement('div');
                 healthDiv.className = 'health';
                 healthDiv.textContent = health !== null && health !== undefined ? `HP: ${health}` : '';
 
+                // Remove Button
                 const removeButton = document.createElement('button');
                 removeButton.textContent = 'Remove';
                 removeButton.addEventListener('click', () => removeEntry(id));
 
+                // Append elements to listItem
                 listItem.appendChild(nameDiv);
                 if (healthDiv.textContent !== '') {
                     listItem.appendChild(healthDiv);
                 }
                 listItem.appendChild(removeButton);
 
+                // Append the listItem to the rankingList
                 rankingList.appendChild(listItem);
             });
         } else {
@@ -131,18 +124,19 @@ function removeEntry(id) {
 // Function to clear all entries from Firebase
 function clearAllEntries() {
     const reference = ref(db, 'rankings/');
-    set(reference, null)
+    set(reference, null) // Sets the entire 'rankings' node to null, deleting all data.
         .then(() => {
             console.log('All entries removed successfully');
+            // Clear the displayed list immediately
             const rankingList = document.getElementById('rankingList');
-            if (rankingList) rankingList.innerHTML = '';
+            rankingList.innerHTML = ''; // Explicitly clear the UI
         })
         .catch((error) => {
             console.error('Error clearing all entries:', error);
         });
 }
 
-// Page setup
+// Event listeners for page-specific actions
 document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('submit-button')) {
         document.getElementById('submit-button').addEventListener('click', submitData);
