@@ -1,3 +1,14 @@
+/* === Global Fix for Overflow & Scaling === */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 body {
   background: url('background.jpg') no-repeat center center fixed;
   background-size: cover;
@@ -12,6 +23,7 @@ body {
   min-height: 100vh;
 }
 
+/* === Typography === */
 h1, h2 {
   color: #e3cf95;
   text-align: center;
@@ -41,6 +53,7 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
+/* === Buttons === */
 button {
   background-color: #0b2621;
   color: #bdb382;
@@ -73,6 +86,7 @@ a.button-link:hover {
   color: #ffffff;
 }
 
+/* === Ranking List === */
 #rankingList {
   list-style-type: none;
   padding: 0;
@@ -105,6 +119,8 @@ li .number {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  min-width: 0;
+  word-break: break-word;
 }
 
 input.damage-input {
@@ -132,16 +148,26 @@ input.damage-input {
   background-color: #851f1a;
 }
 
+/* === Main Container (Fixed for Mobile) === */
 .container {
   width: 100%;
-  max-width: 800px;
-  padding: 20px;
+  max-width: 100%;
+  padding: 10px;
   background-color: rgba(31, 29, 26, 0.85);
   border-radius: 10px;
   box-shadow: 0 0 10px #000;
   margin: 0 auto;
 }
 
+/* Restore max-width on larger screens */
+@media (min-width: 600px) {
+  .container {
+    max-width: 800px;
+    padding: 20px;
+  }
+}
+
+/* === Misc Lists === */
 ul {
   padding: 0;
 }
@@ -151,7 +177,7 @@ ul {
   padding: 10px 0;
 }
 
-/* Ranking layout */
+/* === Ranking Layout === */
 .ranking-container {
   width: 100%;
   margin: 0 auto;
@@ -181,6 +207,8 @@ ul {
   text-align: center;
   font-size: 1em;
   white-space: nowrap;
+  min-width: 0;
+  word-break: break-word;
 }
 
 .column.name {
@@ -199,7 +227,7 @@ ul {
   text-align: right;
 }
 
-/* Defense inputs */
+/* === Defense Inputs === */
 .defense-input-row {
   display: flex;
   justify-content: space-between;
@@ -230,14 +258,14 @@ ul {
   font-size: 1em;
 }
 
-/* Defeated red background */
+/* === Defeated Style === */
 #rankingList li.defeated,
 .list-item.defeated {
   background-color: #530d0d !important;
   color: white !important;
 }
 
-/* Global stat selector — fixed for mobile */
+/* === Global Stat Selector === */
 .global-stat-selector {
   display: flex;
   justify-content: center;
@@ -245,7 +273,7 @@ ul {
   margin-bottom: 10px;
   color: #bdb382;
   font-family: 'MedievalSharp', serif;
-  flex-wrap: nowrap;
+  flex-wrap: wrap; /* fixed */
   overflow-x: auto;
   white-space: nowrap;
 }
@@ -263,7 +291,7 @@ ul {
   margin: 0;
 }
 
-/* Button container */
+/* === Button Container === */
 .button-container {
   display: flex;
   justify-content: space-between;
@@ -271,6 +299,7 @@ ul {
   gap: 20px;
   width: 100%;
   margin: 1em auto;
+  min-width: 0;
 }
 
 .button-container button {
@@ -282,15 +311,9 @@ ul {
   text-align: center;
 }
 
-/* ====================== */
-/* Mobile Responsiveness  */
-/* ====================== */
+/* === Mobile Responsiveness === */
 @media (max-width: 600px) {
   body {
-    padding: 10px;
-  }
-
-  .container {
     padding: 10px;
   }
 
@@ -335,7 +358,7 @@ ul {
   .global-stat-selector {
     justify-content: space-evenly;
     gap: 6px;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     overflow-x: auto;
     white-space: nowrap;
     font-size: 0.9em;
@@ -355,6 +378,8 @@ ul {
     width: 33%;
     font-size: 0.9em;
     text-align: center;
+    min-width: 0;
+    word-break: break-word;
   }
 
   .column.name {
