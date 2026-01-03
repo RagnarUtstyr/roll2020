@@ -1,5 +1,18 @@
 let currentHighlightIndex = 0;
 
+// === Round counter (increments each time the list cycles back to the top) ===
+window.roundCounter = window.roundCounter ?? 1;
+
+window.updateRoundDisplay = function updateRoundDisplay() {
+    const el = document.getElementById('round-value');
+    if (el) el.textContent = window.roundCounter;
+};
+
+window.resetRoundCounter = function resetRoundCounter() {
+    window.roundCounter = 1;
+    window.updateRoundDisplay();
+};
+
 function highlightCurrentEntry() {
     const listItems = document.querySelectorAll('#rankingList li');
 
@@ -28,8 +41,17 @@ function moveToNextEntry() {
         return;
     }
 
+    // If we're currently on the last item, wrapping will start a new round
+    const wasLast = currentHighlightIndex === listItems.length - 1;
+
     // Move to the next item, or loop back to the first if at the end
     currentHighlightIndex = (currentHighlightIndex + 1) % listItems.length;
+
+    // If we wrapped from last back to first, increment the round counter
+    if (wasLast && currentHighlightIndex === 0) {
+        window.roundCounter = (window.roundCounter ?? 1) + 1;
+        window.updateRoundDisplay?.();
+    }
 
     // Apply the new highlight
     highlightCurrentEntry();
@@ -104,6 +126,14 @@ document.addEventListener('DOMContentLoaded', () => {
         nextButton.addEventListener('click', moveToNextEntry);
     }
 
+    // ADDED: Reset Round button (does NOT clear list)
+    const resetRoundButton = document.getElementById('reset-round-button');
+    if (resetRoundButton) {
+        resetRoundButton.addEventListener('click', () => {
+            window.resetRoundCounter?.();
+        });
+    }
+
     // Attach event listener to "Previous" button (if applicable)
     const prevButton = document.getElementById('prev-button');
     if (prevButton) {
@@ -112,6 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Ensure the first item is highlighted when the page loads
     highlightCurrentEntry();
+    window.updateRoundDisplay?.(); // (optional but recommended if you added updateRoundDisplay earlier)
 
     // Ensure the highlight stays visible even when the DOM changes
     ensureHighlightAlwaysVisible();
