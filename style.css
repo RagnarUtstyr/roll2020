@@ -432,13 +432,12 @@ ul {
 
 /* === Round Counter === */
 .ranking-container {
-  position: relative; /* needed so the counter can sit top-left inside it */
+  position: left; /* needed so the counter can sit top-left inside it */
 }
 
 #round-counter {
-  position: absolute;
-  top: 12px;
-  left: 16px;
+  position: static;     /* ← puts it back in normal document flow */
+  margin-bottom: 8px;   /* spacing above the stat selector */
   font-size: 1.1em;
   color: #e3cf95;
   font-weight: bold;
