@@ -1,3 +1,4 @@
+✅ style.css (complete file, only added at bottom)
 /* === Global Fix for Overflow & Scaling === */
 * {
   box-sizing: border-box;
@@ -390,6 +391,7 @@ ul {
     text-align: right;
   }
 }
+
 .ol-modal {
   position: fixed; inset: 0;
   background: rgba(0,0,0,0.6);
@@ -432,13 +434,43 @@ ul {
 
 /* === Round Counter === */
 .ranking-container {
-  position: left; /* needed so the counter can sit top-left inside it */
+  position: relative; /* needed so the counter can sit top-left inside it */
 }
 
 #round-counter {
-  position: static;     /* ← puts it back in normal document flow */
-  margin-bottom: 8px;   /* spacing above the stat selector */
+  position: absolute;
+  top: 12px;
+  left: 16px;
   font-size: 1.1em;
   color: #e3cf95;
   font-weight: bold;
+}
+
+/* ====================================================================== */
+/* ===================== ADDED: Countdown styling ======================== */
+/* ====================================================================== */
+
+/* Active countdown = slight green translucent colour */
+#rankingList li.list-item.countdown-active {
+  background-color: rgba(0, 255, 0, 0.12) !important;
+}
+
+/* Countdown ended = orange ONLY when tracker is on it (when .highlighted is present) */
+#rankingList li.list-item.countdown-expired.highlighted {
+  background-color: rgba(255, 165, 0, 0.22) !important;
+}
+
+/* Small optional badge next to name (health.js adds it) */
+.countdown-badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-size: 12px;
+  border: 1px solid #1a3b4a;
+  background: rgba(0, 0, 0, 0.25);
+  color: #bdb382;
+  vertical-align: middle;
+  user-select: none;
+  pointer-events: none;
 }
