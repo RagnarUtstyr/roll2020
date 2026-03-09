@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trackers</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .track-shell {
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: rgba(31, 29, 26, 0.88);
+      border-radius: 12px;
+      box-shadow: 0 0 12px #000;
+    }
+
+    .track-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .track-title {
+      margin: 0;
+    }
+
+    .track-subtitle {
+      margin: 0;
+      opacity: 0.85;
+    }
+
+    .track-form,
+    .tracker-form {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .tracker-form {
+      grid-template-columns: 1.3fr 110px auto;
+    }
+
+    .entry-list,
+    .tracker-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 10px;
+    }
+
+    .entry-card,
+    .tracker-card {
+      display: grid;
+      gap: 10px;
+      background: rgba(11, 41, 36, 0.85);
+      border: 1px solid #1a3b4a;
+      border-radius: 8px;
+      padding: 12px;
+    }
+
+    .entry-card {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      column-gap: 10px;
+    }
+
+    .entry-open {
+      font-size: 1.05rem;
+      text-align: left;
+      background: transparent;
+      border: none;
+      padding: 0;
+      color: #e3cf95;
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .entry-open:hover {
+      color: #ffffff;
+      background: transparent;
+    }
+
+    .tracker-card {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+    }
+
+    .tracker-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .tracker-name {
+      font-weight: bold;
+      color: #e3cf95;
+      font-size: 1.05rem;
+    }
+
+    .tracker-progress {
+      color: #bdb382;
+    }
+
+    .tracker-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .tracker-boxes {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(20px, 20px));
+      gap: 8px;
+      align-items: center;
+      justify-content: start;
+    }
+
+    .tracker-boxes input[type="checkbox"] {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #2d3d73;
+      border-radius: 4px;
+      background: #1b1b1b;
+      display: inline-block;
+      position: relative;
+      pointer-events: none;
+      margin: 0;
+    }
+
+    .tracker-boxes input[type="checkbox"]:checked {
+      background: #8b0000;
+      border-color: #8b0000;
+    }
+
+    .tracker-boxes input[type="checkbox"]:checked::after {
+      content: "";
+      position: absolute;
+      left: 5px;
+      top: 1px;
+      width: 6px;
+      height: 12px;
+      border: solid white;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+
+    .tracker-boxes input[type="checkbox"]:checked {
+      accent-color: #8b0000;
+      filter: none;
+    }
+
+    .button-small {
+      padding: 6px 10px;
+      font-size: 0.85rem;
+      line-height: 1.1;
+    }
+
+    .button-ghost-small {
+      background: transparent;
+      border: 1px solid #2d3d73;
+      color: #e3cf95;
+      padding: 4px 8px;
+      font-size: 0.8rem;
+      line-height: 1.1;
+      border-radius: 6px;
+    }
+
+    .button-ghost-small:hover {
+      color: #fff;
+      border-color: #e3cf95;
+    }
+
+    .muted {
+      opacity: 0.75;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .empty-state {
+      padding: 14px;
+      border: 1px dashed #2d3d73;
+      border-radius: 8px;
+      text-align: center;
+      opacity: 0.85;
+    }
+
+    @media (max-width: 640px) {
+      .track-shell {
+        padding: 14px;
+      }
+
+      .track-form,
+      .tracker-form,
+      .tracker-card {
+        grid-template-columns: 1fr;
+      }
+
+      .entry-card {
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+      }
+
+      .tracker-controls {
+        justify-content: flex-start;
+      }
+
+      .tracker-boxes {
+        grid-template-columns: repeat(10, 20px);
+        gap: 6px;
+      }
+
+      .tracker-boxes input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+      }
+
+      #back-btn,
+      .remove-button,
+      .deduct-btn,
+      .add-btn,
+      .delete-tracker-btn,
+      #create-entry-btn,
+      #create-tracker-btn {
+        padding: 8px 10px;
+        font-size: 0.85rem;
+      }
+
+      .track-title {
+        font-size: 1.5rem;
+      }
+    }
+
+      .tracker-controls {
+        justify-content: space-between;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="track-shell">
+    <section id="list-view">
+      <div class="track-header">
+        <div>
+          <a href="index.html" class="button-ghost-small" style="display:inline-block;margin-bottom:8px;">← Back</a>
+          <h1 class="track-title">Tracker Lists</h1>
+          <p class="track-subtitle">Create a name, then open it to manage custom trackers.</p>
+        </div>
+      </div>
+
+      <div class="track-form">
+        <input type="text" id="entry-name" placeholder="Enter name" />
+        <button id="create-entry-btn" type="button">Create</button>
+      </div>
+
+      <ul id="entry-list" class="entry-list"></ul>
+      <div id="entry-empty" class="empty-state">No entries yet.</div>
+    </section>
+
+    <section id="detail-view" class="hidden">
+      <div class="track-header">
+        <div>
+          <button id="back-btn" class="button-ghost-small" type="button">← Back</button>
+          <h1 id="detail-title" class="track-title" style="margin-top:12px;">Trackers</h1>
+          <p class="track-subtitle">Add trackers with a name and number of checkboxes.</p>
+        </div>
+      </div>
+
+      <div class="tracker-form">
+        <input type="text" id="tracker-name" placeholder="Tracker name" />
+        <input type="number" id="tracker-amount" min="1" placeholder="Amount" />
+        <button id="create-tracker-btn" type="button">Add tracker</button>
+      </div>
+      <label class="muted" style="display:flex;align-items:center;gap:8px;margin:-6px 0 18px 0;">
+        <input type="checkbox" id="tracker-start-full" />
+        Start fully checked
+      </label>
+
+      <ul id="tracker-list" class="tracker-list"></ul>
+      <div id="tracker-empty" class="empty-state">No trackers yet for this entry.</div>
+    </section>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+    import {
+      getDatabase,
+      ref,
+      push,
+      update,
+      remove,
+      onValue,
+      get
+    } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD_4kINWig7n6YqB11yM2M-EuxGNz5uekI",
+      authDomain: "roll202-c0b0d.firebaseapp.com",
+      databaseURL: "https://roll202-c0b0d-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "roll202-c0b0d",
+      storageBucket: "roll202-c0b0d.appspot.com",
+      messagingSenderId: "607661730400",
+      appId: "1:607661730400:web:b4b3f97a12cfae373e7105",
+      measurementId: "G-6X5L39W56C"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const listView = document.getElementById("list-view");
+    const detailView = document.getElementById("detail-view");
+    const entryListEl = document.getElementById("entry-list");
+    const trackerListEl = document.getElementById("tracker-list");
+    const entryEmptyEl = document.getElementById("entry-empty");
+    const trackerEmptyEl = document.getElementById("tracker-empty");
+    const detailTitleEl = document.getElementById("detail-title");
+
+    let currentEntryId = null;
+    let activeTrackerUnsubscribe = null;
+    let activeEntryName = "";
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function entryRef() {
+      return ref(db, "trackEntries");
+    }
+
+    function trackersRef(entryId) {
+      return ref(db, `trackEntries/${entryId}/trackers`);
+    }
+
+    async function createEntry() {
+      const input = document.getElementById("entry-name");
+      const name = input.value.trim();
+      if (!name) return;
+
+      const newRef = await push(entryRef(), {
+        name,
+        createdAt: Date.now()
+      });
+
+      input.value = "";
+      openEntry(newRef.key, name);
+    }
+
+    async function createTracker() {
+      if (!currentEntryId) return;
+
+      const nameInput = document.getElementById("tracker-name");
+      const amountInput = document.getElementById("tracker-amount");
+      const name = nameInput.value.trim();
+      const amount = parseInt(amountInput.value, 10);
+      const startFull = document.getElementById("tracker-start-full").checked;
+
+      if (!name || Number.isNaN(amount) || amount < 1) return;
+
+      await push(trackersRef(currentEntryId), {
+        name,
+        amount,
+        value: startFull ? amount : 0,
+        createdAt: Date.now()
+      });
+
+      nameInput.value = "";
+      amountInput.value = "";
+      document.getElementById("tracker-start-full").checked = false;
+      nameInput.focus();
+    }
+
+    async function changeTrackerValue(trackerId, nextValue) {
+      if (!currentEntryId) return;
+      const trackerReference = ref(db, `trackEntries/${currentEntryId}/trackers/${trackerId}`);
+      const snapshot = await get(trackerReference);
+      if (!snapshot.exists()) return;
+
+      const tracker = snapshot.val();
+      const bounded = Math.max(0, Math.min(Number(tracker.amount) || 0, nextValue));
+      await update(trackerReference, { value: bounded });
+    }
+
+    async function deleteTracker(trackerId) {
+      if (!currentEntryId) return;
+      await remove(ref(db, `trackEntries/${currentEntryId}/trackers/${trackerId}`));
+    }
+
+    function renderEntryList(data) {
+      entryListEl.innerHTML = "";
+      const entries = data
+        ? Object.entries(data).map(([id, value]) => ({ id, ...value }))
+        : [];
+
+      entries.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      entryEmptyEl.classList.toggle("hidden", entries.length > 0);
+
+      for (const entry of entries) {
+        const li = document.createElement("li");
+        li.className = "entry-card";
+        li.innerHTML = `
+          <button class="entry-open" type="button">${escapeHtml(entry.name || "Untitled")}</button>
+          <button class="remove-button button-small" type="button">Delete</button>
+        `;
+
+        li.querySelector(".entry-open").addEventListener("click", () => {
+          openEntry(entry.id, entry.name || "Untitled");
+        });
+
+        li.querySelector(".remove-button").addEventListener("click", async () => {
+          const confirmed = window.confirm(`Delete ${entry.name || "this entry"}?`);
+          if (!confirmed) return;
+          await remove(ref(db, `trackEntries/${entry.id}`));
+          if (currentEntryId === entry.id) {
+            goToList();
+          }
+        });
+
+        entryListEl.appendChild(li);
+      }
+    }
+
+    function buildCheckboxes(amount, value) {
+      const total = Math.max(0, Number(amount) || 0);
+      const checked = Math.max(0, Math.min(total, Number(value) || 0));
+      let html = "";
+      for (let i = 0; i < total; i += 1) {
+        html += `<input type="checkbox" ${i < checked ? "checked" : ""} disabled />`;
+      }
+      return html || '<span class="muted">No boxes</span>';
+    }
+
+    function renderTrackerList(data) {
+      trackerListEl.innerHTML = "";
+      const trackers = data
+        ? Object.entries(data).map(([id, value]) => ({ id, ...value }))
+        : [];
+
+      trackers.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+      trackerEmptyEl.classList.toggle("hidden", trackers.length > 0);
+
+      for (const tracker of trackers) {
+        const li = document.createElement("li");
+        li.className = "tracker-card";
+        li.innerHTML = `
+          <div>
+            <div class="tracker-top">
+              <span class="tracker-name">${escapeHtml(tracker.name || "Tracker")}</span>
+              <span class="tracker-progress">${Number(tracker.value) || 0} / ${Number(tracker.amount) || 0}</span>
+            </div>
+            <div class="tracker-boxes">${buildCheckboxes(tracker.amount, tracker.value)}</div>
+          </div>
+          <div class="tracker-controls">
+            <button type="button" class="deduct-btn">Deduct</button>
+            <button type="button" class="add-btn">Add</button>
+            <button type="button" class="remove-button delete-tracker-btn">Delete</button>
+          </div>
+        `;
+
+        li.querySelector(".deduct-btn").addEventListener("click", () => {
+          changeTrackerValue(tracker.id, (Number(tracker.value) || 0) - 1);
+        });
+
+        li.querySelector(".add-btn").addEventListener("click", () => {
+          changeTrackerValue(tracker.id, (Number(tracker.value) || 0) + 1);
+        });
+
+        li.querySelector(".delete-tracker-btn").addEventListener("click", () => {
+          deleteTracker(tracker.id);
+        });
+
+        trackerListEl.appendChild(li);
+      }
+    }
+
+    function goToList() {
+      currentEntryId = null;
+      activeEntryName = "";
+      detailView.classList.add("hidden");
+      listView.classList.remove("hidden");
+      history.pushState({}, "", window.location.pathname);
+      if (activeTrackerUnsubscribe) {
+        activeTrackerUnsubscribe();
+        activeTrackerUnsubscribe = null;
+      }
+    }
+
+    function openEntry(entryId, entryName = "Trackers") {
+      currentEntryId = entryId;
+      activeEntryName = entryName;
+      detailTitleEl.textContent = entryName;
+      listView.classList.add("hidden");
+      detailView.classList.remove("hidden");
+      history.pushState({}, "", `${window.location.pathname}?entry=${encodeURIComponent(entryId)}`);
+
+      if (activeTrackerUnsubscribe) {
+        activeTrackerUnsubscribe();
+      }
+
+      activeTrackerUnsubscribe = onValue(trackersRef(entryId), (snapshot) => {
+        renderTrackerList(snapshot.val());
+      });
+    }
+
+    async function restoreFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      const entryId = params.get("entry");
+      if (!entryId) return;
+
+      const snapshot = await get(ref(db, `trackEntries/${entryId}`));
+      if (!snapshot.exists()) return;
+      const entry = snapshot.val();
+      openEntry(entryId, entry.name || "Trackers");
+    }
+
+    onValue(entryRef(), (snapshot) => {
+      renderEntryList(snapshot.val());
+    });
+
+    document.getElementById("create-entry-btn").addEventListener("click", createEntry);
+    document.getElementById("create-entry-btn").addEventListener("keydown", (event) => {
+      if (event.key === "Enter") createEntry();
+    });
+
+    document.getElementById("entry-name").addEventListener("keydown", (event) => {
+      if (event.key === "Enter") createEntry();
+    });
+
+    document.getElementById("create-tracker-btn").addEventListener("click", createTracker);
+    document.getElementById("tracker-name").addEventListener("keydown", (event) => {
+      if (event.key === "Enter") createTracker();
+    });
+    document.getElementById("tracker-amount").addEventListener("keydown", (event) => {
+      if (event.key === "Enter") createTracker();
+    });
+
+    document.getElementById("back-btn").addEventListener("click", goToList);
+    window.addEventListener("popstate", () => {
+      const params = new URLSearchParams(window.location.search);
+      const entryId = params.get("entry");
+      if (!entryId) {
+        goToList();
+      }
+    });
+
+    restoreFromUrl();
+  </script>
+</body>
+</html>

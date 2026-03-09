@@ -24,13 +24,13 @@
     <h1>Initiative</h1>
 
     <div class="ranking-container">
-      <div id="round-counter">Round: <span id="round-value">1</span></div>
-
       <div class="global-stat-selector">
         <label><input type="radio" name="globalStat" value="grd" checked> GRD</label>
         <label><input type="radio" name="globalStat" value="res"> RES</label>
         <label><input type="radio" name="globalStat" value="tgh"> TGH</label>
       </div>
+
+      <div id="round-counter">Round: <span id="round-value">1</span></div>
 
       <div class="ranking-header">
         <div class="column name">Name</div>
@@ -103,13 +103,13 @@
 
       <a id="stat-url" class="button-link" target="_blank" rel="noopener" style="display:none; margin-top:12px;">Open details</a>
 
-      <!-- NEW: Heal controls -->
+
       <div style="display:flex; gap:8px; margin-top:12px; align-items:center;">
         <input id="stat-heal-amount" type="number" placeholder="Heal amount" style="flex:1; padding:6px 8px;">
         <button id="stat-heal" class="remove-button">Heal</button>
       </div>
 
-      <!-- ===================== ADDED: Countdown controls ===================== -->
+
       <div style="display:flex; gap:8px; margin-top:12px; align-items:center;">
         <input id="stat-countdown-amount" type="number" min="1" placeholder="Countdown (turns)" style="flex:1; padding:6px 8px;">
         <button id="stat-countdown-set" class="remove-button">Start</button>
@@ -120,10 +120,22 @@
         <span class="label">Countdown remaining:</span>
         <span class="value" id="stat-countdown-remaining">—</span>
       </p>
-      <!-- =================== /ADDED: Countdown controls =================== -->
 
-      <!-- NEW: Delete button -->
+
       <button id="stat-delete" class="remove-button" style="margin-top:12px;">Delete from list</button>
+    </div>
+  </div>
+
+
+  <div id="hp-modal" class="ol-modal" aria-hidden="true">
+    <div class="ol-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="hp-modal-title">
+      <button class="ol-modal__close" id="hp-modal-close" aria-label="Close">×</button>
+      <h3 id="hp-modal-title">Set HP</h3>
+
+      <div style="display:flex; gap:8px; margin-top:12px; align-items:center;">
+        <input id="hp-set-amount" type="number" placeholder="Set HP" style="flex:1; padding:6px 8px;">
+        <button id="hp-set-button" class="remove-button">Set</button>
+      </div>
     </div>
   </div>
 </body>

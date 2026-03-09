@@ -2,7 +2,6 @@ import { getDatabase, ref, update, onValue, remove, set } from "https://www.gsta
 
 const db = getDatabase();
 
-/* -------------------------- Modal helpers -------------------------- */
 function openStatModal({ name, grd, res, tgh, url, initiative, countdownRemaining, countdownActive, countdownEnded }) {
   const modal = document.getElementById('stat-modal');
   if (!modal) return;
@@ -41,6 +40,28 @@ function closeStatModal() {
   modal.setAttribute('aria-hidden', 'true');
 }
 
+function openHpModal(currentHp) {
+  const modal = document.getElementById('hp-modal');
+  if (!modal) return;
+
+  const input = document.getElementById('hp-set-amount');
+  if (input) {
+    input.value = (currentHp ?? currentHp === 0) ? currentHp : '';
+    setTimeout(() => {
+      input.focus();
+      input.select();
+    }, 0);
+  }
+
+  modal.setAttribute('aria-hidden', 'false');
+}
+
+function closeHpModal() {
+  const modal = document.getElementById('hp-modal');
+  if (!modal) return;
+  modal.setAttribute('aria-hidden', 'true');
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const modal = document.getElementById('stat-modal');
   if (modal) {
@@ -48,10 +69,21 @@ document.addEventListener('DOMContentLoaded', () => {
     modal.addEventListener('click', (e) => { if (e.target === modal) closeStatModal(); });
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeStatModal(); });
   }
+
+  const hpModal = document.getElementById('hp-modal');
+  if (hpModal) {
+    document.getElementById('hp-modal-close')?.addEventListener('click', closeHpModal);
+    hpModal.addEventListener('click', (e) => { if (e.target === hpModal) closeHpModal(); });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && hpModal.getAttribute('aria-hidden') === 'false') {
+        closeHpModal();
+      }
+    });
+  }
 });
 
-/* ===================== Countdown state cache ===================== */
-const __countdownById = new Map(); // id -> { remaining, active, ended }
+
+const __countdownById = new Map(); 
 function __getCountdownState(id) {
   return __countdownById.get(id) || { remaining: null, active: false, ended: false };
 }
@@ -62,7 +94,6 @@ function __setCountdownState(id, state) {
     ended: !!state.ended
   });
 }
-/* =================== /Countdown state cache =================== */
 
 function __rowFor(id) {
   return document.querySelector(`.list-item[data-entry-id="${id}"]`);
@@ -109,7 +140,6 @@ function __applyRowCountdownClasses(entryId, state) {
   __updateCountdownBadge(row, state);
 }
 
-/* --------------------- Initiative list rendering -------------------- */
 function fetchRankings() {
   const reference = ref(db, 'rankings/');
   onValue(reference, (snapshot) => {
@@ -156,6 +186,12 @@ function fetchRankings() {
       const hpCol = document.createElement('div');
       hpCol.className = 'column hp';
       hpCol.textContent = (health === null || health === undefined) ? 'N/A' : `${health}`;
+      hpCol.style.cursor = 'pointer';
+      hpCol.title = 'Set HP';
+      hpCol.addEventListener('click', () => {
+        __currentEntryId = id;
+        openHpModal(health);
+      });
 
       const dmgCol = document.createElement('div');
       dmgCol.className = 'column dmg';
@@ -194,7 +230,6 @@ function fetchRankings() {
   });
 }
 
-/* ------------------------- Damage application ----------------------- */
 function applyDamageToAll() {
   const inputs = document.querySelectorAll('.damage-input');
   const selectedStat = document.querySelector('input[name="globalStat"]:checked')?.value ?? 'grd';
@@ -255,7 +290,6 @@ function updateHealth(id, newHealth, inputEl) {
     .catch(err => console.error('Error updating health:', err));
 }
 
-/* ---------------------------- Utilities ----------------------------- */
 function removeEntry(id, listItem) {
   const reference = ref(db, `rankings/${id}`);
   remove(reference)
@@ -276,7 +310,6 @@ function clearList() {
     .catch(err => console.error('Error clearing list:', err));
 }
 
-/* ===================== Modal actions: Delete & Heal ===================== */
 let __currentEntryId = null;
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -301,7 +334,7 @@ document.addEventListener('DOMContentLoaded', () => {
     healBtn.addEventListener('click', () => {
       if (!__currentEntryId) return;
       const amount = parseInt(healAmtInput.value, 10);
-      if (isNaN(amount) || amount <= 0) return;
+      if (isNaN(amount) || amount === 0) return;
 
       const dmgInput = document.querySelector(`.damage-input[data-entry-id="${__currentEntryId}"]`);
       if (!dmgInput || !('health' in dmgInput.dataset)) {
@@ -310,14 +343,44 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       const current = parseInt(dmgInput.dataset.health, 10) || 0;
-      updateHealth(__currentEntryId, current + amount, dmgInput);
+      const newHealth = Math.max(current + amount, 0);
+      updateHealth(__currentEntryId, newHealth, dmgInput);
 
       healAmtInput.value = '';
     });
   }
 });
 
-/* ===================== Countdown helpers & modal actions ===================== */
+
+document.addEventListener('DOMContentLoaded', () => {
+  const setBtn = document.getElementById('hp-set-button');
+  const hpInput = document.getElementById('hp-set-amount');
+
+  if (setBtn && hpInput) {
+    setBtn.addEventListener('click', () => {
+      if (!__currentEntryId) return;
+
+      const amount = parseInt(hpInput.value, 10);
+      if (isNaN(amount) || amount < 0) return;
+
+      const dmgInput = document.querySelector(`.damage-input[data-entry-id="${__currentEntryId}"]`);
+      if (!dmgInput) return;
+
+      updateHealth(__currentEntryId, amount, dmgInput);
+      hpInput.value = '';
+      closeHpModal();
+    });
+
+    hpInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        setBtn.click();
+      }
+    });
+  }
+});
+
+
 function setCountdown(id, turns) {
   const reference = ref(db, `rankings/${id}`);
 
@@ -377,7 +440,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-/* ===================== Tracker-driven countdown decrement ===================== */
 async function __decrementCountdownIfNeeded(entryId) {
   const state = __getCountdownState(entryId);
   if (!state.active) return;
@@ -420,7 +482,7 @@ async function __cleanupEndedCountdownIfNeeded(entryId) {
   }
 }
 
-// ✅ ONLY TICK on real navigation events ("next" / "prev")
+
 window.addEventListener('tracker:highlightChange', async (e) => {
   const previousId = e?.detail?.previousId ?? null;
   const currentId = e?.detail?.currentId ?? null;
@@ -442,7 +504,7 @@ window.addEventListener('tracker:highlightChange', async (e) => {
     }
   }
 
-  // Orange display while highlighted (purely visual)
+
   if (currentId) {
     const currentState = __getCountdownState(currentId);
     const row = __rowFor(currentId);
@@ -452,9 +514,7 @@ window.addEventListener('tracker:highlightChange', async (e) => {
     }
   }
 });
-/* =================== /Tracker-driven countdown decrement =================== */
 
-/* -------------------------- Wire up buttons ------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
   fetchRankings();
 
