@@ -56,7 +56,7 @@ function fetchRankings() {
                 // Damage input field (always visible, even if health is 0)
                 const healthInput = document.createElement('input');
                 healthInput.type = 'number';
-                healthInput.placeholder = 'Damage';
+                healthInput.placeholder = 'DMG';
                 healthInput.className = 'damage-input';
                 healthInput.style.width = '50px';  // Small input field
                 healthInput.dataset.entryId = id;  // Store entry ID

@@ -1,3 +1,4 @@
+import { BANES } from "./banes.js";
 import { getDatabase, ref, update, onValue, remove, set } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
 const db = getDatabase();
@@ -80,6 +81,31 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+
+  const banePickerModal = document.getElementById('bane-picker-modal');
+  if (banePickerModal) {
+    document.getElementById('bane-picker-close')?.addEventListener('click', closeBanePickerModal);
+    banePickerModal.addEventListener('click', (e) => { if (e.target === banePickerModal) closeBanePickerModal(); });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && banePickerModal.getAttribute('aria-hidden') === 'false') {
+        closeBanePickerModal();
+      }
+    });
+  }
+
+  const banesModal = document.getElementById('banes-modal');
+  if (banesModal) {
+    document.getElementById('banes-modal-close')?.addEventListener('click', closeBanesModal);
+    banesModal.addEventListener('click', (e) => { if (e.target === banesModal) closeBanesModal(); });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && banesModal.getAttribute('aria-hidden') === 'false') {
+        closeBanesModal();
+      }
+    });
+  }
+
+  document.getElementById('stat-add-bane')?.addEventListener('click', openBanePickerModal);
+
 });
 
 
@@ -97,6 +123,137 @@ function __setCountdownState(id, state) {
 
 function __rowFor(id) {
   return document.querySelector(`.list-item[data-entry-id="${id}"]`);
+}
+
+
+function __sanitizeBaneKey(value) {
+  return String(value ?? '').replace(/[.#$\[\]/]/g, '_');
+}
+
+function __normalizeBanes(banes) {
+  if (!banes) return [];
+  if (Array.isArray(banes)) return banes.filter(Boolean);
+  return Object.values(banes).filter(Boolean);
+}
+
+function closeBanePickerModal() {
+  document.getElementById('bane-picker-modal')?.setAttribute('aria-hidden', 'true');
+}
+
+function closeBanesModal() {
+  document.getElementById('banes-modal')?.setAttribute('aria-hidden', 'true');
+}
+
+function openBanesModal(entryId, banes, titleText = 'Banes') {
+  const modal = document.getElementById('banes-modal');
+  const list = document.getElementById('banes-modal-list');
+  const title = document.getElementById('banes-modal-title');
+  if (!modal || !list) return;
+
+  list.innerHTML = '';
+  if (title) title.textContent = titleText;
+
+  __normalizeBanes(banes).forEach((bane) => {
+    const row = document.createElement('div');
+    row.className = 'bane-picker-row';
+
+    const leftButton = document.createElement('button');
+    leftButton.type = 'button';
+    leftButton.className = 'bane-picker-open';
+
+    const left = document.createElement('div');
+    left.className = 'bane-picker-left';
+
+    const icon = document.createElement('img');
+    icon.className = 'bane-icon';
+    icon.src = bane.icon || 'icons/banes/test.png';
+    icon.alt = bane.name || 'Bane';
+
+    const name = document.createElement('span');
+    name.textContent = bane.name || 'Unknown';
+
+    left.appendChild(icon);
+    left.appendChild(name);
+    leftButton.appendChild(left);
+    leftButton.addEventListener('click', () => {
+      if (bane.url) window.open(bane.url, '_blank', 'noopener');
+    });
+
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.textContent = 'Remove';
+    removeBtn.className = 'remove-button';
+    removeBtn.style.marginTop = '0';
+    removeBtn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const key = __sanitizeBaneKey(bane.name);
+      try {
+        await remove(ref(db, `rankings/${entryId}/banes/${key}`));
+      } catch (err) {
+        console.error('Error removing bane:', err);
+      }
+    });
+
+    row.appendChild(leftButton);
+    row.appendChild(removeBtn);
+    list.appendChild(row);
+  });
+
+  modal.setAttribute('aria-hidden', 'false');
+}
+
+function openBanePickerModal() {
+  const modal = document.getElementById('bane-picker-modal');
+  const list = document.getElementById('bane-picker-list');
+  if (!modal || !list || !__currentEntryId) return;
+
+  list.innerHTML = '';
+
+  BANES.forEach((bane) => {
+    const row = document.createElement('div');
+    row.className = 'bane-picker-row';
+
+    const left = document.createElement('div');
+    left.className = 'bane-picker-left';
+
+    const icon = document.createElement('img');
+    icon.className = 'bane-icon';
+    icon.src = bane.icon || 'icons/banes/test.png';
+    icon.alt = bane.name || 'Bane';
+
+    const name = document.createElement('span');
+    name.textContent = bane.name || 'Unknown';
+
+    const addBtn = document.createElement('button');
+    addBtn.type = 'button';
+    addBtn.textContent = 'Add';
+    addBtn.className = 'remove-button';
+    addBtn.style.marginTop = '0';
+    addBtn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const entryRef = ref(db, `rankings/${__currentEntryId}/banes`);
+      const key = __sanitizeBaneKey(bane.name);
+      try {
+        await update(entryRef, {
+          [key]: {
+            name: bane.name,
+            url: bane.url,
+            icon: bane.icon || 'icons/banes/test.png'
+          }
+        });
+      } catch (err) {
+        console.error('Error adding bane:', err);
+      }
+    });
+
+    left.appendChild(icon);
+    left.appendChild(name);
+    row.appendChild(left);
+    row.appendChild(addBtn);
+    list.appendChild(row);
+  });
+
+  modal.setAttribute('aria-hidden', 'false');
 }
 
 function __updateCountdownBadge(row, state) {
@@ -154,7 +311,7 @@ function fetchRankings() {
     const rankings = Object.entries(data).map(([id, entry]) => ({ id, ...entry }));
     rankings.sort((a, b) => b.number - a.number);
 
-    rankings.forEach(({ id, name, grd, res, tgh, health, url, number, countdownRemaining, countdownActive, countdownEnded }) => {
+    rankings.forEach(({ id, name, grd, res, tgh, health, url, number, countdownRemaining, countdownActive, countdownEnded, banes }) => {
       __setCountdownState(id, {
         remaining: (typeof countdownRemaining === 'number') ? countdownRemaining : null,
         active: !!countdownActive,
@@ -182,6 +339,8 @@ function fetchRankings() {
           countdownEnded: s.ended
         });
       });
+
+      const baneArray = __normalizeBanes(banes);
 
       const hpCol = document.createElement('div');
       hpCol.className = 'column hp';
@@ -213,6 +372,44 @@ function fetchRankings() {
       listItem.appendChild(nameCol);
       listItem.appendChild(hpCol);
       listItem.appendChild(dmgCol);
+
+      if (baneArray.length > 0) {
+        const baneWrap = document.createElement('div');
+        baneWrap.className = 'row-banes';
+
+        baneArray.forEach((bane) => {
+          const iconButton = document.createElement('button');
+          iconButton.type = 'button';
+          iconButton.className = 'bane-icon-button';
+          iconButton.title = bane.name || 'Bane';
+          iconButton.setAttribute('aria-label', bane.name || 'Bane');
+
+          const icon = document.createElement('img');
+          icon.className = 'bane-row-icon';
+          icon.src = bane.icon || 'icons/banes/test.png';
+          icon.alt = bane.name || 'Bane';
+
+          iconButton.appendChild(icon);
+          iconButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (bane.url) window.open(bane.url, '_blank', 'noopener');
+          });
+
+          baneWrap.appendChild(iconButton);
+        });
+
+        const banesButton = document.createElement('button');
+        banesButton.type = 'button';
+        banesButton.textContent = 'Banes';
+        banesButton.className = 'banes-button';
+        banesButton.addEventListener('click', () => {
+          __currentEntryId = id;
+          openBanesModal(id, baneArray, `${name ?? 'Unknown'} - Banes`);
+        });
+        baneWrap.appendChild(banesButton);
+
+        listItem.appendChild(baneWrap);
+      }
 
       if (health === 0) {
         const removeButton = document.createElement('button');

@@ -122,7 +122,10 @@
       </p>
 
 
-      <button id="stat-delete" class="remove-button" style="margin-top:12px;">Delete from list</button>
+      <div style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;">
+        <button id="stat-add-bane" type="button">Bane</button>
+        <button id="stat-delete" class="remove-button" style="margin-top:0;">Delete from list</button>
+      </div>
     </div>
   </div>
 
@@ -138,6 +141,24 @@
       </div>
     </div>
   </div>
+
+
+  <div id="bane-picker-modal" class="ol-modal" aria-hidden="true">
+    <div class="ol-modal__dialog ol-modal__dialog--wide" role="dialog" aria-modal="true" aria-labelledby="bane-picker-title">
+      <button class="ol-modal__close" id="bane-picker-close" aria-label="Close">×</button>
+      <h3 id="bane-picker-title">Banes</h3>
+      <div id="bane-picker-list" class="bane-picker-list"></div>
+    </div>
+  </div>
+
+  <div id="banes-modal" class="ol-modal" aria-hidden="true">
+    <div class="ol-modal__dialog ol-modal__dialog--wide" role="dialog" aria-modal="true" aria-labelledby="banes-modal-title">
+      <button class="ol-modal__close" id="banes-modal-close" aria-label="Close">×</button>
+      <h3 id="banes-modal-title">Banes</h3>
+      <div id="banes-modal-list" class="banes-modal-list"></div>
+    </div>
+  </div>
+
 </body>
 
 </html>

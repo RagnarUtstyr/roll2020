@@ -71,51 +71,6 @@ async function submitData() {
     }
 }
 
-// Function to fetch and display rankings
-function fetchRankings() {
-    const reference = ref(db, 'rankings/');
-    onValue(reference, (snapshot) => {
-        const data = snapshot.val();
-        const rankingList = document.getElementById('rankingList');
-        if (!rankingList) return;
-
-        rankingList.innerHTML = '';
-
-        if (data) {
-            const rankings = Object.entries(data).map(([id, entry]) => ({ id, ...entry }));
-            rankings.sort((a, b) => b.number - a.number);
-
-            rankings.forEach(({ id, name, number, health, grd, res, tgh }) => {
-                const listItem = document.createElement('li');
-
-                const nameDiv = document.createElement('div');
-                nameDiv.className = 'name';
-                nameDiv.textContent = `${name} (GRD: ${grd ?? 'N/A'}, RES: ${res ?? 'N/A'}, TGH: ${tgh ?? 'N/A'})`;
-
-                const healthDiv = document.createElement('div');
-                healthDiv.className = 'health';
-                healthDiv.textContent = health !== null && health !== undefined ? `HP: ${health}` : '';
-
-                const removeButton = document.createElement('button');
-                removeButton.textContent = 'Remove';
-                removeButton.addEventListener('click', () => removeEntry(id));
-
-                listItem.appendChild(nameDiv);
-                if (healthDiv.textContent !== '') {
-                    listItem.appendChild(healthDiv);
-                }
-                listItem.appendChild(removeButton);
-
-                rankingList.appendChild(listItem);
-            });
-        } else {
-            console.log('No data available');
-        }
-    }, (error) => {
-        console.error('Error fetching data:', error);
-    });
-}
-
 // Function to remove an entry from Firebase
 function removeEntry(id) {
     const reference = ref(db, `rankings/${id}`);
@@ -128,29 +83,9 @@ function removeEntry(id) {
         });
 }
 
-// Function to clear all entries from Firebase
-function clearAllEntries() {
-    const reference = ref(db, 'rankings/');
-    set(reference, null)
-        .then(() => {
-            console.log('All entries removed successfully');
-            const rankingList = document.getElementById('rankingList');
-            if (rankingList) rankingList.innerHTML = '';
-        })
-        .catch((error) => {
-            console.error('Error clearing all entries:', error);
-        });
-}
-
 // Page setup
 document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('submit-button')) {
         document.getElementById('submit-button').addEventListener('click', submitData);
-    }
-    if (document.getElementById('rankingList')) {
-        fetchRankings();
-    }
-    if (document.getElementById('clear-list-button')) {
-        document.getElementById('clear-list-button').addEventListener('click', clearAllEntries);
     }
 });
