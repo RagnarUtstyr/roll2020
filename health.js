@@ -3,6 +3,17 @@ import { getDatabase, ref, update, onValue, remove, set } from "https://www.gsta
 
 const db = getDatabase();
 
+function getGameCode() {
+  const params = new URLSearchParams(window.location.search);
+  return (params.get("code") || "").trim().toUpperCase();
+}
+
+function getEntriesPath() {
+  const code = getGameCode();
+  if (!code) throw new Error("Missing game code in URL.");
+  return `games/${code}/entries`;
+}
+
 function openStatModal({ name, grd, res, tgh, url, initiative, countdownRemaining, countdownActive, countdownEnded }) {
   const modal = document.getElementById('stat-modal');
   if (!modal) return;
@@ -188,7 +199,7 @@ function openBanesModal(entryId, banes, titleText = 'Banes') {
       e.stopPropagation();
       const key = __sanitizeBaneKey(bane.name);
       try {
-        await remove(ref(db, `rankings/${entryId}/banes/${key}`));
+        await remove(ref(db, `${getEntriesPath()}/${entryId}/banes/${key}`));
       } catch (err) {
         console.error('Error removing bane:', err);
       }
@@ -231,7 +242,7 @@ function openBanePickerModal() {
     addBtn.style.marginTop = '0';
     addBtn.addEventListener('click', async (e) => {
       e.stopPropagation();
-      const entryRef = ref(db, `rankings/${__currentEntryId}/banes`);
+      const entryRef = ref(db, `${getEntriesPath()}/${__currentEntryId}/banes`);
       const key = __sanitizeBaneKey(bane.name);
       try {
         await update(entryRef, {
@@ -298,7 +309,7 @@ function __applyRowCountdownClasses(entryId, state) {
 }
 
 function fetchRankings() {
-  const reference = ref(db, 'rankings/');
+  const reference = ref(db, getEntriesPath());
   onValue(reference, (snapshot) => {
     const data = snapshot.val();
     const rankingList = document.querySelector('.ranking-body');
@@ -309,9 +320,13 @@ function fetchRankings() {
     if (!data) return;
 
     const rankings = Object.entries(data).map(([id, entry]) => ({ id, ...entry }));
-    rankings.sort((a, b) => b.number - a.number);
+    rankings.sort((a, b) => (b.number ?? b.initiative ?? 0) - (a.number ?? a.initiative ?? 0));
 
-    rankings.forEach(({ id, name, grd, res, tgh, health, url, number, countdownRemaining, countdownActive, countdownEnded, banes }) => {
+    rankings.forEach(({ id, name, playerName, grd, res, tgh, health, currentHp, url, number, initiative, countdownRemaining, countdownActive, countdownEnded, banes }) => {
+      const displayName = name ?? playerName ?? 'Unknown';
+      const displayInitiative = number ?? initiative ?? 0;
+      const displayHealth = (health ?? currentHp);
+
       __setCountdownState(id, {
         remaining: (typeof countdownRemaining === 'number') ? countdownRemaining : null,
         active: !!countdownActive,
@@ -322,18 +337,18 @@ function fetchRankings() {
       listItem.className = 'list-item';
       listItem.dataset.entryId = id;
 
-      if (health === 0) listItem.classList.add('defeated');
+      if (displayHealth === 0) listItem.classList.add('defeated');
 
       const nameCol = document.createElement('div');
       nameCol.className = 'column name';
-      nameCol.textContent = name ?? 'Unknown';
+      nameCol.textContent = displayName;
       nameCol.style.cursor = 'pointer';
       nameCol.title = 'Show defenses (GRD / RES / TGH)';
       nameCol.addEventListener('click', () => {
         __currentEntryId = id;
         const s = __getCountdownState(id);
         openStatModal({
-          name, grd, res, tgh, url, initiative: number,
+          name: displayName, grd, res, tgh, url, initiative: displayInitiative,
           countdownRemaining: s.remaining,
           countdownActive: s.active,
           countdownEnded: s.ended
@@ -344,12 +359,12 @@ function fetchRankings() {
 
       const hpCol = document.createElement('div');
       hpCol.className = 'column hp';
-      hpCol.textContent = (health === null || health === undefined) ? 'N/A' : `${health}`;
+      hpCol.textContent = (displayHealth === null || displayHealth === undefined) ? 'N/A' : `${displayHealth}`;
       hpCol.style.cursor = 'pointer';
       hpCol.title = 'Set HP';
       hpCol.addEventListener('click', () => {
         __currentEntryId = id;
-        openHpModal(health);
+        openHpModal(displayHealth);
       });
 
       const dmgCol = document.createElement('div');
@@ -363,8 +378,8 @@ function fetchRankings() {
       dmgInput.dataset.res = res ?? 0;
       dmgInput.dataset.tgh = tgh ?? 0;
 
-      if (health !== null && health !== undefined) {
-        dmgInput.dataset.health = health;
+      if (displayHealth !== null && displayHealth !== undefined) {
+        dmgInput.dataset.health = displayHealth;
       }
 
       dmgCol.appendChild(dmgInput);
@@ -404,14 +419,14 @@ function fetchRankings() {
         banesButton.className = 'banes-button';
         banesButton.addEventListener('click', () => {
           __currentEntryId = id;
-          openBanesModal(id, baneArray, `${name ?? 'Unknown'} - Banes`);
+          openBanesModal(id, baneArray, `${displayName} - Banes`);
         });
         baneWrap.appendChild(banesButton);
 
         listItem.appendChild(baneWrap);
       }
 
-      if (health === 0) {
+      if (displayHealth === 0) {
         const removeButton = document.createElement('button');
         removeButton.textContent = 'Remove';
         removeButton.className = 'remove-button';
@@ -421,7 +436,6 @@ function fetchRankings() {
 
       rankingList.appendChild(listItem);
 
-      // Apply countdown classes + badge AFTER nameCol exists
       __applyRowCountdownClasses(id, __getCountdownState(id));
     });
   });
@@ -461,7 +475,7 @@ function applyDamageToAll() {
 }
 
 function updateHealth(id, newHealth, inputEl) {
-  const reference = ref(db, `rankings/${id}`);
+  const reference = ref(db, `${getEntriesPath()}/${id}`);
   update(reference, { health: newHealth })
     .then(() => {
       const listItem = inputEl.closest('.list-item');
@@ -488,7 +502,7 @@ function updateHealth(id, newHealth, inputEl) {
 }
 
 function removeEntry(id, listItem) {
-  const reference = ref(db, `rankings/${id}`);
+  const reference = ref(db, `${getEntriesPath()}/${id}`);
   remove(reference)
     .then(() => {
       listItem?.remove();
@@ -498,7 +512,7 @@ function removeEntry(id, listItem) {
 }
 
 function clearList() {
-  const reference = ref(db, 'rankings/');
+  const reference = ref(db, getEntriesPath());
   set(reference, null)
     .then(() => {
       window.resetRoundCounter?.();
@@ -579,7 +593,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 function setCountdown(id, turns) {
-  const reference = ref(db, `rankings/${id}`);
+  const reference = ref(db, `${getEntriesPath()}/${id}`);
 
   __setCountdownState(id, { remaining: turns, active: true, ended: false });
   __applyRowCountdownClasses(id, __getCountdownState(id));
@@ -592,7 +606,7 @@ function setCountdown(id, turns) {
 }
 
 function clearCountdown(id) {
-  const reference = ref(db, `rankings/${id}`);
+  const reference = ref(db, `${getEntriesPath()}/${id}`);
 
   __setCountdownState(id, { remaining: null, active: false, ended: false });
   __applyRowCountdownClasses(id, __getCountdownState(id));
@@ -644,7 +658,7 @@ async function __decrementCountdownIfNeeded(entryId) {
   if (state.remaining <= 0) return;
 
   const nextRemaining = state.remaining - 1;
-  const reference = ref(db, `rankings/${entryId}`);
+  const reference = ref(db, `${getEntriesPath()}/${entryId}`);
 
   if (nextRemaining <= 0) {
     __setCountdownState(entryId, { remaining: 0, active: false, ended: true });
@@ -685,14 +699,12 @@ window.addEventListener('tracker:highlightChange', async (e) => {
   const currentId = e?.detail?.currentId ?? null;
   const reason = e?.detail?.reason ?? "sync";
 
-  // If we just moved away from ended entry, clean it up (only on navigation too)
   if ((reason === "next" || reason === "prev") && previousId && previousId !== currentId) {
     await __cleanupEndedCountdownIfNeeded(previousId);
     const prevRow = __rowFor(previousId);
     if (prevRow) prevRow.classList.remove('countdown-expired');
   }
 
-  // TICK ONLY on next/prev
   if (currentId && (reason === "next" || reason === "prev")) {
     try {
       await __decrementCountdownIfNeeded(currentId);
