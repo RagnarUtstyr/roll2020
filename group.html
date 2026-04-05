@@ -7,21 +7,40 @@
   <link rel="icon" type="image/png" sizes="64x64" href="favicon-64x64.png" />
   <title>Initiative</title>
 
-  <!-- Scripts -->
   <script type="module" src="server.js" defer></script>
   <script type="module" src="health.js" defer></script>
   <script src="turn.js" defer></script>
 
-  <!-- Styles -->
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="turn.css" />
   <link rel="stylesheet" href="save.css" />
   <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet" />
 </head>
+<style>
+  #game-code-badge {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 9999;
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.75);
+    color: #e3cf95;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    border: 1px solid #2d3d73;
+  }
+</style>
 
 <body>
   <div class="container">
     <h1>Initiative</h1>
+      <div id="game-code-badge">Code: ----</div>
+        <br>
+        <a href="lobby.html" class="button-link">Lobby</a>
+        <br>
 
     <div class="ranking-container">
       <div class="global-stat-selector">
@@ -80,9 +99,28 @@
     <button id="submit-button">Submit</button>
 
     <br /><br />
-    <a href="save.html" class="button-link">Go to Lists</a>
-    <a href="openmonsterlist.html" class="button-link">Go to Monster List</a>
+    <a id="save-link" href="save.html" class="button-link">Go to Lists</a>
+    <a id="monster-link" href="openmonsterlist.html" class="button-link">Go to Monster List</a>
   </div>
+
+  <script>
+    (function () {
+      const params = new URLSearchParams(window.location.search);
+      const code = (params.get("code") || "").trim().toUpperCase();
+      if (!code) return;
+
+      const saveLink = document.getElementById("save-link");
+      const monsterLink = document.getElementById("monster-link");
+
+      if (saveLink) {
+        saveLink.href = `save.html?code=${encodeURIComponent(code)}`;
+      }
+
+      if (monsterLink) {
+        monsterLink.href = `openmonsterlist.html?code=${encodeURIComponent(code)}`;
+      }
+    })();
+  </script>
 
   <!-- Stats Modal -->
   <div id="stat-modal" class="ol-modal" aria-hidden="true">
@@ -103,12 +141,10 @@
 
       <a id="stat-url" class="button-link" target="_blank" rel="noopener" style="display:none; margin-top:12px;">Open details</a>
 
-
       <div style="display:flex; gap:8px; margin-top:12px; align-items:center;">
         <input id="stat-heal-amount" type="number" placeholder="Heal amount" style="flex:1; padding:6px 8px;">
         <button id="stat-heal" class="remove-button">Heal</button>
       </div>
-
 
       <div style="display:flex; gap:8px; margin-top:12px; align-items:center;">
         <input id="stat-countdown-amount" type="number" min="1" placeholder="Countdown (turns)" style="flex:1; padding:6px 8px;">
@@ -121,14 +157,12 @@
         <span class="value" id="stat-countdown-remaining">—</span>
       </p>
 
-
       <div style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;">
         <button id="stat-add-bane" type="button">Bane</button>
         <button id="stat-delete" class="remove-button" style="margin-top:0;">Delete from list</button>
       </div>
     </div>
   </div>
-
 
   <div id="hp-modal" class="ol-modal" aria-hidden="true">
     <div class="ol-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="hp-modal-title">
@@ -141,7 +175,6 @@
       </div>
     </div>
   </div>
-
 
   <div id="bane-picker-modal" class="ol-modal" aria-hidden="true">
     <div class="ol-modal__dialog ol-modal__dialog--wide" role="dialog" aria-modal="true" aria-labelledby="bane-picker-title">
@@ -158,7 +191,19 @@
       <div id="banes-modal-list" class="banes-modal-list"></div>
     </div>
   </div>
+  <script>
+  (function () {
+    const params = new URLSearchParams(window.location.search);
+    const code = (params.get("code") || "").trim().toUpperCase();
+    const badge = document.getElementById("game-code-badge");
+
+    if (!badge) return;
+
+    badge.textContent = code ? `Code: ${code}` : `No code in URL`;
+    console.log("Full URL:", window.location.href);
+    console.log("Code from URL:", code);
+  })();
+</script>
 
 </body>
-
 </html>
