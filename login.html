@@ -6,6 +6,28 @@
   <title>Login</title>
   <link rel="stylesheet" href="lobby.css" />
   <script type="module" src="login-page.js" defer></script>
+
+  <style>
+    .auth-shell {
+      text-align: center;
+    }
+
+    .auth-form {
+      display: grid;
+      gap: 12px;
+      max-width: 360px;
+      margin: 0 auto;
+    }
+
+    .google-button {
+      display: block;
+      margin: 0 auto;
+    }
+
+    .muted {
+      opacity: 0.8;
+    }
+  </style>
 </head>
 <body>
   <div class="container auth-shell">
@@ -17,15 +39,7 @@
 
     <br>
 
-<button id="google-login-button">Continue with Google</button>
-
-    <br><br>
-
-    <p class="muted">or</p>
-
-    <br>
-
-        <form id="email-login-form" style="display: grid; gap: 12px; max-width: 360px; margin: 0 auto;">
+    <form id="email-login-form" class="auth-form">
       <input
         id="email"
         type="email"
@@ -45,6 +59,14 @@
       <button type="submit">Sign in with Email</button>
       <button type="button" id="email-register-button">Create Email Account</button>
     </form>
+
+    <br>
+
+    <p class="muted">or</p>
+
+    <br>
+
+    <button id="google-login-button" class="google-button">Continue with Google</button>
 
     <p id="login-status" class="muted"></p>
   </div>
