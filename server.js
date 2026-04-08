@@ -1,106 +1,96 @@
-// Import necessary Firebase modules from the SDK
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-import { getDatabase, ref, push, remove } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
-
-// Firebase Configuration
-const firebaseConfig = {
-    apiKey: "AIzaSyD_4kINWig7n6YqB11yM2M-EuxGNz5uekI",
-    authDomain: "roll202-c0b0d.firebaseapp.com",
-    databaseURL: "https://roll202-c0b0d-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "roll202-c0b0d",
-    storageBucket: "roll202-c0b0d.appspot.com",
-    messagingSenderId: "607661730400",
-    appId: "1:607661730400:web:b4b3f97a12cfae373e7105",
-    measurementId: "G-6X5L39W56C"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+import { db } from "./firebase-config.js";
+import { requireAuth } from "./auth.js";
+import { ref, push, remove } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
 function getGameCode() {
-    const params = new URLSearchParams(window.location.search);
-    return (params.get("code") || "").trim().toUpperCase();
+  const params = new URLSearchParams(window.location.search);
+  return (params.get("code") || "").trim().toUpperCase();
 }
 
 function getEntriesPath() {
-    const code = getGameCode();
-    if (!code) throw new Error("Missing game code in URL.");
-    return `games/${code}/entries`;
+  const code = getGameCode();
+  if (!code) throw new Error("Missing game code in URL.");
+  return `games/${code}/entries`;
 }
 
-// Function to submit data to Firebase
-async function submitData() {
-    const name = document.getElementById('name')?.value?.trim();
-    const numberInput = document.getElementById('initiative') || document.getElementById('number');
-    const number = numberInput ? parseInt(numberInput.value, 10) : null;
+async function submitData(event) {
+  event?.preventDefault();
 
-    const healthInput = document.getElementById('health');
-    const health = healthInput && healthInput.value !== '' ? parseInt(healthInput.value, 10) : null;
+  await requireAuth();
 
-    const grdInput = document.getElementById('grd');
-    const resInput = document.getElementById('res');
-    const tghInput = document.getElementById('tgh');
+  const name = document.getElementById("name")?.value?.trim();
+  const numberInput = document.getElementById("initiative") || document.getElementById("number");
+  const number = numberInput ? parseInt(numberInput.value, 10) : null;
 
-    const grd = grdInput ? (grdInput.value !== '' ? parseInt(grdInput.value, 10) : null) : undefined;
-    const res = resInput ? (resInput.value !== '' ? parseInt(resInput.value, 10) : null) : undefined;
-    const tgh = tghInput ? (tghInput.value !== '' ? parseInt(tghInput.value, 10) : null) : undefined;
+  const healthInput = document.getElementById("health");
+  const health = healthInput && healthInput.value !== "" ? parseInt(healthInput.value, 10) : null;
 
-    if (!name || isNaN(number)) {
-        console.log('Please enter a valid name and initiative number.');
-        return;
-    }
+  const grdInput = document.getElementById("grd");
+  const resInput = document.getElementById("res");
+  const tghInput = document.getElementById("tgh");
 
-    try {
-        const entry = {
-            name,
-            number,
-            initiative: number,
-            updatedAt: Date.now()
-        };
+  const grd = grdInput ? (grdInput.value !== "" ? parseInt(grdInput.value, 10) : null) : undefined;
+  const res = resInput ? (resInput.value !== "" ? parseInt(resInput.value, 10) : null) : undefined;
+  const tgh = tghInput ? (tghInput.value !== "" ? parseInt(tghInput.value, 10) : null) : undefined;
 
-        if (health !== null) entry.health = health;
-        if (grd !== undefined) entry.grd = grd;
-        if (res !== undefined) entry.res = res;
-        if (tgh !== undefined) entry.tgh = tgh;
+  if (!name || isNaN(number)) {
+    console.log("Please enter a valid name and initiative number.");
+    return;
+  }
 
-        const entriesRef = ref(db, getEntriesPath());
-        await push(entriesRef, entry);
+  try {
+    const entry = {
+      name,
+      number,
+      initiative: number,
+      updatedAt: Date.now()
+    };
 
-        console.log('Data submitted to room entries:', entry);
+    if (health !== null) entry.health = health;
+    if (grd !== undefined) entry.grd = grd;
+    if (res !== undefined) entry.res = res;
+    if (tgh !== undefined) entry.tgh = tgh;
 
-        // Clear inputs
-        document.getElementById('name').value = '';
-        if (numberInput) numberInput.value = '';
-        if (healthInput) healthInput.value = '';
-        if (grdInput) grdInput.value = '';
-        if (resInput) resInput.value = '';
-        if (tghInput) tghInput.value = '';
+    const entriesRef = ref(db, getEntriesPath());
+    await push(entriesRef, entry);
 
-        // Play sword sound if available
-        const swordSound = document.getElementById('sword-sound');
-        if (swordSound) swordSound.play();
+    console.log("Data submitted to room entries:", entry);
 
-    } catch (error) {
-        console.error('Error submitting data:', error);
-    }
+    document.getElementById("name").value = "";
+    if (numberInput) numberInput.value = "";
+    if (healthInput) healthInput.value = "";
+    if (grdInput) grdInput.value = "";
+    if (resInput) resInput.value = "";
+    if (tghInput) tghInput.value = "";
+
+    const swordSound = document.getElementById("sword-sound");
+    if (swordSound) swordSound.play();
+  } catch (error) {
+    console.error("Error submitting data:", error);
+    alert("Could not add entry to this game.");
+  }
 }
 
-// Function to remove an entry from Firebase
 function removeEntry(id) {
-    const reference = ref(db, `${getEntriesPath()}/${id}`);
-    remove(reference)
-        .then(() => {
-            console.log(`Entry with id ${id} removed successfully`);
-        })
-        .catch((error) => {
-            console.error('Error removing entry:', error);
-        });
+  const reference = ref(db, `${getEntriesPath()}/${id}`);
+  remove(reference)
+    .then(() => {
+      console.log(`Entry with id ${id} removed successfully`);
+    })
+    .catch((error) => {
+      console.error("Error removing entry:", error);
+    });
 }
 
-// Page setup
-document.addEventListener('DOMContentLoaded', () => {
-    if (document.getElementById('submit-button')) {
-        document.getElementById('submit-button').addEventListener('click', submitData);
-    }
-});
+function init() {
+  const submitButton = document.getElementById("submit-button");
+  if (submitButton) {
+    submitButton.addEventListener("click", submitData);
+  }
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", init);
+} else {
+  init();
+}

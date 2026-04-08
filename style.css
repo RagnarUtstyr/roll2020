@@ -31,6 +31,11 @@ h2 {
   text-align: center;
 }
 
+label {
+  display: block;
+  text-align: left;
+}
+
 /* === Form Inputs === */
 input[type="text"],
 input[type="number"] {
@@ -112,6 +117,7 @@ a.button-link:hover {
   background-color: rgba(31, 29, 26, 0.85);
   border-radius: 10px;
   box-shadow: 0 0 10px #000;
+  text-align: center;
 }
 
 /* Restore max-width on larger screens */
@@ -239,6 +245,7 @@ li .number {
 }
 
 .ranking-header .column,
+.ranking-body li .column,
 .ranking-body li .column {
   text-align: center;
   font-size: 1em;
@@ -320,21 +327,34 @@ input.damage-input {
 /* === Button Container === */
 .button-container {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  gap: 20px;
+  gap: 12px;
   width: 100%;
-  margin: 1em auto;
+  margin: 1em auto 0.75em;
   min-width: 0;
+  flex-wrap: wrap;
 }
 
 .button-container button {
-  flex: 1;
-  min-width: 100px;
+  flex: 0 1 auto;
+  min-width: 140px;
   padding: 10px 15px;
   font-size: 1em;
   white-space: nowrap;
   text-align: center;
+}
+
+#clear-list-button,
+#reset-round-button {
+  display: inline-block;
+  min-width: 140px;
+  padding: 10px 15px;
+  font-size: 1em;
+  white-space: nowrap;
+  text-align: center;
+  margin: 0 6px 10px;
+  vertical-align: top;
 }
 
 /* === Defense Inputs === */
@@ -440,6 +460,37 @@ input.damage-input {
 .ol-modal__close:hover {
   background: #1a3b4a;
   color: #237768;
+}
+
+/* === Normal Tracker Highlight === */
+#rankingList li.highlighted,
+#rankingList li.list-item.highlighted {
+  background-color: rgba(45, 61, 115, 0.32) !important;
+  border: 2px solid #e3cf95 !important;
+  box-shadow: 0 0 12px rgba(227, 207, 149, 0.28);
+  color: #f2ead3 !important;
+}
+
+#rankingList li.highlighted .name,
+#rankingList li.highlighted .health,
+#rankingList li.highlighted .number,
+#rankingList li.highlighted .ac,
+#rankingList li.highlighted .column,
+#rankingList li.list-item.highlighted .name,
+#rankingList li.list-item.highlighted .health,
+#rankingList li.list-item.highlighted .number,
+#rankingList li.list-item.highlighted .ac,
+#rankingList li.list-item.highlighted .column {
+  color: #f2ead3 !important;
+}
+
+#rankingList li.highlighted input,
+#rankingList li.highlighted .damage-input,
+#rankingList li.list-item.highlighted input,
+#rankingList li.list-item.highlighted .damage-input {
+  background-color: rgba(11, 38, 33, 0.95) !important;
+  color: #f2ead3 !important;
+  border-color: #e3cf95 !important;
 }
 
 /* === Countdown Styling === */
@@ -596,21 +647,28 @@ input.damage-input {
 
   .button-container {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    justify-content: center;
     gap: 8px;
     width: 100%;
     margin: 10px 0 0 0;
+    flex-wrap: wrap;
   }
 
   .button-container button {
-    width: 100%;
-    min-width: 0;
+    width: auto;
+    min-width: 120px;
     font-size: 1em;
   }
 
-  #submit-button,
   #clear-list-button,
-  #reset-round-button,
+  #reset-round-button {
+    width: auto;
+    min-width: 120px;
+    margin: 0 4px 10px;
+  }
+
+  #submit-button,
   .button-link {
     width: 100%;
     text-align: center;
@@ -854,4 +912,27 @@ input.damage-input {
   max-height: 60vh;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+}
+
+#list-name {
+  background-color: #0b2621;
+  border: 2px solid #2d3d73;
+  color: #827b5a;
+}
+
+#save-button,
+#load-button,
+#delete-button,
+#go-back-button {
+  background-color: #0b2621;
+  color: #827b5a;
+  border: 2px solid #2d3d73;
+}
+
+#save-button:hover,
+#load-button:hover,
+#delete-button:hover,
+#go-back-button:hover {
+  background-color: #1a3b4a;
+  color: #237768;
 }

@@ -4,7 +4,6 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>D&amp;D Character Builder</title>
-<link rel="icon" type="image/png" sizes="64x64" href="favicon-64x64.png">
 <style>
   body {
     background: url('background_dnd.jpg') no-repeat center center fixed;
@@ -39,7 +38,6 @@
     flex-direction: column;
     gap: 16px;
   }
-
   button,
 #back-to-player-link {
   background-color: #2E1B18;
@@ -59,7 +57,6 @@ button:hover,
   background-color: #8C5A4A;
   color: #2E1B18;
 }
-
   h1, h2, h3, h4 { color: #D4AF37; margin: 0 0 10px; }
   h1 { text-align:center; }
   .section {
@@ -405,6 +402,8 @@ button:hover,
       align-self:end;
       width: 100%;
     }
+
+    
   }
 
   @media (max-width: 640px) {
@@ -641,6 +640,7 @@ button:hover,
 <datalist id="featList"></datalist>
 
 <script type="module">
+// Firebase test-project ready: shared config + authenticated access.
 import { requireAuth } from "./auth.js";
 import { db } from "./firebase-config.js";
 import { watchOrLoadGame } from "./game-service.js";
@@ -1428,7 +1428,7 @@ function renderNotesSummary(){
     const data = CLASSES[c.name];
     const unlocked = [];
     for (let lvl = 1; lvl <= c.level; lvl++) {
-      const feats = (data.features && data.features[lvl]) ? data.features[lvl].join(', ') : 'No major simplified feature listed for this level.';
+      const feats = (data.features && data.features[lvl]) ? data.features[lvl].join(', ') : '';
       const asiInfo = c.asiChoices?.[lvl];
       let asi = '';
       if (data.asi.includes(lvl)) {

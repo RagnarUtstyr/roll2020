@@ -1,118 +1,145 @@
+// turn_dnd.js
 let currentHighlightIndex = 0;
+let previousHighlightedEntryId = null;
 
-function highlightCurrentEntry() {
-    const listItems = document.querySelectorAll('#rankingList li');
+function getListItems() {
+  return Array.from(document.querySelectorAll("#rankingList li"));
+}
 
-    // If there are no items, exit the function
-    if (listItems.length === 0) {
-        return;
-    }
+function getCurrentItem() {
+  const items = getListItems();
+  if (!items.length) return null;
 
-    // Ensure currentHighlightIndex is within bounds
-    if (currentHighlightIndex >= listItems.length) {
-        currentHighlightIndex = Math.min(currentHighlightIndex, listItems.length - 1); // Stay within bounds
-    }
+  if (currentHighlightIndex < 0) currentHighlightIndex = 0;
+  if (currentHighlightIndex >= items.length) {
+    currentHighlightIndex = items.length - 1;
+  }
 
-    // Remove highlight from all items
-    listItems.forEach(item => item.classList.remove('highlighted'));
+  return items[currentHighlightIndex] || null;
+}
 
-    // Highlight the current item
-    listItems[currentHighlightIndex].classList.add('highlighted');
+function applyHighlight(emitEvent = false, reason = "sync") {
+  const items = getListItems();
+
+  if (!items.length) {
+    currentHighlightIndex = 0;
+    previousHighlightedEntryId = null;
+    return;
+  }
+
+  if (currentHighlightIndex < 0) currentHighlightIndex = 0;
+  if (currentHighlightIndex >= items.length) {
+    currentHighlightIndex = items.length - 1;
+  }
+
+  items.forEach((item) => item.classList.remove("highlighted"));
+
+  const currentItem = items[currentHighlightIndex];
+  if (!currentItem) return;
+
+  currentItem.classList.add("highlighted");
+
+  const currentId = currentItem.dataset.entryId || null;
+  const previousId = previousHighlightedEntryId;
+
+  if (emitEvent && currentId && currentId !== previousId) {
+    window.dispatchEvent(
+      new CustomEvent("tracker:highlightChange", {
+        detail: {
+          previousId,
+          currentId,
+          index: currentHighlightIndex,
+          reason
+        }
+      })
+    );
+  }
+
+  previousHighlightedEntryId = currentId;
 }
 
 function moveToNextEntry() {
-    const listItems = document.querySelectorAll('#rankingList li');
+  const items = getListItems();
+  if (!items.length) return;
 
-    // If there are no items, exit the function
-    if (listItems.length === 0) {
-        return;
-    }
-
-    // Move to the next item, or loop back to the first if at the end
-    currentHighlightIndex = (currentHighlightIndex + 1) % listItems.length;
-
-    // Apply the new highlight
-    highlightCurrentEntry();
+  currentHighlightIndex = (currentHighlightIndex + 1) % items.length;
+  applyHighlight(true, "next");
 }
 
 function moveToPreviousEntry() {
-    const listItems = document.querySelectorAll('#rankingList li');
+  const items = getListItems();
+  if (!items.length) return;
 
-    // If there are no items, exit the function
-    if (listItems.length === 0) {
-        return;
-    }
-
-    // Move to the previous item, or loop to the last if at the beginning
-    currentHighlightIndex = (currentHighlightIndex - 1 + listItems.length) % listItems.length;
-
-    // Apply the new highlight
-    highlightCurrentEntry();
+  currentHighlightIndex = (currentHighlightIndex - 1 + items.length) % items.length;
+  applyHighlight(true, "prev");
 }
 
-function refreshHighlightAfterRemoval() {
-    const listItems = document.querySelectorAll('#rankingList li');
+function syncIndexToExistingHighlightOrEntry() {
+  const items = getListItems();
 
-    // If there are no items left, reset
-    if (listItems.length === 0) {
-        currentHighlightIndex = 0;
-        return;
+  if (!items.length) {
+    currentHighlightIndex = 0;
+    previousHighlightedEntryId = null;
+    return;
+  }
+
+  const highlightedIndex = items.findIndex((item) =>
+    item.classList.contains("highlighted")
+  );
+
+  if (highlightedIndex >= 0) {
+    currentHighlightIndex = highlightedIndex;
+    previousHighlightedEntryId = items[highlightedIndex].dataset.entryId || null;
+    return;
+  }
+
+  if (previousHighlightedEntryId) {
+    const existingIndex = items.findIndex(
+      (item) => item.dataset.entryId === previousHighlightedEntryId
+    );
+    if (existingIndex >= 0) {
+      currentHighlightIndex = existingIndex;
+      return;
     }
+  }
 
-    // If the current highlighted item was removed, adjust the index
-    if (currentHighlightIndex >= listItems.length) {
-        currentHighlightIndex = Math.min(currentHighlightIndex, listItems.length - 1); // Stay within bounds
-    }
-
-    // Apply highlight to the new current item
-    highlightCurrentEntry();
+  if (currentHighlightIndex >= items.length) {
+    currentHighlightIndex = items.length - 1;
+  }
+  if (currentHighlightIndex < 0) {
+    currentHighlightIndex = 0;
+  }
 }
 
-function removeEntry(listItem) {
-    const listItems = document.querySelectorAll('#rankingList li');
-    const indexToRemove = Array.from(listItems).indexOf(listItem);
+function watchRankingList() {
+  const rankingList = document.getElementById("rankingList");
+  if (!rankingList) return;
 
-    // Remove the DOM element
-    listItem.remove();
+  const observer = new MutationObserver(() => {
+    syncIndexToExistingHighlightOrEntry();
+    applyHighlight(false, "sync");
+  });
 
-    // Adjust the highlight index if the highlighted item was removed
-    if (currentHighlightIndex >= indexToRemove) {
-        currentHighlightIndex = Math.max(0, currentHighlightIndex - 1); // Move the highlight up if needed
-    }
-
-    // Refresh the highlight after removal
-    refreshHighlightAfterRemoval();
+  observer.observe(rankingList, {
+    childList: true,
+    subtree: false
+  });
 }
 
-// Ensure that highlighting is always applied after DOM changes or button clicks
-function ensureHighlightAlwaysVisible() {
-    const observer = new MutationObserver(() => {
-        highlightCurrentEntry(); // Reapply highlight after any DOM changes
-    });
+window.getHighlightedEntryId = function () {
+  const item = getCurrentItem();
+  return item?.dataset?.entryId || null;
+};
 
-    // Observe the list for any changes (additions, deletions, etc.)
-    const listElement = document.getElementById('rankingList');
-    if (listElement) {
-        observer.observe(listElement, { childList: true, subtree: false });
-    }
-}
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("next-button")?.addEventListener("click", moveToNextEntry);
 
-document.addEventListener('DOMContentLoaded', () => {
-    // Attach event listener to "Next" button
-    const nextButton = document.getElementById('next-button');
-    if (nextButton) {
-        nextButton.addEventListener('click', moveToNextEntry);
-    }
+  const prevButton = document.getElementById("prev-button");
+  if (prevButton) {
+    prevButton.addEventListener("click", moveToPreviousEntry);
+  }
 
-    // Attach event listener to "Previous" button (if applicable)
-    const prevButton = document.getElementById('prev-button');
-    if (prevButton) {
-        prevButton.addEventListener('click', moveToPreviousEntry);
-    }
-
-    // Ensure the first item is highlighted when the page loads
-    highlightCurrentEntry();
-
-    // Ensure the highlight stays visible even when the DOM changes
-    ensureHighlightAlwaysVisible();
+  syncIndexToExistingHighlightOrEntry();
+  applyHighlight(false, "sync");
+  watchRankingList();
 });

@@ -1,25 +1,19 @@
 import { auth, googleProvider, db } from "./firebase-config.js";
-import {
-  signInWithPopup,
-  signOut,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
-import {
-  ref,
-  set,
-  get
-} from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+import { signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+import { ref, update, get } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
 export async function loginWithGoogle() {
   const result = await signInWithPopup(auth, googleProvider);
   const user = result.user;
-  await set(ref(db, `users/${user.uid}`), {
+
+  await update(ref(db, `users/${user.uid}`), {
     uid: user.uid,
     name: user.displayName || "Unknown",
     email: user.email || "",
     photoURL: user.photoURL || "",
     lastLoginAt: Date.now()
   });
+
   return user;
 }
 
