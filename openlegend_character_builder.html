@@ -41,7 +41,7 @@
 
     .meta {
       color: #d4c89a;
-      font-size: 0.95rem;
+      font-size: 0.98rem;
     }
 
     .intro-copy {
@@ -164,8 +164,8 @@
 
     .main-layout {
       display: grid;
-      grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.9fr);
-      gap: 16px;
+      grid-template-columns: minmax(0, 1.54fr) minmax(220px, 0.72fr);
+      gap: 18px;
       align-items: start;
     }
 
@@ -191,68 +191,89 @@
 
     .attribute-row {
       display: grid;
-      grid-template-columns: minmax(110px, 1fr) 84px 74px;
-      gap: 8px;
+      grid-template-columns: minmax(110px, 1fr) 44px 62px 56px;
+      gap: 6px;
       align-items: center;
       margin-bottom: 8px;
     }
 
-    .attribute-row .attr-name {
+    .attribute-row .attr-name,
+    .attribute-row .attr-die {
       color: #ddd2a8;
+      font-size: 0.95rem;
+      line-height: 1.1;
+    }
+
+    .attribute-row .attr-die {
+      text-align: center;
+      white-space: nowrap;
     }
 
     .attribute-row .attr-cost {
       text-align: center;
-      font-size: 0.92rem;
+      font-size: 0.9rem;
       color: #d5cba0;
       background: rgba(255,255,255,0.06);
-      padding: 10px 6px;
+      padding: 8px 4px;
       border-radius: 6px;
       border: 1px solid rgba(45,61,115,0.55);
+      white-space: nowrap;
     }
 
     .derived-grid {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 12px;
+      gap: 10px;
+      padding-left: 2px;
+    }
+
+    .derived-grid .sheet-box {
+      padding: 10px 12px;
     }
 
     .derived-card .derived-top {
       display: flex;
       justify-content: space-between;
-      gap: 12px;
+      gap: 8px;
       align-items: baseline;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
 
     .derived-card .derived-name {
       color: #e3cf95;
-      font-size: 1rem;
+      font-size: 0.96rem;
     }
 
     .derived-card .derived-total {
       color: #fff4c2;
-      font-size: 1.4rem;
+      font-size: 1.28rem;
       font-weight: 700;
+      white-space: nowrap;
     }
 
     .formula-list {
       display: grid;
-      gap: 6px;
-      font-size: 0.92rem;
+      gap: 5px;
+      font-size: 0.87rem;
     }
 
     .formula-row {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      padding: 6px 8px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: start;
+      padding: 5px 7px;
       border-radius: 6px;
       background: rgba(255,255,255,0.05);
     }
 
+    .formula-row span:first-child {
+      min-width: 0;
+    }
+
     .formula-row span:last-child {
       color: #fff;
+      white-space: nowrap;
     }
 
     .feat-controls {
@@ -371,6 +392,14 @@
       margin-top: 10px;
     }
 
+    @media (min-width: 921px) {
+      .derived-grid {
+        width: 100%;
+        max-width: none;
+        justify-self: stretch;
+      }
+    }
+
     @media (max-width: 920px) {
       .grid-top,
       .budget-grid,
@@ -386,7 +415,7 @@
       body { padding: 6px; }
       .container { padding: 10px; }
       h1 { font-size: 1.4rem; }
-      .attribute-row { grid-template-columns: minmax(92px, 1fr) 72px 66px; }
+      .attribute-row { grid-template-columns: minmax(88px, 1fr) 46px 62px 58px; gap: 4px; }
       .feat-controls { grid-template-columns: 1fr; }
       .tag-row { grid-template-columns: minmax(0, 1fr) 64px auto; }
     }
@@ -529,6 +558,23 @@ import { requireAuth } from "./auth.js";
     function attributeCost(score) {
       const n = cleanInt(score);
       return (n * (n + 1)) / 2;
+    }
+
+    function getAttributeDie(score) {
+      const n = cleanInt(score);
+      const diceByScore = {
+        0: "",
+        1: "1D4",
+        2: "1D6",
+        3: "1D8",
+        4: "1D10",
+        5: "2D6",
+        6: "2D8",
+        7: "2D10",
+        8: "3D8",
+        9: "3D10"
+      };
+      return diceByScore[n] || "";
     }
 
     function getAttributeCostBreakdown(attributes) {
@@ -1090,13 +1136,18 @@ import { requireAuth } from "./auth.js";
       attrWrap.innerHTML = Object.entries(RULES.categories).map(([category, attrs]) => `
         <div class="sheet-box category-box">
           <div class="category-title">${escapeHtml(category.charAt(0).toUpperCase() + category.slice(1))}</div>
-          ${attrs.map((attr) => `
+          ${attrs.map((attr) => {
+            const score = cleanInt(character.attributes[attr]);
+            const die = getAttributeDie(score);
+            return `
             <div class="attribute-row">
               <div class="attr-name">${escapeHtml(attr)}</div>
-              <div class="attr-cost">${attributeCost(character.attributes[attr])} pts</div>
-              <input data-attr="${escapeHtml(attr)}" type="number" min="0" value="${cleanInt(character.attributes[attr])}">
+              <div class="attr-die">${die ? escapeHtml(die) : ""}</div>
+              <div class="attr-cost">${attributeCost(score)} pts</div>
+              <input data-attr="${escapeHtml(attr)}" type="number" min="0" value="${score}">
             </div>
-          `).join("")}
+          `;
+          }).join("")}
         </div>
       `).join("");
     }
@@ -1265,13 +1316,66 @@ import { requireAuth } from "./auth.js";
         : "Pick a feat from the dropdown or type the full name.";
     }
 
-    function rerender() {
-      renderAttributes();
-      renderFeatList();
-      renderSimpleList(perkListWrap, character.perks, "perk", "Perk name");
-      renderSimpleList(flawListWrap, character.flaws, "flaw", "Flaw name");
-      renderWeapons();
+    function captureFocusState() {
+      const active = document.activeElement;
+      if (!root || !active || !root.contains(active)) return null;
 
+      const keys = [
+        "attr",
+        "mod",
+        "field",
+        "weaponName",
+        "weaponAttribute",
+        "weaponDamage",
+        "weaponNotes",
+        "weaponBoon",
+        "weaponBane",
+        "weaponPreset",
+        "perkIndex",
+        "flawIndex",
+        "initAttr",
+        "featPicker"
+      ];
+
+      for (const key of keys) {
+        const attrName = key === "featPicker" ? "data-feat-picker" : `data-${key.replace(/[A-Z]/g, (m) => "-" + m.toLowerCase())}`;
+        if (active.hasAttribute && active.hasAttribute(attrName)) {
+          return {
+            attrName,
+            attrValue: active.getAttribute(attrName) || "",
+            value: active.value,
+            selectionStart: typeof active.selectionStart === "number" ? active.selectionStart : null,
+            selectionEnd: typeof active.selectionEnd === "number" ? active.selectionEnd : null
+          };
+        }
+      }
+
+      return null;
+    }
+
+    function restoreFocusState(focusState) {
+      if (!root || !focusState) return;
+      const selector = focusState.attrValue
+        ? `[${focusState.attrName}="${CSS.escape(focusState.attrValue)}"]`
+        : `[${focusState.attrName}]`;
+      const nextField = root.querySelector(selector);
+      if (!nextField) return;
+
+      nextField.focus({ preventScroll: true });
+
+      if (typeof nextField.setSelectionRange === "function" &&
+          focusState.selectionStart !== null &&
+          focusState.selectionEnd !== null) {
+        try {
+          nextField.setSelectionRange(focusState.selectionStart, focusState.selectionEnd);
+        } catch (error) {
+          // Some input types (like number) do not support selection ranges.
+        }
+      }
+    }
+
+
+    function refreshComputedPanels() {
       const result = validateCharacter(character, featRegistry);
       const levelField = root.querySelector('[data-field="level"]');
       if (levelField) levelField.value = result.level;
@@ -1279,6 +1383,20 @@ import { requireAuth } from "./auth.js";
       renderBudgets(result);
       renderDerived(result);
       renderStatus(result);
+
+      return result;
+    }
+
+    function rerender() {
+      const focusState = captureFocusState();
+
+      renderAttributes();
+      renderFeatList();
+      renderSimpleList(perkListWrap, character.perks, "perk", "Perk name");
+      renderSimpleList(flawListWrap, character.flaws, "flaw", "Flaw name");
+      renderWeapons();
+      const result = refreshComputedPanels();
+      restoreFocusState(focusState);
 
       return result;
     }
@@ -1398,20 +1516,7 @@ import { requireAuth } from "./auth.js";
         }
 
         syncFromDom();
-
-        const isWeaponField =
-          event.target.matches("[data-weapon-preset]") ||
-          event.target.matches("[data-weapon-name]") ||
-          event.target.matches("[data-weapon-attribute]") ||
-          event.target.matches("[data-weapon-damage]") ||
-          event.target.matches("[data-weapon-notes]") ||
-          event.target.matches("[data-weapon-boon]") ||
-          event.target.matches("[data-weapon-bane]");
-
-        if (!isWeaponField) {
-          rerender();
-        }
-
+        refreshComputedPanels();
         scheduleSave();
       });
 
