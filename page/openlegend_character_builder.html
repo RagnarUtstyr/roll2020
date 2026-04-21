@@ -1,0 +1,2081 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Open Legend Character Builder</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 16px;
+      background: radial-gradient(circle at top, rgba(26,59,74,0.35), rgba(11,38,33,0.85)), #12110f;
+      color: #bdb382;
+      font-family: 'MedievalSharp', Georgia, serif;
+      display: flex;
+      justify-content: center;
+    }
+
+    h1, h2, h3, h4 { color: #e3cf95; margin-top: 0; }
+
+    .container {
+      width: min(1100px, 100%);
+      background-color: rgba(31, 29, 26, 0.9);
+      border-radius: 12px;
+      box-shadow: 0 0 16px rgba(0,0,0,0.55);
+      border: 1px solid rgba(45,61,115,0.75);
+      padding: 18px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .meta {
+      color: #d4c89a;
+      font-size: 0.98rem;
+    }
+
+    .intro-copy {
+      margin: 0 0 14px;
+      color: #d4c89a;
+    }
+
+    .save-status {
+      margin: 10px 0 0;
+      min-height: 1.3em;
+      color: #d4c89a;
+      font-size: 0.95rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.95rem;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select,
+    textarea {
+      width: 100%;
+      margin-top: 6px;
+      padding: 10px;
+      border: 2px solid #2d3d73;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.12);
+      color: #e0d8b7;
+      font-size: 1rem;
+      font-family: inherit;
+    }
+
+    textarea {
+      min-height: 92px;
+      resize: vertical;
+    }
+
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    input[type="number"] {
+      appearance: textfield;
+      -moz-appearance: textfield;
+    }
+
+    button,
+    .button-link {
+      background-color: #0b2621;
+      color: #bdb382;
+      border: 2px solid #2d3d73;
+      padding: 10px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-family: inherit;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    button:hover,
+    .button-link:hover {
+      background-color: #1a3b4a;
+      color: #fff;
+    }
+
+    .remove-button {
+      background-color: #a8342d;
+      border-color: #7c241f;
+      color: #fff;
+    }
+
+    .remove-button:hover {
+      background-color: #851f1a;
+    }
+
+    .grid-top {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .budget-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .budget-card,
+    .sheet-box {
+      background: rgba(11, 41, 36, 0.55);
+      border: 1px solid #1a3b4a;
+      border-radius: 10px;
+      padding: 12px;
+    }
+
+    .budget-card .label {
+      color: #e3cf95;
+      font-size: 0.9rem;
+      margin-bottom: 6px;
+    }
+
+    .budget-card .value {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #fff4c2;
+    }
+
+    .budget-card .detail {
+      margin-top: 4px;
+      font-size: 0.85rem;
+      color: #c7bc91;
+    }
+
+    .main-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.54fr) minmax(220px, 0.72fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .attributes-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .category-box fieldset,
+    .category-box {
+      border: 0;
+      padding: 0;
+      margin: 0;
+    }
+
+    .category-title {
+      margin-bottom: 10px;
+      color: #e3cf95;
+      font-size: 1rem;
+      letter-spacing: 0.02em;
+    }
+
+    .attribute-row {
+      display: grid;
+      grid-template-columns: minmax(110px, 1fr) 44px 62px 56px;
+      gap: 6px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .attribute-row .attr-name,
+    .attribute-row .attr-die {
+      color: #ddd2a8;
+      font-size: 0.95rem;
+      line-height: 1.1;
+    }
+
+    .attribute-row .attr-die {
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .attribute-row .attr-cost {
+      text-align: center;
+      font-size: 0.9rem;
+      color: #d5cba0;
+      background: rgba(255,255,255,0.06);
+      padding: 8px 4px;
+      border-radius: 6px;
+      border: 1px solid rgba(45,61,115,0.55);
+      white-space: nowrap;
+    }
+
+    .derived-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      padding-left: 2px;
+    }
+
+    .derived-grid .sheet-box {
+      padding: 10px 12px;
+    }
+
+    .derived-card .derived-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: baseline;
+      margin-bottom: 8px;
+    }
+
+    .derived-card .derived-name {
+      color: #e3cf95;
+      font-size: 0.96rem;
+    }
+
+    .derived-card .derived-total {
+      color: #fff4c2;
+      font-size: 1.28rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .formula-list {
+      display: grid;
+      gap: 5px;
+      font-size: 0.87rem;
+    }
+
+    .formula-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: start;
+      padding: 5px 7px;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .formula-row span:first-child {
+      min-width: 0;
+    }
+
+    .formula-row span:last-child {
+      color: #fff;
+      white-space: nowrap;
+    }
+
+    .feat-controls {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 130px auto;
+      gap: 10px;
+      align-items: end;
+      margin-bottom: 10px;
+    }
+
+    .helper-text {
+      font-size: 0.88rem;
+      color: #c9bf96;
+      margin: 4px 0 0;
+    }
+
+    .tag-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .tag-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 88px auto;
+      gap: 8px;
+      align-items: center;
+      padding: 8px;
+      border: 1px solid rgba(45,61,115,0.55);
+      border-radius: 8px;
+      background: rgba(255,255,255,0.04);
+    }
+
+    .tag-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .tag-subtitle {
+      color: #c9bf96;
+      font-size: 0.82rem;
+    }
+
+    .tag-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+
+    .tag-actions button {
+      padding: 8px 10px;
+      font-size: 0.92rem;
+    }
+
+    .feat-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.72);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 10000;
+    }
+
+    .feat-modal[aria-hidden="true"] {
+      display: none;
+    }
+
+    .feat-modal__dialog {
+      width: min(760px, 100%);
+      max-height: 86vh;
+      overflow-y: auto;
+      background: rgba(31, 29, 26, 0.98);
+      border: 1px solid rgba(45,61,115,0.9);
+      border-radius: 14px;
+      box-shadow: 0 16px 42px rgba(0,0,0,0.48);
+      padding: 18px;
+    }
+
+    .feat-modal__top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: start;
+      margin-bottom: 12px;
+    }
+
+    .feat-modal__title {
+      margin-bottom: 4px;
+    }
+
+    .feat-pill {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid rgba(45,61,115,0.8);
+      border-radius: 999px;
+      padding: 4px 10px;
+      background: rgba(255,255,255,0.05);
+      color: #fff4c2;
+      font-size: 0.9rem;
+      white-space: nowrap;
+    }
+
+    .feat-modal__section {
+      border: 1px solid rgba(45,61,115,0.55);
+      border-radius: 10px;
+      background: rgba(255,255,255,0.04);
+      padding: 12px;
+      margin-top: 12px;
+    }
+
+    .feat-modal__section h3 {
+      font-size: 1rem;
+      margin-bottom: 8px;
+    }
+
+    .feat-tier-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .feat-tier-row {
+      display: grid;
+      grid-template-columns: 74px minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+    }
+
+    .feat-modal__footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    .feat-level-controls {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .feat-modal__richtext ul {
+      margin: 8px 0 0 20px;
+      padding: 0;
+    }
+
+    .feat-modal__richtext li + li {
+      margin-top: 4px;
+    }
+
+    .tag-row .tag-name {
+      color: #fff1bf;
+    }
+
+    .tag-row .tag-cost {
+      text-align: center;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .simple-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .simple-list-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .weapon-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .weapon-card {
+      border: 1px solid rgba(45,61,115,0.55);
+      border-radius: 8px;
+      background: rgba(255,255,255,0.04);
+      padding: 10px;
+    }
+
+    .weapon-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .weapon-actions {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .weapon-row-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: start;
+      margin-bottom: 8px;
+    }
+
+    .weapon-summary {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-size: 0.92rem;
+      color: #ddd2a8;
+    }
+
+    .weapon-divider {
+      opacity: 0.55;
+    }
+
+    .weapon-modal-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .weapon-modal-grid textarea {
+      min-height: 88px;
+    }
+
+    .status-ok {
+      color: #d6f5a3;
+      font-weight: 700;
+    }
+
+    .status-bad {
+      color: #ffb2a8;
+      font-weight: 700;
+    }
+
+    .messages {
+      margin-top: 12px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .message-box {
+      border-radius: 8px;
+      padding: 10px 12px;
+      border: 1px solid rgba(45,61,115,0.55);
+      background: rgba(255,255,255,0.04);
+    }
+
+    .message-box ul {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
+    .export-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    @media (min-width: 921px) {
+      .derived-grid {
+        width: 100%;
+        max-width: none;
+        justify-self: stretch;
+      }
+    }
+
+    @media (max-width: 920px) {
+      .grid-top,
+      .budget-grid,
+      .attributes-grid,
+      .two-col,
+      .main-layout,
+      .weapon-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 600px) {
+      body { padding: 6px; }
+      .container { padding: 10px; }
+      h1 { font-size: 1.4rem; }
+      .attribute-row { grid-template-columns: minmax(88px, 1fr) 46px 62px 58px; gap: 4px; }
+      .feat-controls { grid-template-columns: 1fr; }
+      .tag-row { grid-template-columns: minmax(0, 1fr) 64px auto; }
+    }
+  
+    .bane-overview-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 10px;
+    }
+
+    .bane-overview-card {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(45,61,115,0.55);
+      background: rgba(255,255,255,0.04);
+      color: #e0d8b7;
+      text-decoration: none;
+    }
+
+    .bane-overview-card:hover {
+      background: rgba(255,255,255,0.08);
+      color: #fff4c2;
+    }
+
+    .bane-overview-card img {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+      border-radius: 50%;
+      flex: 0 0 auto;
+    }
+
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="topbar">
+      <div>
+        <h1>Open Legend Character Builder</h1>
+        <div id="builder-meta" class="meta">Loading game…</div>
+      </div>
+      <a id="back-to-player-link" class="button-link" href="player.html">Back to player</a>
+    </div>
+
+    <p class="intro-copy">
+      Full builder with room-based autosave. Combat stats sync to your player page while the full build is stored separately.
+    </p>
+
+    <div id="builder"></div>
+
+    <div class="sheet-box">
+      <div class="export-row">
+        <button id="save-now-btn" type="button">Save Now</button>
+        <button id="reload-btn" type="button">Reload From Firebase</button>
+      </div>
+      <div id="save-status" class="save-status"></div>
+    </div>
+  </div>
+
+  <script type="module">
+    // Firebase test-project ready: shared config + authenticated access.
+import { requireAuth } from "../js/auth.js";
+    import { db } from "../js/firebase-config.js";
+    import { watchOrLoadGame } from "../js/game-service.js";
+    import { OPENLEGEND_FEATS } from "../js/openlegend_feats.js";
+    import { OPENLEGEND_WEAPONS, OPENLEGEND_WEAPON_VS_OPTIONS, createOpenLegendWeapon, findOpenLegendWeaponPreset, getOpenLegendAttributeDie, composeOpenLegendWeaponDamage } from "../js/openlegend_weapons.js";
+    import { BANES } from "../js/banes.js";
+    import {
+      ref,
+      get,
+      set
+    } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+
+    const params = new URLSearchParams(window.location.search);
+    const code = (params.get("code") || "").trim().toUpperCase();
+
+    const metaEl = document.getElementById("builder-meta");
+    const backLink = document.getElementById("back-to-player-link");
+    const saveStatusEl = document.getElementById("save-status");
+    const builderRoot = document.getElementById("builder");
+    const saveNowBtn = document.getElementById("save-now-btn");
+    const reloadBtn = document.getElementById("reload-btn");
+
+    const RULES = Object.freeze({
+      creation: {
+        level: 1,
+        attributePoints: 40,
+        featPoints: 6,
+        maxPerks: 2,
+        maxFlaws: 2,
+        xpPerAdvance: {
+          attributePoints: 3,
+          featPoints: 1,
+          levelEveryXp: 3
+        }
+      },
+      categories: Object.freeze({
+        physical: ["Agility", "Fortitude", "Might"],
+        mental: ["Learning", "Logic", "Perception", "Will"],
+        social: ["Deception", "Persuasion", "Presence"],
+        extraordinary: ["Alteration", "Creation", "Energy", "Entropy", "Influence", "Movement", "Prescience", "Protection"]
+      }),
+      defaults: Object.freeze({
+        speed: 30,
+        wealth: 0,
+        armorGuardBonus: 0,
+        guardBonus: 0,
+        toughnessBonus: 0,
+        resolveBonus: 0,
+        hpBonus: 0,
+        initiativeBonus: 0,
+        initiativeAttribute: "Agility"
+      })
+    });
+
+    const ATTRIBUTE_ORDER = [
+      ...RULES.categories.physical,
+      ...RULES.categories.mental,
+      ...RULES.categories.social,
+      ...RULES.categories.extraordinary
+    ];
+
+
+    function createEmptyAttributes() {
+      return ATTRIBUTE_ORDER.reduce((acc, key) => {
+        acc[key] = 0;
+        return acc;
+      }, {});
+    }
+
+    function createEmptyWeapon() {
+      return createOpenLegendWeapon();
+    }
+
+    function clone(value) {
+      return JSON.parse(JSON.stringify(value));
+    }
+
+    function numberOrZero(value) {
+      const n = Number(value);
+      return Number.isFinite(n) ? n : 0;
+    }
+
+    function cleanInt(value) {
+      return Math.max(0, Math.floor(numberOrZero(value)));
+    }
+
+    function attributeCost(score) {
+      const n = cleanInt(score);
+      return (n * (n + 1)) / 2;
+    }
+
+    function getAttributeDie(score) {
+      const n = cleanInt(score);
+      const diceByScore = {
+        0: "",
+        1: "1D4",
+        2: "1D6",
+        3: "1D8",
+        4: "1D10",
+        5: "2D6",
+        6: "2D8",
+        7: "2D10",
+        8: "3D8",
+        9: "3D10"
+      };
+      return diceByScore[n] || "";
+    }
+
+    function normalizeWeaponEntry(rawWeapon = {}) {
+      const preset = findOpenLegendWeaponPreset(rawWeapon.presetKey || rawWeapon.name || "");
+      const base = preset ? createOpenLegendWeapon(preset.key) : createOpenLegendWeapon();
+      const tagsValue = Array.isArray(rawWeapon.tags) ? rawWeapon.tags.join(", ") : (rawWeapon.tags ?? base.tags ?? "");
+
+      return {
+        ...base,
+        presetKey: rawWeapon.presetKey || preset?.key || base.presetKey || "",
+        name: rawWeapon.name || preset?.name || base.name || "",
+        attribute: rawWeapon.attribute || preset?.defaultAttribute || base.attribute || "Agility",
+        vs: rawWeapon.vs || base.vs || "GRD",
+        range: rawWeapon.range || base.range || "Melee",
+        bonusDice: rawWeapon.bonusDice ?? base.bonusDice ?? "",
+        flatBonus: Number(rawWeapon.flatBonus ?? base.flatBonus ?? 0),
+        boon: cleanInt(rawWeapon.boon ?? base.boon ?? 0),
+        bane: cleanInt(rawWeapon.bane ?? base.bane ?? 0),
+        tags: String(tagsValue || "").trim(),
+        notes: String(rawWeapon.notes ?? base.notes ?? "").trim(),
+        customDamage: String(rawWeapon.customDamage ?? "").trim()
+      };
+    }
+
+    function getWeaponComputedDamage(weapon) {
+      const attributeDie = getOpenLegendAttributeDie(character.attributes?.[weapon.attribute] || 0);
+      return composeOpenLegendWeaponDamage({
+        attributeDie,
+        bonusDice: weapon.bonusDice,
+        flatBonus: weapon.flatBonus,
+        customDamage: weapon.customDamage
+      });
+    }
+
+    function getWeaponSummaryHtml(weapon) {
+      const damage = getWeaponComputedDamage(weapon);
+      const tags = String(weapon.tags || "").trim();
+      return [
+        `<span><strong>DMG</strong> ${escapeHtml(damage || "—")}</span>`,
+        `<span><strong>ATK</strong> ${escapeHtml(weapon.attribute || "—")}</span>`,
+        `<span><strong>VS</strong> ${escapeHtml(weapon.vs || "GRD")}</span>`,
+        `<span><strong>Range</strong> ${escapeHtml(weapon.range || "—")}</span>`,
+        weapon.boon ? `<span><strong>Boon</strong> ${cleanInt(weapon.boon)}</span>` : "",
+        weapon.bane ? `<span><strong>Bane</strong> ${cleanInt(weapon.bane)}</span>` : "",
+        tags ? `<span><strong>Tags</strong> ${escapeHtml(tags)}</span>` : ""
+      ].filter(Boolean).join('<span class="weapon-divider">•</span>');
+    }
+
+    function getAttributeCostBreakdown(attributes) {
+      return Object.fromEntries(Object.entries(attributes).map(([name, value]) => [name, attributeCost(value)]));
+    }
+
+    function spentAttributePoints(attributes) {
+      return Object.values(attributes).reduce((total, value) => total + attributeCost(value), 0);
+    }
+
+    function getXpAwards(xp) {
+      const safeXp = cleanInt(xp);
+      const perXp = RULES.creation.xpPerAdvance;
+      return {
+        xp: safeXp,
+        bonusAttributePoints: safeXp * perXp.attributePoints,
+        bonusFeatPoints: safeXp * perXp.featPoints,
+        earnedLevels: Math.floor(safeXp / perXp.levelEveryXp),
+        level: RULES.creation.level + Math.floor(safeXp / perXp.levelEveryXp)
+      };
+    }
+
+    function getAvailableBudgets(character) {
+      const xpAwards = getXpAwards(character.xp);
+      return {
+        xp: xpAwards.xp,
+        level: xpAwards.level,
+        attributePointsTotal: RULES.creation.attributePoints + xpAwards.bonusAttributePoints,
+        featPointsTotal: RULES.creation.featPoints + xpAwards.bonusFeatPoints,
+        bonusAttributePoints: xpAwards.bonusAttributePoints,
+        bonusFeatPoints: xpAwards.bonusFeatPoints,
+        earnedLevels: xpAwards.earnedLevels
+      };
+    }
+
+    function getDerivedStats(character) {
+      const a = character.attributes;
+      const m = character.modifiers || {};
+      return {
+        guard: {
+          total: 10 + a.Agility + a.Might + numberOrZero(m.armorGuardBonus) + numberOrZero(m.guardBonus),
+          parts: [
+            ["Base", 10],
+            ["Agility", a.Agility],
+            ["Might", a.Might],
+            ["Armor", numberOrZero(m.armorGuardBonus)],
+            ["Other Bonus", numberOrZero(m.guardBonus)]
+          ]
+        },
+        toughness: {
+          total: 10 + a.Fortitude + a.Will + numberOrZero(m.toughnessBonus),
+          parts: [
+            ["Base", 10],
+            ["Fortitude", a.Fortitude],
+            ["Will", a.Will],
+            ["Other Bonus", numberOrZero(m.toughnessBonus)]
+          ]
+        },
+        resolve: {
+          total: 10 + a.Presence + a.Will + numberOrZero(m.resolveBonus),
+          parts: [
+            ["Base", 10],
+            ["Presence", a.Presence],
+            ["Will", a.Will],
+            ["Other Bonus", numberOrZero(m.resolveBonus)]
+          ]
+        },
+        hitPoints: {
+          total: 10 + (2 * (a.Fortitude + a.Presence + a.Will)) + numberOrZero(m.hpBonus),
+          parts: [
+            ["Base", 10],
+            ["2 × Fortitude", 2 * a.Fortitude],
+            ["2 × Presence", 2 * a.Presence],
+            ["2 × Will", 2 * a.Will],
+            ["Other Bonus", numberOrZero(m.hpBonus)]
+          ]
+        },
+        initiative: {
+          total: (m.initiativeAttribute || "Agility") + " +" + numberOrZero(m.initiativeBonus),
+          parts: [
+            ["Roll Attribute", m.initiativeAttribute || "Agility"],
+            ["Flat Bonus", numberOrZero(m.initiativeBonus)]
+          ]
+        },
+        speed: numberOrZero(m.speed || RULES.defaults.speed),
+        wealth: numberOrZero(m.wealth || RULES.defaults.wealth)
+      };
+    }
+
+    function makeCharacter(seed = {}) {
+      const attributes = createEmptyAttributes();
+      Object.assign(attributes, seed.attributes || {});
+      const xpAwards = getXpAwards(seed.xp);
+
+      const modifiers = Object.assign({}, clone(RULES.defaults), seed.modifiers || {});
+      const feats = normalizeSavedFeats(seed.feats);
+      const perks = Array.isArray(seed.perks) ? clone(seed.perks) : [];
+      const flaws = Array.isArray(seed.flaws) ? clone(seed.flaws) : [];
+      const weapons = Array.isArray(seed.weapons) ? clone(seed.weapons).map((weapon) => normalizeWeaponEntry(weapon)) : [];
+
+      return {
+        name: seed.name || "",
+        concept: seed.concept || "",
+        xp: cleanInt(seed.xp),
+        level: numberOrZero(seed.level) || xpAwards.level,
+        attributes,
+        feats,
+        perks,
+        flaws,
+        weapons,
+        notes: seed.notes || "",
+        modifiers
+      };
+    }
+
+    function meetsThreshold(attributes, requirement) {
+      if (!requirement || !requirement.attribute) return true;
+      return cleanInt(attributes[requirement.attribute]) >= cleanInt(requirement.min);
+    }
+
+    function normalizeSavedFeats(input) {
+      const featMap = new Map();
+      const romanMap = { I: 1, II: 2, III: 3, IV: 4, V: 5, VI: 6, VII: 7, VIII: 8, IX: 9, X: 10 };
+
+      const pushFeat = (rawName, rawLevel = 1) => {
+        const trimmed = String(rawName || "").trim();
+        if (!trimmed) return;
+
+        let key = trimmed;
+        let level = cleanInt(rawLevel) || 1;
+
+        const romanMatch = trimmed.match(/^(.*)\s+([IVX]+)$/);
+        if (romanMatch) {
+          const maybeKey = romanMatch[1].trim();
+          const maybeEntry = OPENLEGEND_FEATS.find((feat) => feat.name === maybeKey);
+          if (maybeEntry && romanMap[romanMatch[2]]) {
+            key = maybeKey;
+            level = romanMap[romanMatch[2]];
+          }
+        }
+
+        const entry = OPENLEGEND_FEATS.find((feat) => feat.name === key);
+        const safeLevel = Math.max(1, Math.min(entry?.maxLevel || 1, level));
+        const existing = featMap.get(key);
+
+        if (!existing || safeLevel > existing.level) {
+          featMap.set(key, { key, name: key, level: safeLevel });
+        }
+      };
+
+      if (Array.isArray(input)) {
+        input.forEach((item) => {
+          if (typeof item === "string") {
+            pushFeat(item, 1);
+            return;
+          }
+
+          if (item && typeof item === "object") {
+            pushFeat(item.key || item.name, item.level || 1);
+          }
+        });
+      }
+
+      return Array.from(featMap.values()).sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    function createDefaultFeatRegistry() {
+      const registry = {};
+      for (const feat of OPENLEGEND_FEATS) {
+        registry[feat.name] = feat;
+      }
+      return registry;
+    }
+
+    function getFeatEntryByKey(key) {
+      return featRegistry[String(key || "").trim()] || null;
+    }
+
+    function getFeatTotalCost(feat) {
+      const entry = getFeatEntryByKey(feat?.key || feat?.name);
+      if (!entry) return 0;
+      return entry.costPerLevel * Math.max(1, cleanInt(feat?.level) || 1);
+    }
+
+    function validateFeatSelection(character, featRegistry = {}) {
+      const errors = [];
+      const warnings = [];
+      const budgets = getAvailableBudgets(character);
+      let spent = 0;
+      const chosenNames = new Set();
+
+      for (const feat of character.feats) {
+        const name = String(feat?.key || feat?.name || "").trim();
+        if (!name) continue;
+        chosenNames.add(name);
+        const entry = featRegistry[name];
+        if (!entry) {
+          warnings.push(`Feat "${name}" is not in the current feat library.`);
+          continue;
+        }
+
+        const level = Math.max(1, Math.min(entry.maxLevel || 1, cleanInt(feat.level) || 1));
+        feat.level = level;
+        spent += cleanInt(entry.costPerLevel || 0) * level;
+      }
+
+      if (spent > budgets.featPointsTotal) {
+        errors.push(`You have spent ${spent} feat points, but only ${budgets.featPointsTotal} are available (${RULES.creation.featPoints} base + ${budgets.bonusFeatPoints} from XP).`);
+      }
+
+      return {
+        spent,
+        remaining: budgets.featPointsTotal - spent,
+        totalAvailable: budgets.featPointsTotal,
+        errors,
+        warnings
+      };
+    }
+
+    function validateCharacter(character, featRegistry = {}) {
+      const errors = [];
+      const warnings = [];
+      const budgets = getAvailableBudgets(character);
+      character.level = budgets.level;
+
+      const attrSpent = spentAttributePoints(character.attributes);
+      if (attrSpent > budgets.attributePointsTotal) {
+        errors.push(`You have spent ${attrSpent} attribute points, but only ${budgets.attributePointsTotal} are available (${RULES.creation.attributePoints} base + ${budgets.bonusAttributePoints} from XP).`);
+      }
+
+      for (const attr of ATTRIBUTE_ORDER) {
+        if (cleanInt(character.attributes[attr]) !== numberOrZero(character.attributes[attr])) {
+          character.attributes[attr] = cleanInt(character.attributes[attr]);
+        }
+      }
+
+      if (character.perks.length > RULES.creation.maxPerks) {
+        errors.push(`A character may select up to ${RULES.creation.maxPerks} perks at character creation.`);
+      }
+
+      if (character.flaws.length > RULES.creation.maxFlaws) {
+        errors.push(`A character may select up to ${RULES.creation.maxFlaws} flaws at character creation.`);
+      }
+
+      const featValidation = validateFeatSelection(character, featRegistry);
+      errors.push(...featValidation.errors);
+      warnings.push(...featValidation.warnings);
+
+      return {
+        ok: errors.length === 0,
+        errors,
+        warnings,
+        xp: budgets.xp,
+        level: budgets.level,
+        earnedLevels: budgets.earnedLevels,
+        attributePointsSpent: attrSpent,
+        attributePointsTotal: budgets.attributePointsTotal,
+        attributePointsRemaining: budgets.attributePointsTotal - attrSpent,
+        featPointsSpent: featValidation.spent,
+        featPointsTotal: budgets.featPointsTotal,
+        featPointsRemaining: featValidation.remaining,
+        attributeCostBreakdown: getAttributeCostBreakdown(character.attributes),
+        derived: getDerivedStats(character)
+      };
+    }
+
+    function escapeHtml(text) {
+      return String(text)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    let user = null;
+    let game = null;
+    let autoSaveTimer = null;
+    let isSaving = false;
+
+    let root = null;
+    let featRegistry = createDefaultFeatRegistry();
+    let featNames = Object.keys(featRegistry).sort((a, b) => a.localeCompare(b));
+    let character = makeCharacter({});
+
+    let attrWrap = null;
+    let budgetWrap = null;
+    let derivedWrap = null;
+    let featListWrap = null;
+    let perkListWrap = null;
+    let flawListWrap = null;
+    let weaponListWrap = null;
+    let statusWrap = null;
+    let messagesWrap = null;
+    let featPicker = null;
+    let featCostPreview = null;
+    let featHelper = null;
+    let featModal = null;
+    let featModalBody = null;
+    let activeFeatModalIndex = null;
+    let weaponModal = null;
+    let weaponModalBody = null;
+    let activeWeaponModalIndex = null;
+
+    function builderPath() {
+      return `games/${code}/builderSheets/${user.uid}`;
+    }
+
+    function playerPath() {
+      return `games/${code}/players/${user.uid}`;
+    }
+
+    function syncFromDom() {
+      for (const attr of ATTRIBUTE_ORDER) {
+        const input = root.querySelector(`[data-attr="${CSS.escape(attr)}"]`);
+        if (input) character.attributes[attr] = cleanInt(input.value);
+      }
+
+      for (const key of Object.keys(character.modifiers)) {
+        const input = root.querySelector(`[data-mod="${CSS.escape(key)}"]`);
+        if (input) character.modifiers[key] = cleanInt(input.value);
+      }
+
+      const initAttr = root.querySelector("[data-init-attr]");
+      if (initAttr) character.modifiers.initiativeAttribute = initAttr.value;
+
+      character.name = root.querySelector('[data-field="name"]').value;
+      character.concept = root.querySelector('[data-field="concept"]').value;
+      character.xp = cleanInt(root.querySelector('[data-field="xp"]').value);
+      character.level = getXpAwards(character.xp).level;
+      character.notes = root.querySelector('[data-field="notes"]').value;
+
+      character.perks = Array.from(root.querySelectorAll("[data-perk-index]"))
+        .map((el) => el.value.trim())
+        .filter(Boolean);
+
+      character.flaws = Array.from(root.querySelectorAll("[data-flaw-index]"))
+        .map((el) => el.value.trim())
+        .filter(Boolean);
+
+      character.weapons = (Array.isArray(character.weapons) ? character.weapons : []).map((weapon) => normalizeWeaponEntry(weapon));
+    }
+
+    function renderAttributes() {
+      attrWrap.innerHTML = Object.entries(RULES.categories).map(([category, attrs]) => `
+        <div class="sheet-box category-box">
+          <div class="category-title">${escapeHtml(category.charAt(0).toUpperCase() + category.slice(1))}</div>
+          ${attrs.map((attr) => {
+            const score = cleanInt(character.attributes[attr]);
+            const die = getAttributeDie(score);
+            return `
+            <div class="attribute-row">
+              <div class="attr-name">${escapeHtml(attr)}</div>
+              <div class="attr-die">${die ? escapeHtml(die) : ""}</div>
+              <div class="attr-cost">${attributeCost(score)} pts</div>
+              <input data-attr="${escapeHtml(attr)}" type="number" min="0" value="${score}">
+            </div>
+          `;
+          }).join("")}
+        </div>
+      `).join("");
+    }
+
+    function renderBudgets(result) {
+      budgetWrap.innerHTML = `
+        <div class="budget-card">
+          <div class="label">XP</div>
+          <div class="value">${result.xp}</div>
+          <div class="detail">+${RULES.creation.xpPerAdvance.attributePoints} attribute / +${RULES.creation.xpPerAdvance.featPoints} feat per XP</div>
+        </div>
+        <div class="budget-card">
+          <div class="label">Level</div>
+          <div class="value">${result.level}</div>
+          <div class="detail">${result.earnedLevels} level(s) earned from XP</div>
+        </div>
+        <div class="budget-card">
+          <div class="label">Attribute Budget</div>
+          <div class="value">${result.attributePointsSpent} / ${result.attributePointsTotal}</div>
+          <div class="detail">Uses cumulative cost: 1, 3, 6, 10, 15...</div>
+        </div>
+        <div class="budget-card">
+          <div class="label">Feat Budget</div>
+          <div class="value">${result.featPointsSpent} / ${result.featPointsTotal}</div>
+          <div class="detail">${result.featPointsRemaining} remaining</div>
+        </div>
+      `;
+    }
+
+    function renderDerived(result) {
+      const derived = result.derived;
+      const cards = [
+        ["Guard", derived.guard],
+        ["Toughness", derived.toughness],
+        ["Resolve", derived.resolve],
+        ["HP", derived.hitPoints],
+        ["Initiative", derived.initiative]
+      ];
+
+      derivedWrap.innerHTML = cards.map(([name, data]) => `
+        <div class="sheet-box derived-card">
+          <div class="derived-top">
+            <div class="derived-name">${escapeHtml(name)}</div>
+            <div class="derived-total">${escapeHtml(String(data.total))}</div>
+          </div>
+          <div class="formula-list">
+            ${data.parts.map(([label, value]) => `
+              <div class="formula-row">
+                <span>${escapeHtml(label)}</span>
+                <span>${escapeHtml(String(value))}</span>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+      `).join("") + `
+        <div class="sheet-box derived-card">
+          <div class="derived-top"><div class="derived-name">Speed</div><div class="derived-total">${derived.speed}</div></div>
+        </div>
+        <div class="sheet-box derived-card">
+          <div class="derived-top"><div class="derived-name">Wealth</div><div class="derived-total">${derived.wealth}</div></div>
+        </div>
+      `;
+    }
+
+    function renderSimpleList(container, list, type, placeholder) {
+      container.innerHTML = list.map((item, index) => `
+        <div class="simple-list-row">
+          <input data-${type}-index="${index}" type="text" value="${escapeHtml(item)}" placeholder="${escapeHtml(placeholder)}">
+          <button type="button" class="remove-button" data-remove-${type}="${index}">Remove</button>
+        </div>
+      `).join("");
+    }
+
+    function renderFeatList() {
+      featListWrap.innerHTML = character.feats.map((feat, index) => {
+        const entry = getFeatEntryByKey(feat.key || feat.name);
+        const level = cleanInt(feat.level) || 1;
+        const totalCost = getFeatTotalCost(feat);
+        const subtitle = entry
+          ? `Level ${level}/${entry.maxLevel} • ${entry.costPerLevel} pt per level`
+          : `Level ${level}`;
+
+        return `
+          <div class="tag-row">
+            <div class="tag-meta">
+              <div class="tag-name">${escapeHtml(feat.name || feat.key || "")}</div>
+              <div class="tag-subtitle">${escapeHtml(subtitle)}</div>
+            </div>
+            <div class="tag-cost">${escapeHtml(String(totalCost))} pt</div>
+            <div class="tag-actions">
+              <button type="button" data-open-feat="${index}">Details</button>
+              <button type="button" class="remove-button" data-remove-feat="${index}">Remove</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function openFeatModal(index) {
+      const feat = character.feats[index];
+      const entry = getFeatEntryByKey(feat?.key || feat?.name);
+      if (!featModal || !featModalBody || !entry) return;
+
+      activeFeatModalIndex = index;
+      const currentLevel = Math.max(1, cleanInt(feat.level) || 1);
+      const nextCost = currentLevel < entry.maxLevel ? entry.costPerLevel * (currentLevel + 1) : null;
+      const tierRows = (entry.tiers || []).map((tier) => `
+        <div class="feat-tier-row">
+          <strong>Tier ${tier.level}</strong>
+          <span>${escapeHtml(tier.text || "None")}</span>
+        </div>
+      `).join("");
+
+      featModalBody.innerHTML = `
+        <div class="feat-modal__top">
+          <div>
+            <h2 class="feat-modal__title">${escapeHtml(entry.name)}</h2>
+            <div class="tag-subtitle">${escapeHtml(entry.displayTitle || entry.name)}</div>
+          </div>
+          <div class="feat-pill">Level ${currentLevel}/${entry.maxLevel} • ${entry.costPerLevel} pt/level</div>
+        </div>
+
+        <div class="feat-modal__section">
+          <h3>Description</h3>
+          <div class="feat-modal__richtext">${entry.descriptionHtml || escapeHtml(entry.description || "—")}</div>
+        </div>
+
+        <div class="feat-modal__section">
+          <h3>Prerequisites</h3>
+          <div class="feat-tier-list">${tierRows || '<div class="feat-tier-row"><strong>Tier 1</strong><span>None</span></div>'}</div>
+        </div>
+
+        <div class="feat-modal__section">
+          <h3>Effect</h3>
+          <div class="feat-modal__richtext">${entry.effectHtml || "—"}</div>
+        </div>
+
+        ${entry.specialHtml ? `
+          <div class="feat-modal__section">
+            <h3>Special</h3>
+            <div class="feat-modal__richtext">${entry.specialHtml}</div>
+          </div>
+        ` : ""}
+
+        <div class="feat-modal__footer">
+          <div class="tag-subtitle">
+            Current total cost: ${currentLevel * entry.costPerLevel} pt${nextCost ? ` • Next level total: ${nextCost} pt` : ""}
+          </div>
+          <div class="feat-level-controls">
+            <button type="button" data-feat-level-down ${currentLevel <= 1 ? "disabled" : ""}>Level Down</button>
+            <button type="button" data-feat-level-up ${currentLevel >= entry.maxLevel ? "disabled" : ""}>Level Up</button>
+            <button type="button" data-close-feat-modal>Close</button>
+          </div>
+        </div>
+      `;
+      featModal.setAttribute("aria-hidden", "false");
+    }
+
+    function closeFeatModal() {
+      activeFeatModalIndex = null;
+      if (featModal) featModal.setAttribute("aria-hidden", "true");
+    }
+
+    function changeFeatLevel(delta) {
+      if (activeFeatModalIndex === null) return;
+      const feat = character.feats[activeFeatModalIndex];
+      const entry = getFeatEntryByKey(feat?.key || feat?.name);
+      if (!feat || !entry) return;
+
+      feat.level = Math.max(1, Math.min(entry.maxLevel || 1, (cleanInt(feat.level) || 1) + delta));
+      rerender();
+      openFeatModal(activeFeatModalIndex);
+      scheduleSave();
+    }
+
+    function renderWeapons() {
+      if (!weaponListWrap) return;
+
+      if (!character.weapons.length) {
+        weaponListWrap.innerHTML = '<div class="message-box">No weapons added yet.</div>';
+        return;
+      }
+
+      weaponListWrap.innerHTML = character.weapons.map((rawWeapon, index) => {
+        const weapon = normalizeWeaponEntry(rawWeapon);
+        character.weapons[index] = weapon;
+        const preset = findOpenLegendWeaponPreset(weapon.presetKey || weapon.name || "");
+        return `
+          <div class="weapon-card" data-weapon-index="${index}">
+            <div class="weapon-row-top">
+              <div>
+                <div class="tag-name">${escapeHtml(weapon.name || `Weapon ${index + 1}`)}</div>
+                <div class="tag-subtitle">${escapeHtml(preset?.category || "Custom Weapon")}</div>
+              </div>
+              <div class="weapon-actions">
+                <button type="button" data-edit-weapon="${index}">Details</button>
+                <button type="button" class="remove-button" data-remove-weapon="${index}">Remove</button>
+              </div>
+            </div>
+            <div class="weapon-summary">${getWeaponSummaryHtml(weapon)}</div>
+            ${weapon.notes ? `<div class="helper-text">${escapeHtml(weapon.notes)}</div>` : ''}
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderBanesOverviewHtml(weapon, preset) {
+      const available = Array.isArray(weapon?.availableBanes) && weapon.availableBanes.length
+        ? weapon.availableBanes
+        : (Array.isArray(preset?.availableBanes) ? preset.availableBanes : []);
+
+      if (!available.length) {
+        const note = preset?.officialBanesNote || weapon?.officialBanesNote || 'No bane list is assigned for this weapon preset yet.';
+        return `
+          <div class="message-box">
+            <strong>Available Banes</strong><br>
+            ${escapeHtml(note)}<br>
+            <span class="helper-text">Weapons in this builder use a curated 2–3 bane list so the modal shows only the intended options for that preset.</span>
+          </div>
+        `;
+      }
+
+      const normalized = available
+        .map((name) => {
+          const bane = Array.isArray(BANES)
+            ? BANES.find((entry) => String(entry?.name || '').toLowerCase() === String(name || '').toLowerCase())
+            : null;
+          return bane || { name: String(name || '').trim(), url: '', icon: '' };
+        })
+        .filter((bane) => bane.name);
+
+      if (!normalized.length) {
+        return '<div class="message-box">No official bane links available for this weapon.</div>';
+      }
+
+      return `
+        <div class="bane-overview-grid">
+          ${normalized.map((bane) => `
+            <a class="bane-overview-card" href="${escapeHtml(bane.url || '#')}" target="_blank" rel="noopener noreferrer">
+              ${bane.icon ? `<img src="${escapeHtml(bane.icon)}" alt="${escapeHtml(bane.name || 'Bane')} icon">` : ''}
+              <span>${escapeHtml(bane.name || 'Bane')}</span>
+            </a>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    function openWeaponModal(index) {
+      if (!weaponModal || !weaponModalBody) return;
+      const weapon = normalizeWeaponEntry(character.weapons[index] || createEmptyWeapon());
+      character.weapons[index] = weapon;
+      activeWeaponModalIndex = index;
+      const preset = findOpenLegendWeaponPreset(weapon.presetKey || weapon.name || "");
+      const attributeScore = cleanInt(character.attributes?.[weapon.attribute] || 0);
+      const attributeDie = getOpenLegendAttributeDie(attributeScore);
+      const damage = getWeaponComputedDamage(weapon);
+
+      weaponModalBody.innerHTML = `
+        <div class="feat-modal__header">
+          <div>
+            <div class="tag-name">${escapeHtml(weapon.name || 'Weapon')}</div>
+            <div class="tag-subtitle">${escapeHtml(preset?.category || 'Custom Weapon')} • ${escapeHtml(weapon.range || '—')}</div>
+          </div>
+          <button type="button" data-close-weapon-modal>Close</button>
+        </div>
+
+        <div class="weapon-modal-grid">
+          <label>
+            Preset
+            <select data-weapon-modal-preset>
+              <option value="">Custom</option>
+              ${OPENLEGEND_WEAPONS.map((item) => `<option value="${escapeHtml(item.key)}" ${weapon.presetKey === item.key ? 'selected' : ''}>${escapeHtml(item.name)}</option>`).join('')}
+            </select>
+          </label>
+
+          <label>
+            Weapon Name
+            <input data-weapon-modal-name type="text" value="${escapeHtml(weapon.name || '')}" placeholder="Weapon name">
+          </label>
+
+          <label>
+            Attack Attribute
+            <select data-weapon-modal-attribute>
+              ${ATTRIBUTE_ORDER.map((attr) => `<option value="${escapeHtml(attr)}" ${weapon.attribute === attr ? 'selected' : ''}>${escapeHtml(attr)}</option>`).join('')}
+            </select>
+          </label>
+
+          <label>
+            VS
+            <select data-weapon-modal-vs>
+              ${OPENLEGEND_WEAPON_VS_OPTIONS.map((vs) => `<option value="${escapeHtml(vs)}" ${weapon.vs === vs ? 'selected' : ''}>${escapeHtml(vs)}</option>`).join('')}
+            </select>
+          </label>
+
+          <label>
+            Range
+            <input data-weapon-modal-range type="text" value="${escapeHtml(weapon.range || '')}" placeholder="Melee, Close, Short, Long, Extreme">
+          </label>
+
+          <label>
+            Bonus Dice
+            <input data-weapon-modal-bonus-dice type="text" value="${escapeHtml(weapon.bonusDice || '')}" placeholder="+1 or 1D6">
+          </label>
+
+          <label>
+            Flat Bonus
+            <input data-weapon-modal-flat-bonus type="number" value="${Number(weapon.flatBonus || 0)}">
+          </label>
+
+          <label>
+            Boon
+            <input data-weapon-modal-boon type="number" min="0" value="${cleanInt(weapon.boon)}">
+          </label>
+
+          <label>
+            Bane
+            <input data-weapon-modal-bane type="number" min="0" value="${cleanInt(weapon.bane)}">
+          </label>
+
+          <label style="grid-column: 1 / -1;">
+            Tags
+            <input data-weapon-modal-tags type="text" value="${escapeHtml(weapon.tags || '')}" placeholder="Precise, Area, Reach">
+          </label>
+
+          <label style="grid-column: 1 / -1;">
+            Notes
+            <textarea data-weapon-modal-notes placeholder="Special handling, ammo, rider effects, etc.">${escapeHtml(weapon.notes || '')}</textarea>
+          </label>
+
+          <div class="message-box" style="grid-column: 1 / -1;">
+            <strong>Computed Damage</strong><br>
+            <span data-weapon-modal-damage>${escapeHtml(damage)}</span><br>
+            <span class="helper-text">Based on ${escapeHtml(weapon.attribute)} ${attributeScore} (${escapeHtml(attributeDie || '—')}) plus any bonus dice / flat bonus.</span>
+          </div>
+        </div>
+
+        <div class="feat-modal__section">
+          <h3>Available Banes</h3>
+          <div class="helper-text" style="margin-bottom:10px;">Overview from your bane library for quick reference while editing a weapon.</div>
+          ${renderBanesOverviewHtml(weapon, preset)}
+        </div>
+
+        <div class="feat-modal__footer">
+          <div class="tag-subtitle">Weapon damage updates automatically when the selected attribute changes.</div>
+          <div class="feat-level-controls">
+            <button type="button" data-close-weapon-modal>Done</button>
+          </div>
+        </div>
+      `;
+
+      weaponModal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeWeaponModal() {
+      activeWeaponModalIndex = null;
+      if (weaponModal) weaponModal.setAttribute('aria-hidden', 'true');
+    }
+
+    function updateWeaponFromModal() {
+      if (activeWeaponModalIndex === null || !weaponModal) return;
+      const weapon = normalizeWeaponEntry(character.weapons[activeWeaponModalIndex] || createEmptyWeapon());
+      const read = (selector) => weaponModal.querySelector(selector);
+      weapon.presetKey = read('[data-weapon-modal-preset]')?.value || '';
+      weapon.name = read('[data-weapon-modal-name]')?.value?.trim() || weapon.name || '';
+      weapon.attribute = read('[data-weapon-modal-attribute]')?.value || 'Agility';
+      weapon.vs = read('[data-weapon-modal-vs]')?.value || 'GRD';
+      weapon.range = read('[data-weapon-modal-range]')?.value?.trim() || 'Melee';
+      weapon.bonusDice = read('[data-weapon-modal-bonus-dice]')?.value?.trim() || '';
+      weapon.flatBonus = Number(read('[data-weapon-modal-flat-bonus]')?.value || 0);
+      weapon.boon = cleanInt(read('[data-weapon-modal-boon]')?.value);
+      weapon.bane = cleanInt(read('[data-weapon-modal-bane]')?.value);
+      weapon.tags = read('[data-weapon-modal-tags]')?.value?.trim() || '';
+      weapon.notes = read('[data-weapon-modal-notes]')?.value?.trim() || '';
+      character.weapons[activeWeaponModalIndex] = normalizeWeaponEntry(weapon);
+
+      const damageEl = read('[data-weapon-modal-damage]');
+      if (damageEl) damageEl.textContent = getWeaponComputedDamage(character.weapons[activeWeaponModalIndex]);
+      const score = cleanInt(character.attributes?.[weapon.attribute] || 0);
+      const die = getOpenLegendAttributeDie(score);
+      const helper = damageEl?.nextElementSibling;
+      if (helper) helper.textContent = `Based on ${weapon.attribute} ${score} (${die || '—'}) plus any bonus dice / flat bonus.`;
+
+      renderWeapons();
+      refreshComputedPanels();
+      scheduleSave();
+    }
+
+    function renderStatus(result) {
+      statusWrap.innerHTML = `<div class="${result.ok ? "status-ok" : "status-bad"}">${result.ok ? "Character is currently valid." : "Character needs fixes."}</div>`;
+      const blocks = [];
+
+      if (result.errors.length) {
+        blocks.push(`<div class="message-box"><strong>Errors</strong><ul>${result.errors.map((e) => `<li>${escapeHtml(e)}</li>`).join("")}</ul></div>`);
+      }
+
+      if (result.warnings.length) {
+        blocks.push(`<div class="message-box"><strong>Warnings</strong><ul>${result.warnings.map((w) => `<li>${escapeHtml(w)}</li>`).join("")}</ul></div>`);
+      }
+
+      messagesWrap.innerHTML = blocks.join("");
+    }
+
+    function refreshFeatPreview() {
+      const value = featPicker.value.trim();
+      const entry = featRegistry[value];
+      featCostPreview.value = entry ? `${entry.costPerLevel} / lvl` : "-";
+      featHelper.textContent = entry
+        ? `Max level ${entry.maxLevel} • total cost scales cumulatively (${entry.costPerLevel} pt per level)`
+        : "Pick a feat from the dropdown or type the full name.";
+    }
+
+    function captureFocusState() {
+      const active = document.activeElement;
+      if (!root || !active || !root.contains(active)) return null;
+
+      const keys = [
+        "attr",
+        "mod",
+        "field",
+        "weaponName",
+        "weaponAttribute",
+        "weaponDamage",
+        "weaponNotes",
+        "weaponBoon",
+        "weaponBane",
+        "weaponPreset",
+        "perkIndex",
+        "flawIndex",
+        "initAttr",
+        "featPicker"
+      ];
+
+      for (const key of keys) {
+        const attrName = key === "featPicker" ? "data-feat-picker" : `data-${key.replace(/[A-Z]/g, (m) => "-" + m.toLowerCase())}`;
+        if (active.hasAttribute && active.hasAttribute(attrName)) {
+          return {
+            attrName,
+            attrValue: active.getAttribute(attrName) || "",
+            value: active.value,
+            selectionStart: typeof active.selectionStart === "number" ? active.selectionStart : null,
+            selectionEnd: typeof active.selectionEnd === "number" ? active.selectionEnd : null
+          };
+        }
+      }
+
+      return null;
+    }
+
+    function restoreFocusState(focusState) {
+      if (!root || !focusState) return;
+      const selector = focusState.attrValue
+        ? `[${focusState.attrName}="${CSS.escape(focusState.attrValue)}"]`
+        : `[${focusState.attrName}]`;
+      const nextField = root.querySelector(selector);
+      if (!nextField) return;
+
+      nextField.focus({ preventScroll: true });
+
+      if (typeof nextField.setSelectionRange === "function" &&
+          focusState.selectionStart !== null &&
+          focusState.selectionEnd !== null) {
+        try {
+          nextField.setSelectionRange(focusState.selectionStart, focusState.selectionEnd);
+        } catch (error) {
+          // Some input types (like number) do not support selection ranges.
+        }
+      }
+    }
+
+
+    function refreshComputedPanels() {
+      const result = validateCharacter(character, featRegistry);
+      const levelField = root.querySelector('[data-field="level"]');
+      if (levelField) levelField.value = result.level;
+
+      renderBudgets(result);
+      renderDerived(result);
+      renderStatus(result);
+
+      return result;
+    }
+
+    function rerender() {
+      const focusState = captureFocusState();
+
+      renderAttributes();
+      renderFeatList();
+      renderSimpleList(perkListWrap, character.perks, "perk", "Perk name");
+      renderSimpleList(flawListWrap, character.flaws, "flaw", "Flaw name");
+      renderWeapons();
+      const result = refreshComputedPanels();
+      restoreFocusState(focusState);
+
+      return result;
+    }
+
+    function renderBuilder() {
+      root = builderRoot;
+      root.innerHTML = `
+        <section>
+          <div class="grid-top">
+            <label>Name <input data-field="name" type="text" value="${escapeHtml(character.name)}"></label>
+            <label>Concept <input data-field="concept" type="text" value="${escapeHtml(character.concept)}"></label>
+            <label>XP <input data-field="xp" type="number" min="0" step="1" value="${character.xp}"></label>
+            <label>Level <input data-field="level" type="number" value="${character.level}" readonly></label>
+          </div>
+
+          <div class="budget-grid" data-budget-grid></div>
+
+          <div class="main-layout">
+            <div class="sheet-box">
+              <h2>Attributes</h2>
+              <div class="attributes-grid" data-attributes></div>
+            </div>
+
+            <div class="derived-grid" data-derived></div>
+          </div>
+
+          <div class="two-col">
+            <div class="sheet-box">
+              <h2>Feats</h2>
+              <div class="feat-controls">
+                <label>Find feat
+                  <input list="feat-options" data-feat-picker type="text" placeholder="Start typing a feat name">
+                  <datalist id="feat-options">
+                    ${featNames.map((name) => `<option value="${escapeHtml(name)}"></option>`).join("")}
+                  </datalist>
+                </label>
+                <label>Cost
+                  <input data-feat-cost-preview type="text" readonly value="-">
+                </label>
+                <button type="button" data-add-feat>Add Feat</button>
+              </div>
+              <p class="helper-text" data-feat-helper>Pick a feat from the dropdown or type the full name.</p>
+              <div class="tag-list" data-feat-list></div>
+            </div>
+
+            <div class="sheet-box">
+              <h2>Modifiers</h2>
+              <div class="attributes-grid">
+                <label>Armor Guard Bonus <input data-mod="armorGuardBonus" type="number" value="${character.modifiers.armorGuardBonus}"></label>
+                <label>Extra Guard Bonus <input data-mod="guardBonus" type="number" value="${character.modifiers.guardBonus}"></label>
+                <label>Toughness Bonus <input data-mod="toughnessBonus" type="number" value="${character.modifiers.toughnessBonus}"></label>
+                <label>Resolve Bonus <input data-mod="resolveBonus" type="number" value="${character.modifiers.resolveBonus}"></label>
+                <label>HP Bonus <input data-mod="hpBonus" type="number" value="${character.modifiers.hpBonus}"></label>
+                <label>Initiative Bonus <input data-mod="initiativeBonus" type="number" value="${character.modifiers.initiativeBonus}"></label>
+                <label>Initiative Attribute
+                  <select data-init-attr>
+                    ${ATTRIBUTE_ORDER.map((attr) => `<option value="${escapeHtml(attr)}" ${character.modifiers.initiativeAttribute === attr ? "selected" : ""}>${escapeHtml(attr)}</option>`).join("")}
+                  </select>
+                </label>
+                <label>Speed <input data-mod="speed" type="number" value="${character.modifiers.speed}"></label>
+                <label>Wealth <input data-mod="wealth" type="number" value="${character.modifiers.wealth}"></label>
+              </div>
+            </div>
+          </div>
+
+          <div class="sheet-box" style="margin-top:16px;">
+            <h2>Weapons</h2>
+            <p class="helper-text">Weapons are shown as compact cards. Open Details to edit presets, attack attribute, VS defense, range, and computed damage.</p>
+            <div class="weapon-list" data-weapon-list></div>
+            <div class="export-row">
+              <button type="button" data-add-weapon>Add Weapon</button>
+            </div>
+          </div>
+
+          <div class="two-col">
+            <div class="sheet-box">
+              <h2>Perks</h2>
+              <div class="simple-list" data-perk-list></div>
+              <div class="export-row"><button type="button" data-add-perk>Add Perk</button></div>
+            </div>
+            <div class="sheet-box">
+              <h2>Flaws</h2>
+              <div class="simple-list" data-flaw-list></div>
+              <div class="export-row"><button type="button" data-add-flaw>Add Flaw</button></div>
+            </div>
+          </div>
+
+          <div class="sheet-box" style="margin-top:16px;">
+            <h2>Notes</h2>
+            <textarea data-field="notes">${escapeHtml(character.notes)}</textarea>
+          </div>
+
+          <div class="sheet-box" style="margin-top:16px;">
+            <h2>Validation</h2>
+            <div data-status></div>
+            <div class="messages" data-messages></div>
+          </div>
+        </section>
+
+        <div class="feat-modal" data-feat-modal aria-hidden="true">
+          <div class="feat-modal__dialog" role="dialog" aria-modal="true" aria-label="Feat details">
+            <div data-feat-modal-body></div>
+          </div>
+        </div>
+
+        <div class="feat-modal" data-weapon-modal aria-hidden="true">
+          <div class="feat-modal__dialog" role="dialog" aria-modal="true" aria-label="Weapon details">
+            <div data-weapon-modal-body></div>
+          </div>
+        </div>
+      `;
+
+      attrWrap = root.querySelector("[data-attributes]");
+      budgetWrap = root.querySelector("[data-budget-grid]");
+      derivedWrap = root.querySelector("[data-derived]");
+      featListWrap = root.querySelector("[data-feat-list]");
+      perkListWrap = root.querySelector("[data-perk-list]");
+      flawListWrap = root.querySelector("[data-flaw-list]");
+      weaponListWrap = root.querySelector("[data-weapon-list]");
+      statusWrap = root.querySelector("[data-status]");
+      messagesWrap = root.querySelector("[data-messages]");
+      featPicker = root.querySelector("[data-feat-picker]");
+      featCostPreview = root.querySelector("[data-feat-cost-preview]");
+      featHelper = root.querySelector("[data-feat-helper]");
+      featModal = root.querySelector("[data-feat-modal]");
+      featModalBody = root.querySelector("[data-feat-modal-body]");
+      weaponModal = root.querySelector("[data-weapon-modal]");
+      weaponModalBody = root.querySelector("[data-weapon-modal-body]");
+
+      root.addEventListener("input", (event) => {
+        if (event.target.matches("[data-feat-picker]")) {
+          refreshFeatPreview();
+          return;
+        }
+
+        if (event.target.closest('[data-weapon-modal]')) {
+          updateWeaponFromModal();
+          return;
+        }
+
+        syncFromDom();
+        refreshComputedPanels();
+        scheduleSave();
+      });
+
+      root.addEventListener("change", (event) => {
+        if (event.target.closest('[data-weapon-modal]')) {
+          if (event.target.matches('[data-weapon-modal-preset]')) {
+            const preset = findOpenLegendWeaponPreset(event.target.value || '');
+            if (preset && activeWeaponModalIndex !== null) {
+              const current = character.weapons[activeWeaponModalIndex] || createEmptyWeapon();
+              character.weapons[activeWeaponModalIndex] = {
+                ...normalizeWeaponEntry(current),
+                ...createOpenLegendWeapon(preset.key),
+                name: preset.name
+              };
+              renderWeapons();
+              openWeaponModal(activeWeaponModalIndex);
+              scheduleSave();
+              return;
+            }
+          }
+
+          updateWeaponFromModal();
+          return;
+        }
+
+        syncFromDom();
+        rerender();
+        scheduleSave();
+      });
+
+      root.addEventListener("click", async (event) => {
+        if (event.target === featModal) {
+          closeFeatModal();
+          return;
+        }
+
+        if (event.target === weaponModal) {
+          closeWeaponModal();
+          return;
+        }
+
+        const button = event.target.closest("button");
+        if (!button) return;
+
+        if (button.matches("[data-add-feat]")) {
+          const featName = featPicker.value.trim();
+          const entry = getFeatEntryByKey(featName);
+
+          if (entry) {
+            const existingIndex = character.feats.findIndex((feat) => (feat.key || feat.name) === entry.name);
+
+            if (existingIndex === -1) {
+              character.feats.push({ key: entry.name, name: entry.name, level: 1 });
+              rerender();
+              openFeatModal(character.feats.findIndex((feat) => (feat.key || feat.name) === entry.name));
+              scheduleSave();
+            } else {
+              openFeatModal(existingIndex);
+            }
+          }
+
+          featPicker.value = "";
+          refreshFeatPreview();
+          return;
+        }
+
+        if (button.matches("[data-open-feat]")) {
+          openFeatModal(Number(button.dataset.openFeat));
+          return;
+        }
+
+        if (button.matches("[data-close-feat-modal]")) {
+          closeFeatModal();
+          return;
+        }
+
+        if (button.matches("[data-edit-weapon]")) {
+          openWeaponModal(Number(button.dataset.editWeapon));
+          return;
+        }
+
+        if (button.matches("[data-close-weapon-modal]")) {
+          closeWeaponModal();
+          return;
+        }
+
+        if (button.matches("[data-feat-level-up]")) {
+          changeFeatLevel(1);
+          return;
+        }
+
+        if (button.matches("[data-feat-level-down]")) {
+          changeFeatLevel(-1);
+          return;
+        }
+
+        if (button.matches("[data-add-perk]")) {
+          syncFromDom();
+          character.perks.push("");
+          rerender();
+          scheduleSave();
+          return;
+        }
+
+        if (button.matches("[data-add-flaw]")) {
+          syncFromDom();
+          character.flaws.push("");
+          rerender();
+          scheduleSave();
+          return;
+        }
+
+        if (button.matches("[data-add-weapon]")) {
+          syncFromDom();
+          character.weapons.push(createEmptyWeapon());
+          rerender();
+          openWeaponModal(character.weapons.length - 1);
+          scheduleSave();
+          return;
+        }
+
+        if (button.dataset.removeFeat !== undefined) {
+          character.feats.splice(Number(button.dataset.removeFeat), 1);
+          rerender();
+          scheduleSave();
+          return;
+        }
+
+        if (button.dataset.removePerk !== undefined) {
+          syncFromDom();
+          character.perks.splice(Number(button.dataset.removePerk), 1);
+          rerender();
+          scheduleSave();
+          return;
+        }
+
+        if (button.dataset.removeFlaw !== undefined) {
+          syncFromDom();
+          character.flaws.splice(Number(button.dataset.removeFlaw), 1);
+          rerender();
+          scheduleSave();
+          return;
+        }
+
+        if (button.dataset.removeWeapon !== undefined) {
+          syncFromDom();
+          character.weapons.splice(Number(button.dataset.removeWeapon), 1);
+          rerender();
+          scheduleSave();
+          return;
+        }
+      });
+
+      rerender();
+      refreshFeatPreview();
+    }
+
+    async function saveToFirebase(successMessage = "Auto-saved.") {
+      if (isSaving || !user) return;
+      isSaving = true;
+      saveStatusEl.textContent = "Saving…";
+
+      try {
+        syncFromDom();
+        const result = validateCharacter(character, featRegistry);
+
+        const existingPlayerSnap = await get(ref(db, playerPath()));
+        const existingPlayer = existingPlayerSnap.exists() ? existingPlayerSnap.val() : {};
+
+        const derived = result.derived;
+        const derivedBaseHp = Number(derived.hitPoints.total) || 0;
+        const existingCurrentHp = Number(existingPlayer.currentHp);
+        const nextCurrentHp = Number.isFinite(existingCurrentHp)
+          ? Math.max(0, Math.min(existingCurrentHp, derivedBaseHp))
+          : derivedBaseHp;
+
+        const builderPayload = {
+          name: character.name,
+          concept: character.concept,
+          xp: character.xp,
+          level: result.level,
+          attributes: clone(character.attributes),
+          feats: clone(character.feats),
+          perks: clone(character.perks),
+          flaws: clone(character.flaws),
+          weapons: clone(character.weapons),
+          notes: character.notes,
+          modifiers: clone(character.modifiers),
+          updatedAt: Date.now()
+        };
+
+        const initiativeAttribute = character.modifiers?.initiativeAttribute || "Agility";
+        const initiativeBonus = Number(character.modifiers?.initiativeBonus) || 0;
+        const initiativeDie = getAttributeDie(character.attributes?.[initiativeAttribute] || 0);
+        const initiativeFormula = initiativeDie
+          ? `${initiativeDie.toLowerCase()}${initiativeBonus >= 0 ? `+${initiativeBonus}` : initiativeBonus}`
+          : `${initiativeBonus}`;
+
+        const playerPayload = {
+          ...(existingPlayer || {}),
+          uid: user.uid,
+          userEmail: user.email || "",
+          userName: user.displayName || "",
+          mode: "openlegend",
+          name: character.name || user.displayName || "",
+          attributes: clone(character.attributes),
+          baseHp: derivedBaseHp,
+          currentHp: nextCurrentHp,
+          grd: Number(derived.guard.total) || 0,
+          res: Number(derived.resolve.total) || 0,
+          tgh: Number(derived.toughness.total) || 0,
+          initiativeAttribute,
+          initiativeBonus,
+          initiativeDie,
+          initiativeFormula,
+          feats: clone(character.feats),
+          weapons: clone(character.weapons).map((weapon) => ({ ...weapon, computedDamage: getWeaponComputedDamage(weapon) })),
+          builderUpdatedAt: Date.now()
+        };
+
+        await set(ref(db, builderPath()), builderPayload);
+        await set(ref(db, playerPath()), playerPayload);
+
+        saveStatusEl.textContent = successMessage;
+      } catch (error) {
+        console.error("Builder save failed:", error);
+        saveStatusEl.textContent = `Save failed: ${error.message || error}`;
+      } finally {
+        isSaving = false;
+      }
+    }
+
+    function scheduleSave() {
+      clearTimeout(autoSaveTimer);
+      autoSaveTimer = setTimeout(() => {
+        saveToFirebase("Auto-saved.");
+      }, 500);
+    }
+
+    async function loadFromFirebase() {
+      const snap = await get(ref(db, builderPath()));
+      if (snap.exists()) {
+        character = makeCharacter(snap.val());
+        saveStatusEl.textContent = "Loaded from Firebase.";
+      } else {
+        character = makeCharacter({
+          name: user.displayName || ""
+        });
+        saveStatusEl.textContent = "No builder save found yet.";
+      }
+
+      renderBuilder();
+    }
+
+    async function init() {
+      user = await requireAuth();
+
+      if (!code) {
+        metaEl.textContent = "Missing game code.";
+        saveStatusEl.textContent = "Cannot load builder without a game code.";
+        return;
+      }
+
+      game = await watchOrLoadGame(code);
+      if (!game) {
+        metaEl.textContent = "Game not found.";
+        saveStatusEl.textContent = "Could not find this game.";
+        return;
+      }
+
+      const normalizedMode = String(game.mode || "").toLowerCase();
+      if (normalizedMode !== "openlegend" && normalizedMode !== "ol" && normalizedMode !== "open_legend") {
+        metaEl.textContent = "This builder is for Open Legend games only.";
+        saveStatusEl.textContent = "Wrong game mode.";
+        return;
+      }
+
+      metaEl.textContent = `Game: ${game.title} · Code: ${game.code}`;
+      backLink.href = `player.html?code=${encodeURIComponent(code)}`;
+
+      await loadFromFirebase();
+    }
+
+    saveNowBtn.addEventListener("click", async () => {
+      await saveToFirebase("Saved.");
+    });
+
+    reloadBtn.addEventListener("click", async () => {
+      if (!user) return;
+      await loadFromFirebase();
+    });
+
+    init().catch((error) => {
+      console.error(error);
+      saveStatusEl.textContent = error.message || "Could not load builder.";
+    });
+  </script>
+</body>
+</html>

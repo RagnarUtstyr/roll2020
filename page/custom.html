@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" sizes="64x64" href="../favicon-64x64.png" />
+  <title>Custom NPC Library</title>
+  <link rel="preload" as="image" href="../background.jpg">
+  <link rel="stylesheet" href="../style/style.css" />
+  <link rel="stylesheet" href="../style/turn.css" />
+  <link rel="stylesheet" href="../style/save.css" />
+  <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet" />
+
+  <style>
+    .page-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .custom-form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .full-width {
+      grid-column: 1 / -1;
+    }
+
+    .meta-note {
+      font-size: 0.95em;
+      opacity: 0.85;
+      margin-top: 6px;
+      margin-bottom: 16px;
+    }
+
+    .attribute-summary {
+      text-align: left;
+      margin-top: 8px;
+      padding: 10px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      min-height: 44px;
+      white-space: pre-wrap;
+    }
+
+    .attribute-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .attribute-card {
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 8px;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: left;
+    }
+
+    .attribute-card label {
+      margin-bottom: 6px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 100px;
+      margin-bottom: 10px;
+      padding: 10px;
+      border: 2px solid #2d3d73;
+      border-radius: 5px;
+      background: rgba(255, 255, 255, 0.15);
+      color: #827b5a;
+      font-size: 1em;
+      box-sizing: border-box;
+      font-family: inherit;
+      resize: vertical;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .status-box {
+      margin-top: 14px;
+      padding: 10px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.9rem;
+      text-align: left;
+      min-height: 44px;
+    }
+
+    .list-builder {
+      margin-top: 8px;
+      padding: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .list-builder-header {
+      display: grid;
+      grid-template-columns: minmax(180px, 0.8fr) minmax(0, 1.8fr);
+      gap: 10px;
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+      opacity: 0.9;
+      font-weight: 700;
+    }
+
+    .list-builder-row {
+      display: grid;
+      grid-template-columns: minmax(180px, 0.8fr) minmax(0, 1.8fr);
+      gap: 10px;
+      margin-bottom: 10px;
+      align-items: start;
+    }
+
+    .list-builder-row input,
+    .list-builder-row textarea {
+      margin: 0;
+    }
+
+    .list-builder-row textarea {
+      min-height: 76px;
+    }
+
+    .list-helper-text {
+      margin-top: 6px;
+      font-size: 0.85rem;
+      opacity: 0.8;
+    }
+
+    @media (max-width: 700px) {
+      .custom-form-grid,
+      .attribute-grid,
+      .list-builder-header,
+      .list-builder-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="page-row">
+      <h1 style="margin:0;">Custom NPC Library</h1>
+      <a id="back-link" href="group.html" class="button-link">Back to Initiative</a>
+    </div>
+
+    <p class="meta-note">
+      Save a custom NPC for the current game code. This stores the NPC in Firestore under your user and this game only.
+    </p>
+
+    <form id="custom-npc-form">
+      <div class="custom-form-grid">
+        <div>
+          <label for="npc-name">Name</label>
+          <input type="text" id="npc-name" required />
+        </div>
+
+        <div>
+          <label for="npc-level">Level</label>
+          <input type="number" id="npc-level" min="0" />
+        </div>
+
+        <div>
+          <label for="npc-size">Size</label>
+          <input type="text" id="npc-size" placeholder="Small, Medium, Large..." />
+        </div>
+
+        <div>
+          <label for="npc-hp">HP</label>
+          <input type="number" id="npc-hp" min="0" />
+        </div>
+
+        <div>
+          <label for="npc-speed">Speed</label>
+          <input type="text" id="npc-speed" placeholder="30, Fly 40, Swim 20..." />
+        </div>
+
+        <div>
+          <label for="npc-grd">GRD</label>
+          <input type="number" id="npc-grd" min="0" />
+        </div>
+
+        <div>
+          <label for="npc-tgh">TGH</label>
+          <input type="number" id="npc-tgh" min="0" />
+        </div>
+
+        <div>
+          <label for="npc-res">RES</label>
+          <input type="number" id="npc-res" min="0" />
+        </div>
+
+        <div class="full-width">
+          <button id="open-attributes-modal" type="button">Attributes</button>
+          <div id="attribute-summary" class="attribute-summary">No attributes selected yet.</div>
+        </div>
+
+        <div class="full-width">
+          <label>Favored Actions</label>
+          <div id="favored-actions-list" class="list-builder"></div>
+          <div class="list-helper-text">Start typing in the last row to add another row automatically.</div>
+        </div>
+
+        <div class="full-width">
+          <label>Special Actions</label>
+          <div id="special-actions-list" class="list-builder"></div>
+          <div class="list-helper-text">Start typing in the last row to add another row automatically.</div>
+        </div>
+
+        <div class="full-width">
+          <label>Feats</label>
+          <div id="feats-list" class="list-builder"></div>
+          <div class="list-helper-text">Start typing in the last row to add another row automatically.</div>
+        </div>
+
+        <div class="full-width">
+          <label>Weapons</label>
+          <div id="weapons-list" class="list-builder"></div>
+          <div class="list-helper-text">Start typing in the last row to add another row automatically.</div>
+        </div>
+      </div>
+
+      <div class="button-row">
+        <button type="submit" id="create-custom-npc-button">Save Custom NPC</button>
+        <a id="cancel-link" href="group.html" class="button-link">Cancel</a>
+      </div>
+    </form>
+
+    <div id="status-output" class="status-box">Waiting for save…</div>
+  </div>
+
+  <div id="attributes-modal" class="ol-modal" aria-hidden="true">
+    <div class="ol-modal__dialog ol-modal__dialog--wide" role="dialog" aria-modal="true" aria-labelledby="attributes-modal-title">
+      <button class="ol-modal__close" id="attributes-modal-close" aria-label="Close">×</button>
+      <h3 id="attributes-modal-title">Attributes</h3>
+
+      <div class="attribute-grid" id="attribute-grid"></div>
+
+      <div class="button-row">
+        <button type="button" id="attributes-save-button">Save Attributes</button>
+        <button type="button" id="attributes-clear-button" class="remove-button">Clear Attributes</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { firestore } from "../js/firebase-config.js?v=20260419b";
+    import { requireAuth } from "../js/auth.js";
+    import {
+      collection,
+      addDoc,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+
+    const ATTRIBUTE_NAMES = [
+      "Agility",
+      "Fortitude",
+      "Might",
+      "Learning",
+      "Logic",
+      "Perception",
+      "Will",
+      "Deception",
+      "Influence",
+      "Persuasion",
+      "Presence",
+      "Alteration",
+      "Creation",
+      "Energy",
+      "Entropy",
+      "Movement",
+      "Prescience",
+      "Protection"
+    ];
+
+    const params = new URLSearchParams(window.location.search);
+    const code = (params.get("code") || "").trim().toUpperCase();
+
+    function getBackHref() {
+      return code
+        ? `group.html?code=${encodeURIComponent(code)}`
+        : "group.html";
+    }
+
+    function parseNumberOrEmpty(value) {
+      const trimmed = String(value ?? "").trim();
+      if (trimmed === "") return "";
+      const parsed = parseInt(trimmed, 10);
+      return Number.isNaN(parsed) ? "" : parsed;
+    }
+
+    function buildAttributeInputs() {
+      const grid = document.getElementById("attribute-grid");
+      if (!grid) return;
+
+      grid.innerHTML = "";
+
+      ATTRIBUTE_NAMES.forEach((name) => {
+        const card = document.createElement("div");
+        card.className = "attribute-card";
+
+        const label = document.createElement("label");
+        label.setAttribute("for", `attr-${name.toLowerCase()}`);
+        label.textContent = name;
+
+        const input = document.createElement("input");
+        input.type = "number";
+        input.min = "0";
+        input.id = `attr-${name.toLowerCase()}`;
+        input.dataset.attributeName = name;
+
+        card.appendChild(label);
+        card.appendChild(input);
+        grid.appendChild(card);
+      });
+    }
+
+    function getAttributesFromModal() {
+      const inputs = Array.from(document.querySelectorAll("#attribute-grid input[data-attribute-name]"));
+      const attributes = {};
+
+      inputs.forEach((input) => {
+        const name = input.dataset.attributeName;
+        const value = parseNumberOrEmpty(input.value);
+        if (name && value !== "") {
+          attributes[name] = value;
+        }
+      });
+
+      return attributes;
+    }
+
+    function setAttributesInModal(attributes) {
+      const inputs = Array.from(document.querySelectorAll("#attribute-grid input[data-attribute-name]"));
+      inputs.forEach((input) => {
+        const name = input.dataset.attributeName;
+        input.value = attributes?.[name] ?? "";
+      });
+    }
+
+    function renderAttributeSummary(attributes) {
+      const summary = document.getElementById("attribute-summary");
+      if (!summary) return;
+
+      const entries = Object.entries(attributes || {});
+      if (!entries.length) {
+        summary.textContent = "No attributes selected yet.";
+        return;
+      }
+
+      summary.textContent = entries
+        .sort((a, b) => a[0].localeCompare(b[0]))
+        .map(([name, value]) => `${name}: ${value}`)
+        .join("\n");
+    }
+
+    function openAttributesModal() {
+      document.getElementById("attributes-modal")?.setAttribute("aria-hidden", "false");
+    }
+
+    function closeAttributesModal() {
+      document.getElementById("attributes-modal")?.setAttribute("aria-hidden", "true");
+    }
+
+    function setStatus(message) {
+      const output = document.getElementById("status-output");
+      if (output) output.textContent = message;
+    }
+
+    function makeListRow(sectionKey, index, item = {}) {
+      const row = document.createElement("div");
+      row.className = "list-builder-row";
+      row.dataset.sectionKey = sectionKey;
+      row.dataset.rowIndex = String(index);
+
+      const nameInput = document.createElement("input");
+      nameInput.type = "text";
+      nameInput.placeholder = "Name";
+      nameInput.value = item.name ?? "";
+      nameInput.dataset.field = "name";
+
+      const descInput = document.createElement("textarea");
+      descInput.placeholder = "Description";
+      descInput.value = item.description ?? "";
+      descInput.dataset.field = "description";
+
+      const onInput = () => ensureTrailingEmptyRow(sectionKey);
+      nameInput.addEventListener("input", onInput);
+      descInput.addEventListener("input", onInput);
+
+      row.appendChild(nameInput);
+      row.appendChild(descInput);
+
+      return row;
+    }
+
+    function buildListSection(containerId, sectionKey) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+
+      container.innerHTML = "";
+
+      const header = document.createElement("div");
+      header.className = "list-builder-header";
+      header.innerHTML = `
+        <div>Name</div>
+        <div>Description</div>
+      `;
+      container.appendChild(header);
+
+      container.appendChild(makeListRow(sectionKey, 0));
+    }
+
+    function getSectionContainer(sectionKey) {
+      const map = {
+        favoredActions: "favored-actions-list",
+        specialActions: "special-actions-list",
+        feats: "feats-list",
+        weapons: "weapons-list"
+      };
+      return document.getElementById(map[sectionKey]);
+    }
+
+    function getSectionRows(sectionKey) {
+      const container = getSectionContainer(sectionKey);
+      if (!container) return [];
+      return Array.from(container.querySelectorAll(`.list-builder-row[data-section-key="${sectionKey}"]`));
+    }
+
+    function rowHasContent(row) {
+      const name = row.querySelector('[data-field="name"]')?.value?.trim() || "";
+      const description = row.querySelector('[data-field="description"]')?.value?.trim() || "";
+      return !!(name || description);
+    }
+
+    function ensureTrailingEmptyRow(sectionKey) {
+      const rows = getSectionRows(sectionKey);
+      if (!rows.length) return;
+
+      const lastRow = rows[rows.length - 1];
+      if (!rowHasContent(lastRow)) return;
+
+      const container = getSectionContainer(sectionKey);
+      if (!container) return;
+
+      container.appendChild(makeListRow(sectionKey, rows.length));
+    }
+
+    function readListSection(sectionKey) {
+      const rows = getSectionRows(sectionKey);
+
+      return rows
+        .map((row) => ({
+          name: row.querySelector('[data-field="name"]')?.value?.trim() || "",
+          description: row.querySelector('[data-field="description"]')?.value?.trim() || ""
+        }))
+        .filter((item) => item.name || item.description);
+    }
+
+    function formatListSectionForText(items) {
+      if (!items.length) return "";
+
+      return items.map((item) => {
+        const name = item.name?.trim() || "";
+        const description = item.description?.trim() || "";
+
+        if (name && description) {
+          return `${name}: ${description}`;
+        }
+
+        return name || description;
+      }).join("\n");
+    }
+
+    let currentAttributes = {};
+
+    buildAttributeInputs();
+    renderAttributeSummary(currentAttributes);
+
+    buildListSection("favored-actions-list", "favoredActions");
+    buildListSection("special-actions-list", "specialActions");
+    buildListSection("feats-list", "feats");
+    buildListSection("weapons-list", "weapons");
+
+    const backLink = document.getElementById("back-link");
+    const cancelLink = document.getElementById("cancel-link");
+
+    if (backLink) backLink.href = getBackHref();
+    if (cancelLink) cancelLink.href = getBackHref();
+
+    document.getElementById("open-attributes-modal")?.addEventListener("click", () => {
+      setAttributesInModal(currentAttributes);
+      openAttributesModal();
+    });
+
+    document.getElementById("attributes-modal-close")?.addEventListener("click", closeAttributesModal);
+
+    document.getElementById("attributes-modal")?.addEventListener("click", (e) => {
+      if (e.target.id === "attributes-modal") closeAttributesModal();
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && document.getElementById("attributes-modal")?.getAttribute("aria-hidden") === "false") {
+        closeAttributesModal();
+      }
+    });
+
+    document.getElementById("attributes-save-button")?.addEventListener("click", () => {
+      currentAttributes = getAttributesFromModal();
+      renderAttributeSummary(currentAttributes);
+      closeAttributesModal();
+    });
+
+    document.getElementById("attributes-clear-button")?.addEventListener("click", () => {
+      currentAttributes = {};
+      setAttributesInModal(currentAttributes);
+      renderAttributeSummary(currentAttributes);
+    });
+
+    document.getElementById("custom-npc-form")?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      if (!code) {
+        setStatus("Missing game code in URL.");
+        return;
+      }
+
+      const user = await requireAuth();
+
+      const name = document.getElementById("npc-name")?.value?.trim() || "";
+      const level = parseNumberOrEmpty(document.getElementById("npc-level")?.value);
+      const size = document.getElementById("npc-size")?.value?.trim() || "";
+      const hp = parseNumberOrEmpty(document.getElementById("npc-hp")?.value);
+      const speed = document.getElementById("npc-speed")?.value?.trim() || "";
+      const grd = parseNumberOrEmpty(document.getElementById("npc-grd")?.value);
+      const tgh = parseNumberOrEmpty(document.getElementById("npc-tgh")?.value);
+      const res = parseNumberOrEmpty(document.getElementById("npc-res")?.value);
+
+      const favoredActionsItems = readListSection("favoredActions");
+      const specialActionsItems = readListSection("specialActions");
+      const featsItems = readListSection("feats");
+      const weaponsItems = readListSection("weapons");
+
+      if (!name) {
+        setStatus("Name is required.");
+        return;
+      }
+
+      const ownerName = user.displayName || user.email || "Unknown";
+
+      const payload = {
+        ownerUid: user.uid,
+        ownerName,
+        gameCode: code,
+        name,
+        level,
+        size,
+        hp,
+        speed,
+        grd,
+        tgh,
+        res,
+        attributes: currentAttributes,
+
+        favoredActions: formatListSectionForText(favoredActionsItems),
+        specialActions: formatListSectionForText(specialActionsItems),
+        feats: formatListSectionForText(featsItems),
+        weapons: formatListSectionForText(weaponsItems),
+
+        favoredActionsItems,
+        specialActionsItems,
+        featsItems,
+        weaponsItems,
+
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      };
+
+      const writePath = `users/${user.uid}/gameCustomNpcs/${code}/npcs`;
+
+      console.log("AUTH UID:", user.uid);
+      console.log("GAME CODE:", code);
+      console.log("WRITE PATH:", writePath);
+      console.log("PAYLOAD:", payload);
+
+      setStatus(
+        "Preparing save...\n\n" +
+        "Auth UID: " + user.uid + "\n" +
+        "Game code: " + code + "\n" +
+        "Write path: " + writePath + "\n\n" +
+        "Payload:\n" + JSON.stringify({
+          ...payload,
+          createdAt: "[serverTimestamp()]",
+          updatedAt: "[serverTimestamp()]"
+        }, null, 2)
+      );
+
+      try {
+        const colRef = collection(
+          firestore,
+          "users",
+          user.uid,
+          "gameCustomNpcs",
+          code,
+          "npcs"
+        );
+
+        const docRef = await addDoc(colRef, payload);
+
+        setStatus(
+          "Saved custom NPC successfully.\n\n" +
+          "Document ID: " + docRef.id + "\n" +
+          "Path: " + writePath + "/" + docRef.id
+        );
+      } catch (error) {
+        console.error("Error saving custom NPC:", error);
+        setStatus(
+          "Could not save custom NPC.\n\n" +
+          "Error: " + (error?.message || String(error)) + "\n\n" +
+          "Auth UID: " + user.uid + "\n" +
+          "Game code: " + code + "\n" +
+          "Write path: " + writePath
+        );
+      }
+    });
+  </script>
+</body>
+</html>
