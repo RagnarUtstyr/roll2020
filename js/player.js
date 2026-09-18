@@ -2104,7 +2104,7 @@ function renderOpenLegendProfile(builder={}){
 function renderOpenLegendDashboard(builder=currentOpenLegendBuilderData||{},sheet=getCurrentSheetCache()||{}){
   if(!isOpenLegendMode(mode))return;
   const normalized=olNormalizeBuilder(builder,sheet); currentOpenLegendBuilderData=normalized;
-  renderOpenLegendAttributes(normalized.attributes); renderOpenLegendOverviewMeta(normalized); renderOpenLegendWeapons(normalized); renderOpenLegendFeats(normalized); renderOpenLegendProfile(normalized);
+  renderOpenLegendAttributes(normalized.attributes, normalized); renderOpenLegendOverviewMeta(normalized); renderOpenLegendWeapons(normalized); renderOpenLegendFeats(normalized); renderOpenLegendProfile(normalized);
   const d=olDerived(normalized); setOpenLegendValues({...sheet,baseHp:d.baseHp,grd:d.grd,res:d.res,tgh:d.tgh,currentHp:sheet.currentHp ?? d.baseHp,lethal:sheet.lethal??0,banes:sheet.banes??[],fatigue:sheet.fatigue??{points:0}});
 }
 function syncOlBuilderFromProfile(builder){
@@ -2127,7 +2127,8 @@ async function saveOpenLegendBuilderAndPlayer(builder,message="Open Legend auto-
     const normalized=olNormalizeBuilder(builder,getCurrentSheetCache()||{}); normalized.name=document.getElementById("player-name")?.value?.trim() || normalized.name; normalized.level=olXpLevel(normalized.xp);
     const d=olDerived(normalized); const existing=(await getCurrentSheet())||{}; const oldCurrent=Number(existing.currentHp); const nextCurrent=Number.isFinite(oldCurrent)?Math.max(0,Math.min(oldCurrent,d.baseHp)):d.baseHp;
     const initDie=getOpenLegendAttributeDie(normalized.attributes?.[d.initiativeAttribute]||0);
-    const initFormula=`${String(initDie||"").toLowerCase()}${d.initiativeBonus>=0?`+${d.initiativeBonus}`:d.initiativeBonus}`;
+    const initBonus=Number(d.initiativeBonus)||0;
+    const initFormula=initDie ? `${String(initDie).toLowerCase()}${initBonus ? (initBonus>0?`+${initBonus}`:`${initBonus}`) : ""}` : (initBonus ? `${initBonus}` : "—");
     const now=Date.now(); const builderPayload={...olClone(normalized),updatedAt:now};
     const playerPayload={...existing,uid:user.uid,userEmail:user.email||"",userName:user.displayName||"",mode:"openlegend",name:normalized.name,attributes:olClone(normalized.attributes),baseHp:d.baseHp,currentHp:nextCurrent,grd:d.grd,res:d.res,tgh:d.tgh,initiativeAttribute:d.initiativeAttribute,initiativeBonus:d.initiativeBonus,initiativeDie:initDie,initiativeFormula:initFormula,feats:olClone(normalized.feats),weapons:normalized.weapons.map((weapon)=>({...weapon,computedDamage:olWeaponDamage(normalized,weapon)})),builderUpdatedAt:now,updatedAt:now};
     await update(ref(db),{[openLegendBuilderSheetPath()]:builderPayload,[playerSheetPath()]:playerPayload});
@@ -2228,7 +2229,16 @@ function openLegendAttributeDie(score) {
   return Number.isFinite(value) ? (diceMap[value] || "—") : "—";
 }
 
-function renderOpenLegendAttributes(attributes = {}) {
+function renderOpenLegendAttributeBudget(builder = {}) {
+  const target = document.getElementById("player-openlegend-attribute-budget");
+  if (!target) return;
+  const budget = olBudgetSummary(builder);
+  const remaining = budget.attributeTotal - budget.attributeSpent;
+  target.classList.toggle("is-over-budget", remaining < 0);
+  target.innerHTML = `<span><small>Used</small><strong>${budget.attributeSpent}</strong></span><span><small>Available</small><strong>${budget.attributeTotal}</strong></span><span><small>Remaining</small><strong>${remaining}</strong></span>`;
+}
+
+function renderOpenLegendAttributes(attributes = {}, builder = null) {
   const grid = document.getElementById("player-openlegend-attributes-grid");
   if (!grid) return;
   const raw = attributes && typeof attributes === "object" ? attributes : {};
@@ -2236,6 +2246,7 @@ function renderOpenLegendAttributes(attributes = {}) {
     const value=Math.max(0,Number(raw[name]||0));
     return `<label class="ol-attribute-card ol-attribute-card--editable"><span class="ol-attribute-name">${escapeHtml(name)}</span><input type="number" min="0" max="10" data-ol-attribute="${escapeHtml(name)}" value="${value}"><span class="ol-attribute-die">${escapeHtml(getOpenLegendAttributeDie(value)||"—")}</span></label>`;
   }).join("");
+  renderOpenLegendAttributeBudget(builder || {...(currentOpenLegendBuilderData || {}), attributes: raw});
 }
 
 function getCurrentBanes() {
@@ -2882,10 +2893,15 @@ async function removePlayerEffect(effectName) {
 }
 
 function getInitiativeFormulaDisplay(data = {}) {
-  if (data.initiativeFormula) return String(data.initiativeFormula);
-
   const die = data.initiativeDie;
   const bonus = Number(data.initiativeBonus);
+
+  if (isOpenLegendMode(mode) && die) {
+    const safeBonus = Number.isFinite(bonus) ? bonus : 0;
+    return `${String(die).toLowerCase()}${safeBonus ? (safeBonus > 0 ? `+${safeBonus}` : `${safeBonus}`) : ""}`;
+  }
+
+  if (data.initiativeFormula) return String(data.initiativeFormula);
 
   if (die) {
     return `${String(die).toLowerCase()}${Number.isFinite(bonus) ? (bonus >= 0 ? `+${bonus}` : `${bonus}`) : ""}`;
@@ -3507,7 +3523,7 @@ async function saveInitiativeToGame() {
   if (sheetPayload.initiativeDie != null) entryPayload.initiativeDie = sheetPayload.initiativeDie;
   if (sheetPayload.initiativeBonus != null) entryPayload.initiativeBonus = sheetPayload.initiativeBonus;
   if (sheetPayload.initiativeAttribute != null) entryPayload.initiativeAttribute = sheetPayload.initiativeAttribute;
-  if (sheetPayload.initiativeFormula != null) entryPayload.initiativeFormula = sheetPayload.initiativeFormula;
+  if (sheetPayload.initiativeFormula != null) entryPayload.initiativeFormula = isOpenLegendMode(mode) ? getInitiativeFormulaDisplay(sheetPayload) : sheetPayload.initiativeFormula;
 
   if (mode === "dnd") {
     entryPayload.health = sheetPayload.currentHp ?? sheetPayload.hp ?? "";
@@ -3716,6 +3732,7 @@ if (isOpenLegendMode(mode)) {
     const input=event.target.closest("[data-ol-attribute]"); if(!input)return;
     const builder=olNormalizeBuilder(currentOpenLegendBuilderData||{},getCurrentSheetCache()||{}); builder.attributes[input.dataset.olAttribute]=Math.max(0,Number(input.value||0)); currentOpenLegendBuilderData=builder;
     const die=input.closest(".ol-attribute-card")?.querySelector(".ol-attribute-die"); if(die)die.textContent=getOpenLegendAttributeDie(builder.attributes[input.dataset.olAttribute])||"—";
+    renderOpenLegendAttributeBudget(builder);
     scheduleOlBuilderAutoSave(false);
   });
   const profile=document.getElementById("player-openlegend-profile-content");
