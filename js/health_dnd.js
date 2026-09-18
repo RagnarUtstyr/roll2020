@@ -20,6 +20,10 @@ function getEntriesPath() {
   return `games/${code}/entries`;
 }
 
+function isPlayerEntry(id, entry) {
+  return !!entry?.uid && String(entry.uid) === String(id);
+}
+
 function onReady(fn) {
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", fn);
@@ -46,6 +50,128 @@ function normalizeEffects(effects) {
   if (!effects) return [];
   if (Array.isArray(effects)) return effects.filter(Boolean);
   return Object.values(effects).filter(Boolean);
+}
+
+function resolveMaxHealth(entry, currentHealth) {
+  const candidates = [
+    entry?.maxHealth,
+    entry?.baseHp,
+    entry?.customBuild?.hp,
+    currentHealth
+  ];
+  for (const value of candidates) {
+    const parsed = Number(value);
+    if (Number.isFinite(parsed) && parsed >= 0) return parsed;
+  }
+  return null;
+}
+
+function renderHpMeter(container, currentHealth, maxHealth) {
+  if (!container) return;
+  container.replaceChildren();
+
+  if (currentHealth === null || currentHealth === undefined || Number.isNaN(Number(currentHealth))) {
+    container.textContent = 'HP: N/A';
+    return;
+  }
+
+  const current = Number(currentHealth);
+  const max = Number.isFinite(Number(maxHealth)) && Number(maxHealth) > 0 ? Number(maxHealth) : current;
+  const pct = max > 0 ? Math.max(0, Math.min(100, (current / max) * 100)) : 0;
+
+  const meter = document.createElement('div');
+  meter.className = 'hp-meter';
+  meter.dataset.hpState = pct <= 25 ? 'low' : pct <= 55 ? 'mid' : 'high';
+
+  const value = document.createElement('span');
+  value.className = 'hp-meter__value';
+  value.textContent = max > 0 ? `${current} / ${max}` : `${current}`;
+
+  const track = document.createElement('span');
+  track.className = 'hp-meter__track';
+  track.setAttribute('aria-label', `HP ${current} of ${max}`);
+  const fill = document.createElement('span');
+  fill.className = 'hp-meter__fill';
+  fill.style.width = `${pct}%`;
+  track.appendChild(fill);
+  meter.append(value, track);
+  container.appendChild(meter);
+}
+
+function renderStatEffects(effects) {
+  const list = document.getElementById('stat-active-status-list');
+  if (!list) return;
+  list.replaceChildren();
+
+  const normalized = normalizeEffects(effects);
+  if (!normalized.length) {
+    const empty = document.createElement('span');
+    empty.className = 'dm-stat-status-empty';
+    empty.textContent = 'No active effects.';
+    list.appendChild(empty);
+    return;
+  }
+
+  normalized.forEach((effect) => {
+    const item = document.createElement('div');
+    item.className = 'dm-stat-status-item';
+
+    const open = document.createElement('button');
+    open.type = 'button';
+    open.className = 'dm-stat-status-open';
+    open.title = effect?.name || 'Effect';
+    if (effect?.icon) {
+      const icon = document.createElement('img');
+      icon.src = effect.icon;
+      icon.alt = '';
+      open.appendChild(icon);
+    }
+    const label = document.createElement('span');
+    label.textContent = effect?.name || 'Unknown';
+    open.appendChild(label);
+    open.addEventListener('click', () => openEffectDescriptionModal(effect));
+
+    const remove = document.createElement('button');
+    remove.type = 'button';
+    remove.className = 'dm-stat-status-remove';
+    remove.textContent = '×';
+    remove.title = `Remove ${effect?.name || 'effect'}`;
+    remove.addEventListener('click', async () => {
+      if (!currentStatEntryId) return;
+      const current = normalizeEffects(latestEntries[currentStatEntryId]?.effects);
+      const next = current.filter((item) => String(item?.name || '').toLowerCase() !== String(effect?.name || '').toLowerCase());
+      try {
+        await writeLinkedEffects(currentStatEntryId, next);
+      } catch (error) {
+        console.error('Error removing effect:', error);
+      }
+    });
+
+    item.append(open, remove);
+    list.appendChild(item);
+  });
+}
+
+async function writeLinkedEffects(entryId, effects) {
+  const code = getGameCode();
+  if (!code || !entryId) return;
+
+  const nextEffects = normalizeEffects(effects);
+  const entry = latestEntries[entryId] || {};
+  const playerUid = String(entry.uid || '').trim();
+  const stamp = Date.now();
+
+  const updates = {
+    [`games/${code}/entries/${entryId}/effects`]: nextEffects,
+    [`games/${code}/entries/${entryId}/statusUpdatedAt`]: stamp
+  };
+
+  if (playerUid) {
+    updates[`games/${code}/players/${playerUid}/effects`] = nextEffects;
+    updates[`games/${code}/players/${playerUid}/statusUpdatedAt`] = stamp;
+  }
+
+  await update(ref(db), updates);
 }
 
 function sanitizeEffectKey(value) {
@@ -98,10 +224,20 @@ function openStatModal(entryId) {
 
   const state = getCountdownState(entryId);
 
-  document.getElementById("stat-modal-title").textContent = entry.name ?? "";
+  const playerEntry = isPlayerEntry(entryId, entry);
+
+  document.getElementById("stat-modal-title").textContent = entry.name ?? entry.playerName ?? "";
   document.getElementById("stat-init").textContent = entry.initiative ?? entry.number ?? "N/A";
   document.getElementById("stat-ac").textContent = entry.ac ?? "N/A";
-  document.getElementById("stat-hp").textContent = entry.health ?? "N/A";
+  document.getElementById("stat-hp").textContent = entry.health ?? entry.currentHp ?? "N/A";
+
+  const hpField = document.getElementById("stat-hp-field");
+  if (hpField) hpField.hidden = playerEntry;
+
+  const healControls = document.getElementById("stat-heal-controls");
+  if (healControls) healControls.hidden = playerEntry;
+
+  renderStatEffects(entry.effects);
 
   const link = document.getElementById("stat-url");
   if (link) {
@@ -398,14 +534,6 @@ function buildEffectsRow(entryId, entry) {
 
   effectWrap.appendChild(iconsWrap);
 
-  const effectsButton = document.createElement("button");
-  effectsButton.type = "button";
-  effectsButton.textContent = "Effects";
-  effectsButton.className = "effects-button";
-  effectsButton.dataset.role = "open-effects";
-  effectsButton.dataset.entryId = entryId;
-  effectWrap.appendChild(effectsButton);
-
   return effectWrap;
 }
 
@@ -442,6 +570,8 @@ function fetchRankings() {
       const listItem = document.createElement("li");
       listItem.className = "list-item";
       listItem.dataset.entryId = id;
+      const playerEntry = isPlayerEntry(id, entry);
+      if (playerEntry) listItem.classList.add("player-entry");
 
       const nameButton = document.createElement("button");
       nameButton.type = "button";
@@ -456,39 +586,45 @@ function fetchRankings() {
       acDiv.textContent = `AC: ${entry.ac ?? "N/A"}`;
       listItem.appendChild(acDiv);
 
-      const healthDiv = document.createElement("div");
-      healthDiv.className = "health";
-      healthDiv.textContent = `HP: ${entry.health ?? "N/A"}`;
-      listItem.appendChild(healthDiv);
+      const currentHealth = entry.health ?? entry.currentHp;
 
-      const healthInput = document.createElement("input");
-      healthInput.type = "number";
-      healthInput.placeholder = "Damage";
-      healthInput.className = "damage-input";
-      healthInput.dataset.entryId = id;
-      healthInput.dataset.currentHealth =
-        typeof entry.health === "number" ? String(entry.health) : "";
+      if (!playerEntry) {
+        const healthDiv = document.createElement("div");
+        healthDiv.className = "health";
+        const maxHealth = resolveMaxHealth(entry, currentHealth);
+        renderHpMeter(healthDiv, currentHealth, maxHealth);
+        listItem.appendChild(healthDiv);
 
-      healthInput.addEventListener("keydown", (event) => {
-        if (event.key !== "Enter") return;
+        const healthInput = document.createElement("input");
+        healthInput.type = "number";
+        healthInput.placeholder = "Damage";
+        healthInput.className = "damage-input";
+        healthInput.dataset.entryId = id;
+        healthInput.dataset.currentHealth =
+          typeof currentHealth === "number" ? String(currentHealth) : (currentHealth !== null && currentHealth !== undefined ? String(currentHealth) : "");
+        if (maxHealth !== null && maxHealth !== undefined) healthInput.dataset.maxHealth = String(maxHealth);
 
-        const damage = parseInt(healthInput.value, 10);
-        if (isNaN(damage)) return;
+        healthInput.addEventListener("keydown", (event) => {
+          if (event.key !== "Enter") return;
 
-        const currentHealth = parseInt(healthInput.dataset.currentHealth, 10);
-        if (Number.isNaN(currentHealth)) return;
+          const damage = parseInt(healthInput.value, 10);
+          if (isNaN(damage)) return;
 
-        const updatedHealth = Math.max(currentHealth - damage, 0);
-        updateHealth(id, updatedHealth, healthInput);
-        healthInput.value = "";
-      });
+          const currentHealthValue = parseInt(healthInput.dataset.currentHealth, 10);
+          if (Number.isNaN(currentHealthValue)) return;
 
-      listItem.appendChild(healthInput);
+          const updatedHealth = Math.max(currentHealthValue - damage, 0);
+          updateHealth(id, updatedHealth, healthInput);
+          healthInput.value = "";
+        });
+
+        listItem.appendChild(healthInput);
+      }
 
       const effectRow = buildEffectsRow(id, entry);
       listItem.appendChild(effectRow);
 
-      if (typeof entry.health === "number" && entry.health <= 0) {
+      if (!playerEntry && Number.isFinite(Number(currentHealth)) && Number(currentHealth) <= 0) {
         listItem.classList.add("defeated");
         const removeButton = document.createElement("button");
         removeButton.type = "button";
@@ -504,24 +640,43 @@ function fetchRankings() {
     });
 
     syncModalCountdown(currentStatEntryId);
+    if (currentStatEntryId && latestEntries[currentStatEntryId]) {
+      renderStatEffects(latestEntries[currentStatEntryId].effects);
+    }
   });
 }
 
 function updateHealth(id, newHealth, healthInput) {
   const reference = ref(db, `${getEntriesPath()}/${id}`);
+  const storedMaxHealth = Number(healthInput?.dataset?.maxHealth);
+  const healthPatch = { health: newHealth, currentHp: newHealth };
 
-  update(reference, { health: newHealth })
+  // Preserve the original maximum HP for both new and legacy entries.
+  // Without this, an entry that did not already contain maxHealth could
+  // fall back to its damaged current HP and display e.g. 40 / 40.
+  if (Number.isFinite(storedMaxHealth) && storedMaxHealth > 0) {
+    healthPatch.maxHealth = storedMaxHealth;
+  }
+
+  update(reference, healthPatch)
     .then(() => {
       const listItem = healthInput.closest(".list-item");
       const healthDiv = listItem?.querySelector(".health");
 
       if (healthDiv) {
-        healthDiv.textContent = `HP: ${newHealth}`;
+        const maxHealth = Number(healthInput.dataset.maxHealth);
+        renderHpMeter(healthDiv, newHealth, Number.isFinite(maxHealth) ? maxHealth : newHealth);
       }
 
       healthInput.dataset.currentHealth = String(newHealth);
 
-      if (latestEntries[id]) latestEntries[id].health = newHealth;
+      if (latestEntries[id]) {
+        latestEntries[id].health = newHealth;
+        latestEntries[id].currentHp = newHealth;
+        if (Number.isFinite(storedMaxHealth) && storedMaxHealth > 0) {
+          latestEntries[id].maxHealth = storedMaxHealth;
+        }
+      }
       if (currentStatEntryId === id) {
         document.getElementById("stat-hp").textContent = newHealth;
       }
@@ -764,7 +919,11 @@ function bindModalActions() {
     if (!input) return;
 
     const currentHealth = parseInt(input.dataset.currentHealth ?? "0", 10) || 0;
-    updateHealth(currentStatEntryId, currentHealth + healAmount, input);
+    const storedMax = Number(input.dataset.maxHealth);
+    const healedHealth = Number.isFinite(storedMax) && storedMax > 0
+      ? Math.min(currentHealth + healAmount, storedMax)
+      : currentHealth + healAmount;
+    updateHealth(currentStatEntryId, healedHealth, input);
     document.getElementById("stat-heal-amount").value = "";
   });
 
@@ -816,9 +975,10 @@ function bindModalActions() {
     }
 
     if (target.dataset.role === "modal-remove-effect" && effectName) {
-      const key = sanitizeEffectKey(effectName);
       try {
-        await remove(ref(db, `${getEntriesPath()}/${currentEffectsEntryId}/effects/${key}`));
+        const current = normalizeEffects(latestEntries[currentEffectsEntryId]?.effects);
+        const next = current.filter((item) => String(item?.name || '').toLowerCase() !== String(effectName || '').toLowerCase());
+        await writeLinkedEffects(currentEffectsEntryId, next);
       } catch (error) {
         console.error("Error removing effect:", error);
       }
@@ -835,16 +995,18 @@ function bindModalActions() {
     if (!effect) return;
 
     try {
-      const key = sanitizeEffectKey(effect.name);
-      await update(ref(db, `${getEntriesPath()}/${currentEffectsEntryId}/effects`), {
-        [key]: {
+      const current = normalizeEffects(latestEntries[currentEffectsEntryId]?.effects);
+      if (current.some((item) => String(item?.name || '').toLowerCase() === String(effect.name || '').toLowerCase())) return;
+      await writeLinkedEffects(currentEffectsEntryId, [
+        ...current,
+        {
           name: effect.name,
           url: effect.url || "",
           icon: effect.icon || "icons/effects/test.png",
           type: effect.type || "",
           description: effect.description || ""
         }
-      });
+      ]);
     } catch (error) {
       console.error("Error adding effect:", error);
     }

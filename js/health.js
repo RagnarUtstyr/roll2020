@@ -15,6 +15,10 @@ function getEntriesPath() {
   return `games/${code}/entries`;
 }
 
+function __isPlayerEntry(id, entry) {
+  return !!entry?.uid && String(entry.uid) === String(id);
+}
+
 function onReady(fn) {
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', fn);
@@ -54,7 +58,7 @@ function __normalizeTextBlock(value) {
 function __normalizeAttributes(attributes) {
   if (!attributes || typeof attributes !== 'object') return [];
   return Object.entries(attributes)
-    .filter(([, value]) => value !== null && value !== undefined && value !== '' && !Number.isNaN(Number(value)))
+    .filter(([, value]) => value !== null && value !== undefined && value !== '' && !Number.isNaN(Number(value)) && Number(value) !== 0)
     .map(([name, value]) => [name, Number(value)])
     .sort((a, b) => a[0].localeCompare(b[0]));
 }
@@ -79,18 +83,75 @@ function __attributeScoreToDice(score) {
   return diceMap[value] || '—';
 }
 
-function __formatAttributesInline(attributes) {
-  const rows = __normalizeAttributes(attributes);
-  if (!rows.length) return 'Attributes: —';
+function __renderAttributesGrid(container, attributes) {
+  if (!container) return;
+  container.replaceChildren();
 
-  return rows
-    .map(([name, value]) => `${name}: ${value} (${__attributeScoreToDice(value)})`)
-    .join(', ');
+  const rows = __normalizeAttributes(attributes);
+  if (!rows.length) {
+    const empty = document.createElement('span');
+    empty.className = 'muted';
+    empty.textContent = 'No ability scores.';
+    container.appendChild(empty);
+    return;
+  }
+
+  rows.forEach(([name, value]) => {
+    const chip = document.createElement('div');
+    chip.className = 'custom-build-attribute-chip';
+
+    const label = document.createElement('span');
+    label.className = 'custom-build-attribute-name';
+    label.textContent = name;
+
+    const score = document.createElement('span');
+    score.className = 'custom-build-attribute-value';
+    score.textContent = `${value} · ${__attributeScoreToDice(value)}`;
+
+    chip.append(label, score);
+    container.appendChild(chip);
+  });
 }
 
-let __currentCustomBuild = null;
+function renderCustomBuildDetails(customBuild) {
+  const section = document.getElementById('stat-custom-build-details');
+  const dialog = document.getElementById('stat-modal-dialog');
+  const speedMeta = document.getElementById('stat-speed-meta');
+  const customMetaRight = document.getElementById('stat-custom-meta-right');
+  const hasCustomBuild = !!customBuild;
 
-function openStatModal({ name, grd, res, tgh, url, initiative, countdownRemaining, countdownActive, countdownEnded, customBuild }) {
+  if (section) section.hidden = !hasCustomBuild;
+  if (dialog) dialog.classList.toggle('has-custom-build', hasCustomBuild);
+  if (speedMeta) speedMeta.hidden = !hasCustomBuild;
+  if (customMetaRight) customMetaRight.hidden = !hasCustomBuild;
+  if (!hasCustomBuild) return;
+
+  const levelEl = document.getElementById('custom-build-level-badge');
+  const sizeEl = document.getElementById('custom-build-size-pill');
+  const speedEl = document.getElementById('stat-speed');
+  const attributesGrid = document.getElementById('custom-build-attributes-grid');
+  const grdEl = document.getElementById('custom-build-grd-inline');
+  const tghEl = document.getElementById('custom-build-tgh-inline');
+  const resEl = document.getElementById('custom-build-res-inline');
+  const favoredEl = document.getElementById('custom-build-favored-actions');
+  const specialEl = document.getElementById('custom-build-special-actions');
+  const featsEl = document.getElementById('custom-build-feats');
+  const weaponsEl = document.getElementById('custom-build-weapons');
+
+  if (levelEl) levelEl.textContent = `Level ${customBuild.level ?? '—'}`;
+  if (sizeEl) sizeEl.textContent = `Size ${customBuild.size ?? '—'}`;
+  if (speedEl) speedEl.textContent = customBuild.speed ?? '—';
+  __renderAttributesGrid(attributesGrid, customBuild.attributes);
+  if (grdEl) grdEl.textContent = `${customBuild.grd ?? '—'}`;
+  if (tghEl) tghEl.textContent = `${customBuild.tgh ?? '—'}`;
+  if (resEl) resEl.textContent = `${customBuild.res ?? '—'}`;
+  if (favoredEl) favoredEl.innerHTML = __normalizeTextBlock(customBuild.favoredActions);
+  if (specialEl) specialEl.innerHTML = __normalizeTextBlock(customBuild.specialActions);
+  if (featsEl) featsEl.innerHTML = __normalizeTextBlock(customBuild.feats);
+  if (weaponsEl) weaponsEl.innerHTML = __normalizeTextBlock(customBuild.weapons);
+}
+
+function openStatModal({ name, grd, res, tgh, url, initiative, health, maxHealth, countdownRemaining, countdownActive, countdownEnded, customBuild, banes, isPlayerEntry = false }) {
   const modal = document.getElementById('stat-modal');
   if (!modal) return;
 
@@ -100,12 +161,16 @@ function openStatModal({ name, grd, res, tgh, url, initiative, countdownRemainin
   document.getElementById('stat-res').textContent = (res ?? 'N/A');
   document.getElementById('stat-tgh').textContent = (tgh ?? 'N/A');
 
-  __currentCustomBuild = customBuild ?? null;
+  __renderStatHpMeter(health, maxHealth, isPlayerEntry);
 
-  const customBuildBtn = document.getElementById('stat-custom-build');
-  if (customBuildBtn) {
-    customBuildBtn.style.display = customBuild ? 'inline-block' : 'none';
-  }
+  const defenseSummary = document.getElementById('stat-defense-summary');
+  if (defenseSummary) defenseSummary.hidden = !!customBuild;
+
+  const hpActions = document.getElementById('stat-hp-actions');
+  if (hpActions) hpActions.hidden = !!isPlayerEntry;
+
+  renderCustomBuildDetails(customBuild);
+  __renderStatBanes(banes);
 
   const link = document.getElementById('stat-url');
   if (url) {
@@ -118,6 +183,7 @@ function openStatModal({ name, grd, res, tgh, url, initiative, countdownRemainin
 
   const remainingEl = document.getElementById('stat-countdown-remaining');
   const inputEl = document.getElementById('stat-countdown-amount');
+  const hpAmountInput = document.getElementById('stat-hp-amount');
   if (remainingEl) {
     if (countdownEnded) remainingEl.textContent = 'ENDED (0)';
     else if (countdownActive) remainingEl.textContent = `${countdownRemaining ?? '—'}`;
@@ -125,55 +191,9 @@ function openStatModal({ name, grd, res, tgh, url, initiative, countdownRemainin
     else remainingEl.textContent = '—';
   }
   if (inputEl) inputEl.value = '';
+  if (hpAmountInput) hpAmountInput.value = '';
 
   modal.setAttribute('aria-hidden', 'false');
-}
-
-function openCustomBuildModal(name, customBuild) {
-  const modal = document.getElementById('custom-build-modal');
-  if (!modal || !customBuild) return;
-
-  const titleEl = document.getElementById('custom-build-title');
-  const levelEl = document.getElementById('custom-build-level-badge');
-  const sizeEl = document.getElementById('custom-build-size-pill');
-
-  const hpInlineEl = document.getElementById('custom-build-hp-inline');
-  const speedInlineEl = document.getElementById('custom-build-speed-inline');
-  const attributesInlineEl = document.getElementById('custom-build-attributes-inline');
-
-  const grdEl = document.getElementById('custom-build-grd-inline');
-  const tghEl = document.getElementById('custom-build-tgh-inline');
-  const resEl = document.getElementById('custom-build-res-inline');
-
-  const favoredEl = document.getElementById('custom-build-favored-actions');
-  const specialEl = document.getElementById('custom-build-special-actions');
-  const featsEl = document.getElementById('custom-build-feats');
-  const weaponsEl = document.getElementById('custom-build-weapons');
-
-  if (titleEl) titleEl.textContent = name ?? 'Custom NPC';
-  if (levelEl) levelEl.textContent = `LVL ${customBuild.level ?? '—'}`;
-  if (sizeEl) sizeEl.textContent = customBuild.size ?? '—';
-
-  if (hpInlineEl) hpInlineEl.textContent = `HP: ${customBuild.hp ?? '—'}`;
-  if (speedInlineEl) speedInlineEl.textContent = `Speed: ${customBuild.speed ?? '—'}`;
-  if (attributesInlineEl) {
-    attributesInlineEl.textContent = __formatAttributesInline(customBuild.attributes);
-  }
-
-  if (grdEl) grdEl.textContent = `${customBuild.grd ?? '—'}`;
-  if (tghEl) tghEl.textContent = `${customBuild.tgh ?? '—'}`;
-  if (resEl) resEl.textContent = `${customBuild.res ?? '—'}`;
-
-if (favoredEl) favoredEl.innerHTML = __normalizeTextBlock(customBuild.favoredActions);
-if (specialEl) specialEl.innerHTML = __normalizeTextBlock(customBuild.specialActions);
-if (featsEl) featsEl.innerHTML = __normalizeTextBlock(customBuild.feats);
-if (weaponsEl) weaponsEl.innerHTML = __normalizeTextBlock(customBuild.weapons);
-
-  modal.setAttribute('aria-hidden', 'false');
-}
-
-function closeCustomBuildModal() {
-  document.getElementById('custom-build-modal')?.setAttribute('aria-hidden', 'true');
 }
 
 function closeStatModal() {
@@ -256,23 +276,7 @@ onReady(() => {
     });
   }
 
-  const customBuildModal = document.getElementById('custom-build-modal');
-  if (customBuildModal) {
-    document.getElementById('custom-build-close')?.addEventListener('click', closeCustomBuildModal);
-    customBuildModal.addEventListener('click', (e) => { if (e.target === customBuildModal) closeCustomBuildModal(); });
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && customBuildModal.getAttribute('aria-hidden') === 'false') {
-        closeCustomBuildModal();
-      }
-    });
-  }
-
   document.getElementById('stat-add-bane')?.addEventListener('click', openBanePickerModal);
-  document.getElementById('stat-custom-build')?.addEventListener('click', () => {
-    if (!__currentEntryId || !__currentCustomBuild) return;
-    const title = document.getElementById('stat-modal-title')?.textContent || 'Custom NPC';
-    openCustomBuildModal(title, __currentCustomBuild);
-  });
 
 });
 
@@ -300,6 +304,150 @@ function __normalizeBanes(banes) {
   if (!banes) return [];
   if (Array.isArray(banes)) return banes.filter(Boolean);
   return Object.values(banes).filter(Boolean);
+}
+
+function __resolveMaxHealth(entry, currentHealth) {
+  const candidates = [
+    entry?.maxHealth,
+    entry?.baseHp,
+    entry?.customBuild?.hp,
+    currentHealth
+  ];
+  for (const value of candidates) {
+    const parsed = Number(value);
+    if (Number.isFinite(parsed) && parsed >= 0) return parsed;
+  }
+  return null;
+}
+
+function __renderHpMeter(container, currentHealth, maxHealth) {
+  if (!container) return;
+  container.replaceChildren();
+
+  if (currentHealth === null || currentHealth === undefined || Number.isNaN(Number(currentHealth))) {
+    container.textContent = 'N/A';
+    return;
+  }
+
+  const current = Number(currentHealth);
+  const max = Number.isFinite(Number(maxHealth)) && Number(maxHealth) > 0 ? Number(maxHealth) : current;
+  const pct = max > 0 ? Math.max(0, Math.min(100, (current / max) * 100)) : 0;
+
+  const meter = document.createElement('div');
+  meter.className = 'hp-meter';
+  meter.dataset.hpState = pct <= 25 ? 'low' : pct <= 55 ? 'mid' : 'high';
+
+  const value = document.createElement('span');
+  value.className = 'hp-meter__value';
+  value.textContent = max > 0 ? `${current} / ${max}` : `${current}`;
+
+  const track = document.createElement('span');
+  track.className = 'hp-meter__track';
+  track.setAttribute('aria-label', `HP ${current} of ${max}`);
+
+  const fill = document.createElement('span');
+  fill.className = 'hp-meter__fill';
+  fill.style.width = `${pct}%`;
+  track.appendChild(fill);
+  meter.append(value, track);
+  container.appendChild(meter);
+}
+
+function __renderStatHpMeter(currentHealth, maxHealth, isPlayerEntry = false) {
+  const wrapper = document.getElementById('stat-hp-overview');
+  const meterHost = document.getElementById('stat-hp-meter');
+  if (!wrapper || !meterHost) return;
+
+  const hasHealth = currentHealth !== null && currentHealth !== undefined && Number.isFinite(Number(currentHealth));
+  const shouldShow = !isPlayerEntry && hasHealth;
+  wrapper.hidden = !shouldShow;
+
+  if (!shouldShow) {
+    meterHost.replaceChildren();
+    return;
+  }
+
+  __renderHpMeter(meterHost, Number(currentHealth), maxHealth);
+}
+
+function __renderStatBanes(banes) {
+  const list = document.getElementById('stat-active-status-list');
+  if (!list) return;
+  list.replaceChildren();
+
+  const normalized = __normalizeBanes(banes);
+  if (!normalized.length) {
+    const empty = document.createElement('span');
+    empty.className = 'dm-stat-status-empty';
+    empty.textContent = 'No active banes.';
+    list.appendChild(empty);
+    return;
+  }
+
+  normalized.forEach((bane) => {
+    const item = document.createElement('div');
+    item.className = 'dm-stat-status-item';
+
+    const open = document.createElement('button');
+    open.type = 'button';
+    open.className = 'dm-stat-status-open';
+    open.title = bane?.name || 'Bane';
+
+    if (bane?.icon) {
+      const icon = document.createElement('img');
+      icon.src = bane.icon;
+      icon.alt = '';
+      open.appendChild(icon);
+    }
+
+    const label = document.createElement('span');
+    label.textContent = bane?.name || 'Unknown';
+    open.appendChild(label);
+    open.addEventListener('click', () => openBaneDetailModal(bane, __currentEntryId));
+
+    const remove = document.createElement('button');
+    remove.type = 'button';
+    remove.className = 'dm-stat-status-remove';
+    remove.textContent = '×';
+    remove.title = `Remove ${bane?.name || 'bane'}`;
+    remove.addEventListener('click', async () => {
+      if (!__currentEntryId) return;
+      const current = __normalizeBanes(__latestEntries[__currentEntryId]?.banes);
+      const next = current.filter((item) => String(item?.name || '').toLowerCase() !== String(bane?.name || '').toLowerCase());
+      try {
+        await __writeLinkedBanes(__currentEntryId, next);
+      } catch (error) {
+        console.error('Error removing bane:', error);
+      }
+    });
+
+    item.append(open, remove);
+    list.appendChild(item);
+  });
+}
+
+const __latestEntries = {};
+
+async function __writeLinkedBanes(entryId, banes) {
+  const code = getGameCode();
+  if (!code || !entryId) return;
+
+  const nextBanes = __normalizeBanes(banes);
+  const entry = __latestEntries[entryId] || {};
+  const playerUid = String(entry.uid || '').trim();
+  const stamp = Date.now();
+
+  const updates = {
+    [`games/${code}/entries/${entryId}/banes`]: nextBanes,
+    [`games/${code}/entries/${entryId}/statusUpdatedAt`]: stamp
+  };
+
+  if (playerUid) {
+    updates[`games/${code}/players/${playerUid}/banes`] = nextBanes;
+    updates[`games/${code}/players/${playerUid}/statusUpdatedAt`] = stamp;
+  }
+
+  await update(ref(db), updates);
 }
 
 function closeBanePickerModal() {
@@ -332,7 +480,7 @@ function __findOpenLegendBaneEntry(bane) {
   )) || null;
 }
 
-function openBaneDetailModal(bane) {
+function openBaneDetailModal(bane, entryId = null) {
   const modal = document.getElementById('bane-detail-modal');
   const title = document.getElementById('bane-detail-modal-title');
   const content = document.getElementById('bane-detail-modal-content');
@@ -376,8 +524,24 @@ function openBaneDetailModal(bane) {
       ${effect ? `<h4 style="margin:16px 0 8px;">Effect</h4><div>${effect}</div>` : ''}
       ${special ? `<h4 style="margin:16px 0 8px;">Special</h4><div>${special}</div>` : ''}
       ${url ? `<p style="margin-top:16px;"><a class="button-link" target="_blank" rel="noopener" href="${url}">Official page</a></p>` : ''}
+      ${entryId ? `<div class="bane-detail-actions"><button type="button" class="remove-button" data-bane-detail-remove>Remove ${__escapeHtml(name)}</button></div>` : ''}
     </div>
   `;
+
+  const removeBtn = content.querySelector('[data-bane-detail-remove]');
+  if (removeBtn && entryId) {
+    removeBtn.addEventListener('click', async () => {
+      const current = __normalizeBanes(__latestEntries[entryId]?.banes);
+      const next = current.filter((item) => String(item?.name || '').toLowerCase() !== String(bane?.name || '').toLowerCase());
+      try {
+        await __writeLinkedBanes(entryId, next);
+        closeBaneDetailModal();
+      } catch (error) {
+        console.error('Error removing bane:', error);
+      }
+    });
+  }
+
   modal.setAttribute('aria-hidden', 'false');
 }
 
@@ -413,7 +577,7 @@ function openBanesModal(entryId, banes, titleText = 'Banes') {
     left.appendChild(name);
     leftButton.appendChild(left);
     leftButton.addEventListener('click', () => {
-      openBaneDetailModal(bane);
+      openBaneDetailModal(bane, entryId);
     });
 
     const removeBtn = document.createElement('button');
@@ -423,9 +587,10 @@ function openBanesModal(entryId, banes, titleText = 'Banes') {
     removeBtn.style.marginTop = '0';
     removeBtn.addEventListener('click', async (e) => {
       e.stopPropagation();
-      const key = __sanitizeBaneKey(bane.name);
       try {
-        await remove(ref(db, `${getEntriesPath()}/${entryId}/banes/${key}`));
+        const current = __normalizeBanes(__latestEntries[entryId]?.banes);
+        const next = current.filter((item) => String(item?.name || '').toLowerCase() !== String(bane.name || '').toLowerCase());
+        await __writeLinkedBanes(entryId, next);
       } catch (err) {
         console.error('Error removing bane:', err);
       }
@@ -468,16 +633,17 @@ function openBanePickerModal() {
     addBtn.style.marginTop = '0';
     addBtn.addEventListener('click', async (e) => {
       e.stopPropagation();
-      const entryRef = ref(db, `${getEntriesPath()}/${__currentEntryId}/banes`);
-      const key = __sanitizeBaneKey(bane.name);
       try {
-        await update(entryRef, {
-          [key]: {
+        const current = __normalizeBanes(__latestEntries[__currentEntryId]?.banes);
+        if (current.some((item) => String(item?.name || '').toLowerCase() === String(bane.name || '').toLowerCase())) return;
+        await __writeLinkedBanes(__currentEntryId, [
+          ...current,
+          {
             name: bane.name,
             url: bane.url,
             icon: bane.icon || 'icons/banes/test.png'
           }
-        });
+        ]);
       } catch (err) {
         console.error('Error adding bane:', err);
       }
@@ -548,10 +714,15 @@ function fetchRankings() {
     const rankings = Object.entries(data).map(([id, entry]) => ({ id, ...entry }));
     rankings.sort((a, b) => (b.number ?? b.initiative ?? 0) - (a.number ?? a.initiative ?? 0));
 
-    rankings.forEach(({ id, name, playerName, grd, res, tgh, health, currentHp, url, number, initiative, countdownRemaining, countdownActive, countdownEnded, banes, customBuild }) => {
+    Object.keys(__latestEntries).forEach((key) => delete __latestEntries[key]);
+    rankings.forEach((entry) => { __latestEntries[entry.id] = entry; });
+
+    rankings.forEach(({ id, uid, name, playerName, grd, res, tgh, health, currentHp, maxHealth, baseHp, url, number, initiative, countdownRemaining, countdownActive, countdownEnded, banes, customBuild }) => {
       const displayName = name ?? playerName ?? 'Unknown';
+      const isPlayerEntry = !!uid && String(uid) === String(id);
       const displayInitiative = number ?? initiative ?? 0;
       const displayHealth = (health ?? currentHp);
+      const displayMaxHealth = __resolveMaxHealth({ maxHealth, baseHp, customBuild }, displayHealth);
 
       __setCountdownState(id, {
         remaining: (typeof countdownRemaining === 'number') ? countdownRemaining : null,
@@ -562,8 +733,9 @@ function fetchRankings() {
       const listItem = document.createElement('li');
       listItem.className = 'list-item';
       listItem.dataset.entryId = id;
+      if (isPlayerEntry) listItem.classList.add('player-entry');
 
-      if (displayHealth === 0) listItem.classList.add('defeated');
+      if (!isPlayerEntry && displayHealth === 0) listItem.classList.add('defeated');
 
       const nameCol = document.createElement('div');
       nameCol.className = 'column name';
@@ -575,45 +747,54 @@ function fetchRankings() {
         const s = __getCountdownState(id);
         openStatModal({
           name: displayName, grd, res, tgh, url, initiative: displayInitiative,
+          health: displayHealth,
+          maxHealth: displayMaxHealth,
           countdownRemaining: s.remaining,
           countdownActive: s.active,
           countdownEnded: s.ended,
-          customBuild
+          customBuild,
+          banes,
+          isPlayerEntry
         });
       });
 
       const baneArray = __normalizeBanes(banes);
 
-      const hpCol = document.createElement('div');
-      hpCol.className = 'column hp';
-      hpCol.textContent = (displayHealth === null || displayHealth === undefined) ? 'N/A' : `${displayHealth}`;
-      hpCol.style.cursor = 'pointer';
-      hpCol.title = 'Set HP';
-      hpCol.addEventListener('click', () => {
-        __currentEntryId = id;
-        openHpModal(displayHealth);
-      });
-
-      const dmgCol = document.createElement('div');
-      dmgCol.className = 'column dmg';
-      const dmgInput = document.createElement('input');
-      dmgInput.type = 'number';
-      dmgInput.placeholder = 'DMG';
-      dmgInput.className = 'damage-input';
-      dmgInput.dataset.entryId = id;
-      dmgInput.dataset.grd = grd ?? 0;
-      dmgInput.dataset.res = res ?? 0;
-      dmgInput.dataset.tgh = tgh ?? 0;
-
-      if (displayHealth !== null && displayHealth !== undefined) {
-        dmgInput.dataset.health = displayHealth;
-      }
-
-      dmgCol.appendChild(dmgInput);
-
       listItem.appendChild(nameCol);
-      listItem.appendChild(hpCol);
-      listItem.appendChild(dmgCol);
+
+      if (!isPlayerEntry) {
+        const hpCol = document.createElement('div');
+        hpCol.className = 'column hp';
+        __renderHpMeter(hpCol, displayHealth, displayMaxHealth);
+        hpCol.style.cursor = 'pointer';
+        hpCol.title = 'Set HP';
+        hpCol.addEventListener('click', () => {
+          __currentEntryId = id;
+          openHpModal(displayHealth);
+        });
+
+        const dmgCol = document.createElement('div');
+        dmgCol.className = 'column dmg';
+        const dmgInput = document.createElement('input');
+        dmgInput.type = 'number';
+        dmgInput.placeholder = 'DMG';
+        dmgInput.className = 'damage-input';
+        dmgInput.dataset.entryId = id;
+        dmgInput.dataset.grd = grd ?? 0;
+        dmgInput.dataset.res = res ?? 0;
+        dmgInput.dataset.tgh = tgh ?? 0;
+
+        if (displayHealth !== null && displayHealth !== undefined) {
+          dmgInput.dataset.health = displayHealth;
+        }
+        if (displayMaxHealth !== null && displayMaxHealth !== undefined) {
+          dmgInput.dataset.maxHealth = displayMaxHealth;
+        }
+
+        dmgCol.appendChild(dmgInput);
+        listItem.appendChild(hpCol);
+        listItem.appendChild(dmgCol);
+      }
 
       if (baneArray.length > 0) {
         const baneWrap = document.createElement('div');
@@ -634,26 +815,16 @@ function fetchRankings() {
           iconButton.appendChild(icon);
           iconButton.addEventListener('click', (e) => {
             e.stopPropagation();
-            openBaneDetailModal(bane);
+            openBaneDetailModal(bane, id);
           });
 
           baneWrap.appendChild(iconButton);
         });
 
-        const banesButton = document.createElement('button');
-        banesButton.type = 'button';
-        banesButton.textContent = 'Banes';
-        banesButton.className = 'banes-button';
-        banesButton.addEventListener('click', () => {
-          __currentEntryId = id;
-          openBanesModal(id, baneArray, `${displayName} - Banes`);
-        });
-        baneWrap.appendChild(banesButton);
-
         listItem.appendChild(baneWrap);
       }
 
-      if (displayHealth === 0) {
+      if (!isPlayerEntry && displayHealth === 0) {
         const removeButton = document.createElement('button');
         removeButton.textContent = 'Remove';
         removeButton.className = 'remove-button';
@@ -665,6 +836,14 @@ function fetchRankings() {
 
       __applyRowCountdownClasses(id, __getCountdownState(id));
     });
+
+    if (__currentEntryId && __latestEntries[__currentEntryId]) {
+      const currentEntry = __latestEntries[__currentEntryId];
+      const modalHealth = currentEntry.health ?? currentEntry.currentHp;
+      const modalMaxHealth = __resolveMaxHealth(currentEntry, modalHealth);
+      __renderStatHpMeter(modalHealth, modalMaxHealth, __isPlayerEntry(__currentEntryId, currentEntry));
+      __renderStatBanes(currentEntry.banes);
+    }
   });
 }
 
@@ -703,12 +882,28 @@ function applyDamageToAll() {
 
 function updateHealth(id, newHealth, inputEl) {
   const reference = ref(db, `${getEntriesPath()}/${id}`);
-  update(reference, { health: newHealth, currentHp: newHealth })
+  const storedMaxHealth = Number(inputEl?.dataset?.maxHealth);
+  const healthPatch = { health: newHealth, currentHp: newHealth };
+
+  // Preserve the original maximum HP. Older initiative entries may not have
+  // maxHealth stored yet, so the value captured when the row was rendered
+  // is written the first time HP changes instead of letting max HP follow
+  // the damaged current HP.
+  if (Number.isFinite(storedMaxHealth) && storedMaxHealth > 0) {
+    healthPatch.maxHealth = storedMaxHealth;
+  }
+
+  update(reference, healthPatch)
     .then(() => {
       const listItem = inputEl.closest('.list-item');
       const hpCol = listItem?.querySelector('.column.hp');
-      if (hpCol) hpCol.textContent = `${newHealth}`;
+      const maxHealth = Number(inputEl.dataset.maxHealth);
+      if (hpCol) __renderHpMeter(hpCol, newHealth, Number.isFinite(maxHealth) ? maxHealth : newHealth);
       inputEl.dataset.health = newHealth;
+      if (__currentEntryId === id) {
+        const modalMaxHealth = Number.isFinite(maxHealth) ? maxHealth : newHealth;
+        __renderStatHpMeter(newHealth, modalMaxHealth, false);
+      }
 
       if (newHealth <= 0) {
         listItem?.classList.add('defeated');
@@ -723,6 +918,8 @@ function updateHealth(id, newHealth, inputEl) {
         }
       } else {
         listItem?.classList.remove('defeated');
+        const removeButton = listItem?.querySelector(':scope > .remove-button');
+        removeButton?.remove();
       }
     })
     .catch(err => console.error('Error updating health:', err));
@@ -762,30 +959,75 @@ onReady(() => {
 
       document.getElementById('stat-modal')?.setAttribute('aria-hidden', 'true');
       __currentEntryId = null;
-      __currentCustomBuild = null;
     });
   }
 
+  const hpAmountInput = document.getElementById('stat-hp-amount');
   const healBtn = document.getElementById('stat-heal');
-  const healAmtInput = document.getElementById('stat-heal-amount');
+  const damageBtn = document.getElementById('stat-damage');
 
-  if (healBtn && healAmtInput) {
+  function getModalDamageInput() {
+    if (!__currentEntryId) return null;
+    return document.querySelector(`.damage-input[data-entry-id="${__currentEntryId}"]`);
+  }
+
+  if (healBtn && hpAmountInput) {
     healBtn.addEventListener('click', () => {
       if (!__currentEntryId) return;
-      const amount = parseInt(healAmtInput.value, 10);
-      if (isNaN(amount) || amount === 0) return;
+      const amount = parseInt(hpAmountInput.value, 10);
+      if (isNaN(amount) || amount <= 0) return;
 
-      const dmgInput = document.querySelector(`.damage-input[data-entry-id="${__currentEntryId}"]`);
+      const dmgInput = getModalDamageInput();
       if (!dmgInput || !('health' in dmgInput.dataset)) {
         alert('This entry has no HP set yet.');
         return;
       }
 
       const current = parseInt(dmgInput.dataset.health, 10) || 0;
-      const newHealth = Math.max(current + amount, 0);
-      updateHealth(__currentEntryId, newHealth, dmgInput);
+      const storedMax = Number(dmgInput.dataset.maxHealth);
+      const healed = Number.isFinite(storedMax) && storedMax > 0
+        ? Math.min(current + amount, storedMax)
+        : current + amount;
+      updateHealth(__currentEntryId, Math.max(healed, 0), dmgInput);
+      hpAmountInput.value = '';
+    });
+  }
 
-      healAmtInput.value = '';
+  if (damageBtn && hpAmountInput) {
+    damageBtn.addEventListener('click', () => {
+      if (!__currentEntryId) return;
+
+      const entry = __latestEntries[__currentEntryId];
+      if (!entry || __isPlayerEntry(__currentEntryId, entry)) return;
+
+      const rawDamage = parseInt(hpAmountInput.value, 10);
+      if (isNaN(rawDamage) || rawDamage <= 0) return;
+
+      const selectedStat = document.querySelector('input[name="statDamageStat"]:checked')?.value ?? 'grd';
+      const statValue = parseInt(entry[selectedStat], 10);
+      if (isNaN(statValue)) {
+        alert(`This entry has no ${selectedStat.toUpperCase()} value.`);
+        return;
+      }
+
+      const dmgInput = getModalDamageInput();
+      if (!dmgInput || !('health' in dmgInput.dataset)) {
+        alert('This entry has no HP set yet.');
+        return;
+      }
+
+      const current = parseInt(dmgInput.dataset.health, 10);
+      if (isNaN(current)) return;
+
+      let effective = rawDamage - statValue;
+      if (rawDamage >= statValue && effective < 3) effective = 3;
+      const finalDamage = Math.max(effective, 0);
+
+      if (finalDamage > 0) {
+        updateHealth(__currentEntryId, Math.max(current - finalDamage, 0), dmgInput);
+      }
+
+      hpAmountInput.value = '';
     });
   }
 });

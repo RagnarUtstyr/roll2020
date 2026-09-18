@@ -98,7 +98,7 @@ export async function joinGame({ user, code }) {
     [`games/${normalized}/members/${user.uid}`]: {
       uid: user.uid,
       role: "player",
-      name: user.displayName || "Player",
+      name: user.displayName || (user.email ? user.email.split("@")[0] : "Player"),
       email: user.email || ""
     },
     [`memberships/${user.uid}`]: {

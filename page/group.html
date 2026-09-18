@@ -4,17 +4,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#071416" />
   <link rel="icon" type="image/png" sizes="64x64" href="../favicon-64x64.png" />
   <title>Initiative</title>
   <link rel="preload" as="image" href="../background.jpg">
-  <script type="module" src="../js/server.js?v=20260406e" defer></script>
-  <script type="module" src="../js/health.js?v=20260419b" defer></script>
+  <script type="module" src="../js/server.js?v=20260917ui1" defer></script>
+  <script type="module" src="../js/health.js?v=20260918batch1" defer></script>
   <script type="module" src="../js/turn.js?v=20260416a" defer></script>
+  <script type="module" src="../js/participants.js?v=20260918batch1" defer></script>
+  <script type="module" src="../js/dm_tracker.js?v=20260917a" defer></script>
 
   <link rel="stylesheet" href="../style/style.css" />
   <link rel="stylesheet" href="../style/turn.css" />
   <link rel="stylesheet" href="../style/save.css" />
-  <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../style/dm_tracker.css?v=20260918batch1" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600;700&family=MedievalSharp&display=swap" rel="stylesheet" />
 </head>
 <style>
   #game-code-badge {
@@ -64,34 +68,29 @@
     white-space: pre-wrap;
   }
 
-  #stat-custom-build {
-    display: none;
-  }
-
-  #custom-build-modal .ol-modal__dialog {
+  #stat-modal .ol-modal__dialog.has-custom-build {
     width: min(960px, 96vw);
     max-width: 96vw;
     max-height: 90vh;
     overflow-y: auto;
   }
 
-  .custom-build-header-row {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 12px;
+  #stat-custom-build-details {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
   }
 
-  .custom-build-header-row h3 {
+  .custom-build-section-title {
     margin: 0;
     text-align: center;
+    color: #e3cf95;
   }
 
   .custom-build-level-badge,
   .custom-build-size-pill {
-    padding: 8px 12px;
-    border-radius: 10px;
+    padding: 6px 10px;
+    border-radius: 999px;
     border: 1px solid rgba(255, 255, 255, 0.14);
     background: rgba(255, 255, 255, 0.05);
     color: #e3cf95;
@@ -99,25 +98,34 @@
     white-space: nowrap;
   }
 
-  .custom-build-info-box {
-    padding: 10px 12px;
-    border-radius: 10px;
+  .custom-build-attributes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+    gap: 8px;
     margin-bottom: 12px;
+  }
+
+  .custom-build-attribute-chip {
+    min-width: 0;
+    padding: 9px 10px;
+    border-radius: 9px;
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.1);
   }
 
-  .custom-build-info-row {
-    line-height: 1.4;
+  .custom-build-attribute-name {
+    display: block;
+    color: #bdb382;
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
   }
 
-  .custom-build-info-row + .custom-build-info-row {
-    margin-top: 8px;
-  }
-
-  .custom-build-info-attributes-row {
-    white-space: nowrap;
-    overflow-x: auto;
+  .custom-build-attribute-value {
+    display: block;
+    margin-top: 3px;
+    color: #e3cf95;
+    font-weight: 700;
   }
 
   .custom-build-stat-row {
@@ -154,92 +162,266 @@
       align-items: stretch;
     }
 
-    .custom-build-header-row {
-      grid-template-columns: 1fr;
-    }
-
-    .custom-build-header-row h3 {
-      text-align: left;
-    }
-
     .custom-build-stat-row {
-      grid-template-columns: 1fr;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
+
+    .custom-build-attributes-grid {
+      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    }
+  }
+
+  .participants-trigger-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 14px 0 18px;
+  }
+
+  #participants-open-button[hidden] { display: none !important; }
+
+  #participants-open-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .participants-button-count {
+    display: inline-flex;
+    min-width: 1.7em;
+    height: 1.7em;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    padding: 0 0.45em;
+    background: rgba(255, 255, 255, 0.1);
+    font-size: 0.85em;
+    font-weight: 700;
+  }
+
+  #participants-modal .ol-modal__dialog {
+    width: min(880px, 96vw);
+    max-width: 96vw;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .participants-modal-header,
+  .participant-detail-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .participants-modal-header h3,
+  .participant-detail-header h3 { margin: 0; }
+
+  .participants-count { opacity: 0.82; font-size: 0.92rem; }
+  .participants-list { display: grid; gap: 8px; }
+
+  .participant-row-button {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 11px 12px;
+    text-align: left;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.035);
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+  }
+
+  .participant-row-button:hover { background: rgba(255, 255, 255, 0.08); }
+  .participant-row-text { min-width: 0; display: grid; gap: 3px; }
+  .participant-name { font-weight: 700; overflow-wrap: anywhere; }
+  .participant-account { opacity: 0.72; font-size: 0.88rem; overflow-wrap: anywhere; }
+  .participant-open-arrow { flex: 0 0 auto; font-size: 1.5rem; opacity: 0.75; }
+  .participants-empty { opacity: 0.78; font-style: italic; }
+
+  #participant-detail-view[hidden],
+  #participants-list-view[hidden] { display: none !important; }
+
+  #participant-detail-back { margin-bottom: 12px; }
+  .participant-detail-account { margin: -6px 0 14px; opacity: 0.76; overflow-wrap: anywhere; }
+
+  .participant-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 9px;
+    margin-bottom: 16px;
+  }
+
+  .participant-stat-card {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.11);
+    background: rgba(255, 255, 255, 0.035);
+    text-align: center;
+  }
+
+  .participant-stat-label { display: block; margin-bottom: 5px; opacity: 0.72; font-size: 0.82rem; font-weight: 700; }
+  .participant-stat-value { display: block; font-size: 1.08rem; font-weight: 700; }
+
+  .participant-detail-section {
+    margin-top: 14px;
+    padding: 12px;
+    border-radius: 9px;
+    border: 1px solid rgba(255, 255, 255, 0.11);
+    background: rgba(255, 255, 255, 0.025);
+  }
+
+  .participant-detail-section h4 { margin: 0 0 10px; }
+
+  #participant-note {
+    width: 100%;
+    min-height: 120px;
+    box-sizing: border-box;
+    resize: vertical;
+    padding: 10px;
+    border-radius: 7px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(0, 0, 0, 0.2);
+    color: inherit;
+    font: inherit;
+  }
+
+  .participant-note-actions,
+  .participant-status-add-row { display: flex; align-items: center; gap: 9px; margin-top: 9px; flex-wrap: wrap; }
+  .participant-note-meta,
+  .participant-status-message { margin-top: 7px; opacity: 0.72; font-size: 0.86rem; }
+  .participant-status-current { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  .participant-status-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 8px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(0, 0, 0, 0.2);
+  }
+
+  .participant-status-chip img { width: 22px; height: 22px; object-fit: contain; }
+  .participant-status-remove { width: 24px; height: 24px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 999px; line-height: 1; }
+  #participant-status-select { flex: 1 1 260px; min-width: 0; padding: 8px 9px; border-radius: 6px; font: inherit; }
+
+  @media (max-width: 760px) {
+    .participant-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
+  @media (max-width: 480px) {
+    .participant-stats-grid { grid-template-columns: 1fr; }
+    .participants-modal-header,
+    .participant-detail-header { align-items: flex-start; flex-direction: column; }
   }
 
 </style>
 
-<body>
-  <div class="container">
-    <h1>Initiative</h1>
-      <div id="game-code-badge">Code: ----</div>
-        <br>
-        <a href="lobby.html" class="button-link">Lobby</a>
-        <br>
-
-    <div class="ranking-container">
-      <div class="global-stat-selector">
-        <label><input type="radio" name="globalStat" value="grd" checked> GRD</label>
-        <label><input type="radio" name="globalStat" value="res"> RES</label>
-        <label><input type="radio" name="globalStat" value="tgh"> TGH</label>
+<body class="dm-openlegend">
+  <div class="container dm-tracker-page">
+    <header class="dm-header">
+      <div class="dm-title-block">
+        <h1>Initiative</h1>
+        <div class="dm-mode-label">Open Legend</div>
       </div>
 
-      <div id="round-counter">Round: <span id="round-value">1</span></div>
+      <div class="dm-session-bar">
+        <div class="dm-session-chip">
+          <span class="dm-session-chip-label">Game Code</span>
+          <strong id="game-code-badge" class="dm-game-code">----</strong>
+        </div>
+        <div class="dm-session-chip">
+          <span class="dm-session-chip-label">Round</span>
+          <strong id="round-counter" class="dm-round-counter"><span id="round-value">1</span></strong>
+        </div>
+        <button id="participants-open-button" class="dm-header-button dm-participants-button" type="button" hidden>
+          Participants <span id="participants-button-count" class="participants-button-count">0</span>
+          <span id="participants-ping-badge" class="participants-ping-badge" hidden>0</span>
+        </button>
+        <a href="lobby.html" class="button-link dm-header-button">Lobby</a>
+      </div>
+    </header>
 
-      <div class="ranking-header">
-        <div class="column name">Name</div>
-        <div class="column hp">HP</div>
-        <div class="column dmg">DMG</div>
+    <section class="dm-initiative-panel">
+      <div class="dm-damage-mode-row">
+        <span class="dm-damage-mode-label">Damage vs</span>
+        <div class="global-stat-selector">
+          <label><input type="radio" name="globalStat" value="grd" checked> GRD</label>
+          <label><input type="radio" name="globalStat" value="res"> RES</label>
+          <label><input type="radio" name="globalStat" value="tgh"> TGH</label>
+        </div>
       </div>
 
-      <ul id="rankingList" class="ranking-body"></ul>
+      <div class="ranking-container">
+        <div class="ranking-header">
+          <div class="column name">Name</div>
+          <div class="column hp">HP</div>
+          <div class="column dmg">DMG</div>
+        </div>
+        <ul id="rankingList" class="ranking-body"></ul>
+      </div>
 
-      <div class="button-container">
+      <div class="dm-turn-actions">
         <button id="apply-damage-button">Apply Damage</button>
-        <button id="next-button">Next</button>
+        <button id="next-button" class="dm-primary-action">Next</button>
+        <details class="dm-more-menu">
+          <summary>More</summary>
+          <div class="dm-more-popover">
+            <button id="reset-round-button" type="button">Reset Round</button>
+            <button id="clear-list-button" class="remove-button" type="button">Clear List</button>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <nav class="dm-tools-bar" aria-label="Initiative tools">
+      <button id="add-entry-open-button" type="button">+ Add Entry</button>
+      <a id="save-link" href="save.html" class="button-link dm-tool-link">Lists</a>
+      <a id="monster-link" href="openmonsterlist.html" class="button-link dm-tool-link">Monsters</a>
+      <a id="npc-link" href="npc.html" class="button-link dm-tool-link">NPCs</a>
+      <a id="custom-npc-link" href="custom.html" class="button-link dm-tool-link">Custom NPC</a>
+    </nav>
+  </div>
+
+  <div id="add-entry-modal" class="ol-modal" aria-hidden="true">
+    <div class="ol-modal__dialog dm-add-entry-dialog" role="dialog" aria-modal="true" aria-labelledby="add-entry-title">
+      <button class="ol-modal__close" id="add-entry-close" aria-label="Close">×</button>
+      <h3 id="add-entry-title">Add Entry</h3>
+
+      <div class="dm-entry-grid">
+        <div class="dm-entry-field dm-entry-field--wide">
+          <label for="name">Name</label>
+          <input type="text" id="name" required />
+        </div>
+        <div class="dm-entry-field">
+          <label for="initiative">Initiative</label>
+          <input type="number" id="initiative" required />
+        </div>
+        <div class="dm-entry-field">
+          <label for="health">HP</label>
+          <input type="number" id="health" />
+        </div>
+        <div class="dm-entry-field dm-entry-field--wide">
+          <span>Defenses</span>
+          <div class="dm-entry-defenses">
+            <div class="dm-entry-field"><label for="grd">GRD</label><input type="number" id="grd" /></div>
+            <div class="dm-entry-field"><label for="res">RES</label><input type="number" id="res" /></div>
+            <div class="dm-entry-field"><label for="tgh">TGH</label><input type="number" id="tgh" /></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dm-modal-actions">
+        <button id="add-entry-cancel" type="button">Cancel</button>
+        <button id="submit-button" type="button">Add Entry</button>
       </div>
     </div>
-
-    <br />
-    <button id="clear-list-button">Clear List</button>
-    <button id="reset-round-button">Reset Round</button>
-    <br /><br />
-
-    <div class="submit-entry-header">
-      <h2>Submit a New Entry</h2>
-      <a id="custom-npc-link" href="custom.html" class="button-link">Custom NPC</a>
-    </div>
-
-    <label for="name">Name:</label>
-    <input type="text" id="name" required />
-
-    <label for="initiative">Initiative:</label>
-    <input type="number" id="initiative" required />
-
-    <label for="health">Health:</label>
-    <input type="number" id="health" />
-
-    <div class="defense-input-row">
-      <div class="defense-input">
-        <label for="grd">GRD:</label>
-        <input type="number" id="grd" />
-      </div>
-      <div class="defense-input">
-        <label for="res">RES:</label>
-        <input type="number" id="res" />
-      </div>
-      <div class="defense-input">
-        <label for="tgh">TGH:</label>
-        <input type="number" id="tgh" />
-      </div>
-    </div>
-
-    <button id="submit-button">Submit</button>
-
-    <br /><br />
-    <a id="save-link" href="save.html" class="button-link">Go to Lists</a>
-    <a id="monster-link" href="openmonsterlist.html" class="button-link">Go to Monster List</a>
-    <a id="npc-link" href="npc.html" class="button-link">Go to NPC List</a>
   </div>
 
   <script>
@@ -290,44 +472,160 @@
   })();
 </script>
 
+
+  <!-- DM Participants Modal -->
+  <div id="participants-modal" class="ol-modal" aria-hidden="true">
+    <div class="ol-modal__dialog ol-modal__dialog--wide" role="dialog" aria-modal="true" aria-labelledby="participants-modal-title">
+      <button class="ol-modal__close" id="participants-modal-close" aria-label="Close">×</button>
+
+      <section id="participants-list-view">
+        <div class="participants-modal-header">
+          <h3 id="participants-modal-title">Participants</h3>
+          <span id="participants-count" class="participants-count">0 players</span>
+        </div>
+        <div id="participants-list" class="participants-list">
+          <div class="participants-empty">No players have joined yet.</div>
+        </div>
+      </section>
+
+      <section id="participant-detail-view" hidden>
+        <button id="participant-detail-back" type="button">← Participants</button>
+        <div class="participant-detail-header">
+          <h3 id="participant-detail-name">Character</h3>
+        </div>
+
+        <div id="participant-detail-stats" class="participant-stats-grid"></div>
+
+        <div class="participant-detail-section">
+          <h4 id="participant-note-title">Text Player</h4>
+          <textarea id="participant-note" placeholder="Write a message…"></textarea>
+          <div class="participant-note-actions">
+            <button id="participant-note-save" type="button">Save note</button>
+            <span id="participant-note-status"></span>
+          </div>
+          <div id="participant-note-meta" class="participant-note-meta"></div>
+        </div>
+
+        <div class="participant-detail-section">
+          <h4 id="participant-status-title">Conditions</h4>
+          <div id="participant-status-current" class="participant-status-current"></div>
+          <div class="participant-status-add-row">
+            <select id="participant-status-select"></select>
+            <button id="participant-status-add" type="button">Add</button>
+          </div>
+          <div id="participant-status-message" class="participant-status-message"></div>
+        </div>
+      </section>
+    </div>
+  </div>
+
   <!-- Stats Modal -->
   <div id="stat-modal" class="ol-modal" aria-hidden="true">
-    <div class="ol-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="stat-modal-title">
+    <div id="stat-modal-dialog" class="ol-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="stat-modal-title">
       <button class="ol-modal__close" id="stat-modal-close" aria-label="Close">×</button>
       <h3 id="stat-modal-title"></h3>
 
-      <p class="ol-meta">
-        <span class="label">Initiative:</span>
-        <span class="value" id="stat-init"></span>
-      </p>
+      <section id="stat-hp-overview" class="dm-stat-hp-overview" aria-label="Health" hidden>
+        <div id="stat-hp-meter"></div>
+      </section>
 
-      <div class="ol-modal__stats">
+      <div class="dm-stat-primary-meta">
+        <div class="dm-stat-primary-left">
+          <span class="dm-stat-meta-item"><span class="label">Initiative:</span> <span class="value" id="stat-init"></span></span>
+          <span id="stat-speed-meta" class="dm-stat-meta-item" hidden><span class="label">Speed:</span> <span class="value" id="stat-speed"></span></span>
+        </div>
+        <div id="stat-custom-meta-right" class="dm-stat-primary-right" hidden>
+          <span id="custom-build-level-badge" class="custom-build-level-badge">LVL —</span>
+          <span id="custom-build-size-pill" class="custom-build-size-pill">—</span>
+        </div>
+      </div>
+
+      <section id="stat-hp-actions" class="dm-stat-control-stack" aria-label="HP controls">
+        <div class="dm-stat-control-row dm-stat-hp-adjust-row">
+          <span class="dm-stat-control-label">Amount</span>
+          <input id="stat-hp-amount" type="number" min="0" placeholder="Amount">
+          <button id="stat-heal" class="button" type="button">Heal</button>
+          <button id="stat-damage" class="remove-button" type="button">Damage</button>
+        </div>
+        <div class="dm-stat-damage-defense-row">
+          <span class="dm-stat-control-label">Damage vs</span>
+          <div class="global-stat-selector stat-damage-selector" aria-label="Damage defense">
+            <label><input type="radio" name="statDamageStat" value="grd" checked> GRD</label>
+            <label><input type="radio" name="statDamageStat" value="res"> RES</label>
+            <label><input type="radio" name="statDamageStat" value="tgh"> TGH</label>
+          </div>
+        </div>
+      </section>
+
+      <div id="stat-defense-summary" class="ol-modal__stats">
         <div><span class="label">GRD:</span><span class="value" id="stat-grd"></span></div>
         <div><span class="label">RES:</span><span class="value" id="stat-res"></span></div>
         <div><span class="label">TGH:</span><span class="value" id="stat-tgh"></span></div>
       </div>
 
+      <section id="stat-custom-build-details" hidden>
+        <h4 class="custom-build-section-title">Custom NPC Details</h4>
+
+        <div class="custom-build-stat-row">
+          <div class="custom-build-stat-box">
+            <span class="custom-build-stat-label">GRD</span>
+            <span id="custom-build-grd-inline" class="custom-build-stat-value">—</span>
+          </div>
+          <div class="custom-build-stat-box">
+            <span class="custom-build-stat-label">TGH</span>
+            <span id="custom-build-tgh-inline" class="custom-build-stat-value">—</span>
+          </div>
+          <div class="custom-build-stat-box">
+            <span class="custom-build-stat-label">RES</span>
+            <span id="custom-build-res-inline" class="custom-build-stat-value">—</span>
+          </div>
+        </div>
+
+        <div id="custom-build-attributes-grid" class="custom-build-attributes-grid" aria-label="Ability scores"></div>
+
+        <div class="custom-build-text-block">
+          <h4>Favored Actions</h4>
+          <p id="custom-build-favored-actions">—</p>
+        </div>
+
+        <div class="custom-build-text-block">
+          <h4>Special Actions</h4>
+          <p id="custom-build-special-actions">—</p>
+        </div>
+
+        <div class="custom-build-text-block">
+          <h4>Feats</h4>
+          <p id="custom-build-feats">—</p>
+        </div>
+
+        <div class="custom-build-text-block">
+          <h4>Weapons</h4>
+          <p id="custom-build-weapons">—</p>
+        </div>
+      </section>
+
       <a id="stat-url" class="button-link" target="_blank" rel="noopener" style="display:none; margin-top:12px;">Open details</a>
 
-      <div style="display:flex; gap:8px; margin-top:12px; align-items:center;">
-        <input id="stat-heal-amount" type="number" placeholder="Heal amount" style="flex:1; padding:6px 8px;">
-        <button id="stat-heal" class="button">Heal</button>
+      <div class="dm-stat-status-section">
+        <h4>Active Banes</h4>
+        <div id="stat-active-status-list" class="dm-stat-status-list"></div>
       </div>
 
-      <div style="display:flex; gap:8px; margin-top:12px; align-items:center;">
-        <input id="stat-countdown-amount" type="number" min="1" placeholder="Countdown (turns)" style="flex:1; padding:6px 8px;">
-        <button id="stat-countdown-set" class="button">Start</button>
-        <button id="stat-countdown-clear" class="button">Clear</button>
-      </div>
-
-      <p class="ol-meta" style="margin-top:10px;">
-        <span class="label">Countdown remaining:</span>
-        <span class="value" id="stat-countdown-remaining">—</span>
-      </p>
+      <section id="stat-countdown-controls" class="dm-stat-control-stack dm-stat-countdown-bottom" aria-label="Countdown controls">
+        <div class="dm-stat-control-row">
+          <span class="dm-stat-control-label">Countdown</span>
+          <input id="stat-countdown-amount" type="number" min="1" placeholder="Turns">
+          <button id="stat-countdown-set" class="button" type="button">Start</button>
+          <button id="stat-countdown-clear" class="button" type="button">Clear</button>
+        </div>
+        <p class="ol-meta dm-countdown-meta">
+          <span class="label">Remaining:</span>
+          <span class="value" id="stat-countdown-remaining">—</span>
+        </p>
+      </section>
 
       <div style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;">
         <button id="stat-add-bane" type="button">Bane</button>
-        <button id="stat-custom-build" type="button">Custom Build</button>
         <button id="stat-delete" class="remove-button" style="margin-top:0;">Delete from list</button>
       </div>
     </div>
@@ -370,64 +668,6 @@
     </div>
   </div>
 
-  <div id="custom-build-modal" class="ol-modal" aria-hidden="true">
-    <div class="ol-modal__dialog ol-modal__dialog--wide" role="dialog" aria-modal="true" aria-labelledby="custom-build-title">
-      <button class="ol-modal__close" id="custom-build-close" aria-label="Close">×</button>
-
-      <div class="custom-build-header-row">
-        <div id="custom-build-level-badge" class="custom-build-level-badge">LVL —</div>
-        <h3 id="custom-build-title">Custom NPC</h3>
-        <div id="custom-build-size-pill" class="custom-build-size-pill">—</div>
-      </div>
-
-      <div class="custom-build-info-box">
-        <div class="custom-build-info-row">
-          <span id="custom-build-hp-inline">HP: —</span>
-        </div>
-        <div class="custom-build-info-row">
-          <span id="custom-build-speed-inline">Speed: —</span>
-        </div>
-        <div class="custom-build-info-row custom-build-info-attributes-row">
-          <span id="custom-build-attributes-inline">Attributes: —</span>
-        </div>
-      </div>
-
-      <div class="custom-build-stat-row">
-        <div class="custom-build-stat-box">
-          <span class="custom-build-stat-label">GRD</span>
-          <span id="custom-build-grd-inline" class="custom-build-stat-value">—</span>
-        </div>
-        <div class="custom-build-stat-box">
-          <span class="custom-build-stat-label">TGH</span>
-          <span id="custom-build-tgh-inline" class="custom-build-stat-value">—</span>
-        </div>
-        <div class="custom-build-stat-box">
-          <span class="custom-build-stat-label">RES</span>
-          <span id="custom-build-res-inline" class="custom-build-stat-value">—</span>
-        </div>
-      </div>
-
-      <div class="custom-build-text-block">
-        <h4>Favored Actions</h4>
-        <p id="custom-build-favored-actions">—</p>
-      </div>
-
-      <div class="custom-build-text-block">
-        <h4>Special Actions</h4>
-        <p id="custom-build-special-actions">—</p>
-      </div>
-
-      <div class="custom-build-text-block">
-        <h4>Feats</h4>
-        <p id="custom-build-feats">—</p>
-      </div>
-
-      <div class="custom-build-text-block">
-        <h4>Weapons</h4>
-        <p id="custom-build-weapons">—</p>
-      </div>
-    </div>
-  </div>
 
   <script>
   (function () {
@@ -437,7 +677,7 @@
 
     if (!badge) return;
 
-    badge.textContent = code ? `Code: ${code}` : `No code in URL`;
+    badge.textContent = code ? code : "----";
     console.log("Full URL:", window.location.href);
     console.log("Code from URL:", code);
   })();

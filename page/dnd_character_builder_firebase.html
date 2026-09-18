@@ -4,6 +4,7 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>D&amp;D Character Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
 <style>
   body {
     background: url('../background_dnd.jpg') no-repeat center center fixed;
@@ -441,13 +442,54 @@ button:hover,
     }
   }
 </style>
+
+<style>
+  body {
+    background:
+      linear-gradient(rgba(24,15,12,.78), rgba(18,11,9,.94)),
+      url('../background_dnd.jpg') no-repeat center center fixed;
+    background-size: cover;
+  }
+  body::before { background: transparent; }
+  .container {
+    max-width: 1040px;
+    background: linear-gradient(180deg, rgba(48,32,25,.95), rgba(27,18,15,.97));
+    border: 1px solid rgba(204,158,95,.3);
+    box-shadow: 0 28px 80px rgba(0,0,0,.58);
+  }
+  .top-row { padding-bottom: 12px; border-bottom: 1px solid rgba(204,158,95,.22); }
+  .section, .card, .info-box, .abilities-box, .spell-level-box {
+    background: rgba(25,16,13,.56) !important;
+    border-color: rgba(180,130,76,.34) !important;
+  }
+  input[type="text"], input[type="number"], select, textarea {
+    background: rgba(15,9,8,.72);
+    border-color: rgba(205,161,98,.58);
+    color: #f0e3c8;
+  }
+  button, #back-to-player-link {
+    background: linear-gradient(180deg, #68462f, #3f2a20);
+    border-color: #c99b5c;
+    color: #f0e3c8;
+  }
+  button:hover, #back-to-player-link:hover { background: linear-gradient(180deg, #855b3f, #563728); color: #fff5de; }
+  @media (max-width: 700px) {
+    body { padding: 6px; background-attachment: scroll; }
+    .container { padding: 10px; gap: 10px; }
+    .top-row h1 { font-size: 1.5rem; text-align: left; }
+    .grid-4, .grid-3, .grid-2, .cards { grid-template-columns: 1fr 1fr; }
+    input[type="text"], input[type="number"], select, textarea, button, #back-to-player-link { font-size: 16px; }
+  }
+  @media (max-width: 430px) {
+    .grid-4, .grid-3, .grid-2, .cards { grid-template-columns: 1fr; }
+  }
+</style>
 </head>
 <body>
 <main class="container">
   <div class="top-row">
     <div>
       <h1>Character Sheet</h1>
-      <div class="muted">2014 5e PHB</div>
     </div>
     <a id="back-to-player-link" class="button-link" href="player.html">Back to player</a>
   </div>
@@ -549,6 +591,37 @@ button:hover,
   </section>
 
   <section class="section stack">
+    <h2>Profile</h2>
+    <div class="grid-3">
+      <label>Alignment <input id="alignment" type="text" /></label>
+      <label>Experience <input id="experience" type="number" min="0" /></label>
+      <label>Features <textarea id="features" style="min-height:90px;"></textarea></label>
+    </div>
+    <div class="grid-4">
+      <label>Armor Proficiencies <textarea id="profArmor" style="min-height:90px;"></textarea></label>
+      <label>Weapon Proficiencies <textarea id="profWeapons" style="min-height:90px;"></textarea></label>
+      <label>Tool Proficiencies <textarea id="profTools" style="min-height:90px;"></textarea></label>
+      <label>Languages <textarea id="profLanguages" style="min-height:90px;"></textarea></label>
+    </div>
+    <label>Equipment <textarea id="equipment" style="min-height:120px;"></textarea></label>
+    <div class="grid-4">
+      <label>PP <input id="moneyPP" type="number" min="0" /></label>
+      <label>GP <input id="moneyGP" type="number" min="0" /></label>
+      <label>EP <input id="moneyEP" type="number" min="0" /></label>
+      <label>SP <input id="moneySP" type="number" min="0" /></label>
+    </div>
+    <div class="grid-2">
+      <label>CP <input id="moneyCP" type="number" min="0" /></label>
+    </div>
+    <div class="grid-2">
+      <label>Personal Traits <textarea id="personalTraits" style="min-height:100px;"></textarea></label>
+      <label>Ideals <textarea id="ideals" style="min-height:100px;"></textarea></label>
+      <label>Bonds <textarea id="bonds" style="min-height:100px;"></textarea></label>
+      <label>Flaws <textarea id="flaws" style="min-height:100px;"></textarea></label>
+    </div>
+  </section>
+
+  <section class="section stack">
     <h2>Species, Background &amp; Class Notes</h2>
     <div class="stats-notes info-box" id="notesSummary"></div>
     <label>Notes <textarea id="notes" style="min-height:240px;"></textarea></label>
@@ -625,9 +698,6 @@ button:hover,
       <button id="closeSkillsModal" type="button">Close</button>
     </div>
     <div class="modal-body">
-      <div class="small muted">
-        Check any skills the character gains proficiency in outside the builder’s core rules automation.
-      </div>
       <div class="skills-grid" id="skillsModalGrid"></div>
       <div class="button-row">
         <button id="clearSkillsModalBtn" type="button">Clear Extra Skills</button>
@@ -961,6 +1031,9 @@ function featInfoHtml(name, extra=''){
 
 const state = {
   name:'', species:'Human', background:'Soldier', notes:'', abilityMode:'manual',
+  alignment:'', experience:0, features:'', equipment:'', personalTraits:'', ideals:'', bonds:'', flaws:'',
+  proficiencies:{ armor:'', weapons:'', tools:'', languages:'' },
+  money:{ pp:0, gp:0, ep:0, sp:0, cp:0 },
   abilities:{ Strength:10, Dexterity:10, Constitution:10, Intelligence:10, Wisdom:10, Charisma:10 },
   classes:[{ name:'Fighter', level:1, hpLog:[10], subclass:'', featureChoices:{}, asiChoices:{} }],
   backgroundBoostChoice:{ mode:'+2/+1', first:'Strength', second:'Constitution', third:'Wisdom' },
@@ -1465,6 +1538,22 @@ function syncStaticFields(){
   state.species = qs('species').value;
   state.background = qs('background').value;
   state.notes = qs('notes').value;
+  state.alignment = qs('alignment')?.value || '';
+  state.experience = Number(qs('experience')?.value || 0);
+  state.features = qs('features')?.value || '';
+  state.equipment = qs('equipment')?.value || '';
+  state.personalTraits = qs('personalTraits')?.value || '';
+  state.ideals = qs('ideals')?.value || '';
+  state.bonds = qs('bonds')?.value || '';
+  state.flaws = qs('flaws')?.value || '';
+  state.proficiencies = {
+    armor: qs('profArmor')?.value || '', weapons: qs('profWeapons')?.value || '',
+    tools: qs('profTools')?.value || '', languages: qs('profLanguages')?.value || ''
+  };
+  state.money = {
+    pp: Number(qs('moneyPP')?.value || 0), gp: Number(qs('moneyGP')?.value || 0), ep: Number(qs('moneyEP')?.value || 0),
+    sp: Number(qs('moneySP')?.value || 0), cp: Number(qs('moneyCP')?.value || 0)
+  };
   state.abilityMode = qs('abilityMode').value;
   state.armor = qs('armor').value;
   state.armorMagic = Number(qs('armorMagic').value || 0);
@@ -1646,6 +1735,9 @@ qs('clearSkillsModalBtn').addEventListener('click', () => {
 
 qs('name').addEventListener('input', syncStaticFields);
 qs('notes').addEventListener('input', syncStaticFields);
+['alignment','experience','features','equipment','personalTraits','ideals','bonds','flaws','profArmor','profWeapons','profTools','profLanguages','moneyPP','moneyGP','moneyEP','moneySP','moneyCP'].forEach(id => {
+  qs(id)?.addEventListener('input', () => { syncStaticFields(); scheduleBuilderSave(); });
+});
 qs('species').addEventListener('change', () => { syncStaticFields(); rerender(); });
 qs('background').addEventListener('change', () => {
   state.background = qs('background').value;
@@ -1727,6 +1819,16 @@ function applyLoadedBuilderState(data){
   state.species = data.species || state.species;
   state.background = data.background || state.background;
   state.notes = data.notes || '';
+  state.alignment = data.alignment || '';
+  state.experience = Number(data.experience || 0);
+  state.features = data.features || '';
+  state.equipment = data.equipment || '';
+  state.personalTraits = data.personalTraits || '';
+  state.ideals = data.ideals || '';
+  state.bonds = data.bonds || '';
+  state.flaws = data.flaws || '';
+  state.proficiencies = { ...state.proficiencies, ...(data.proficiencies || {}) };
+  state.money = { ...state.money, ...(data.money || {}) };
   state.abilityMode = data.abilityMode || state.abilityMode;
   state.abilities = { ...state.abilities, ...(data.abilities || {}) };
   state.classes = Array.isArray(data.classes) && data.classes.length ? data.classes : state.classes;
@@ -1743,6 +1845,23 @@ function applyLoadedBuilderState(data){
   state.extraSkillProficiencies = Array.isArray(data.extraSkillProficiencies) ? data.extraSkillProficiencies : [];
   qs('name').value = state.name;
   qs('notes').value = state.notes;
+  if (qs('alignment')) qs('alignment').value = state.alignment;
+  if (qs('experience')) qs('experience').value = state.experience;
+  if (qs('features')) qs('features').value = state.features;
+  if (qs('equipment')) qs('equipment').value = state.equipment;
+  if (qs('personalTraits')) qs('personalTraits').value = state.personalTraits;
+  if (qs('ideals')) qs('ideals').value = state.ideals;
+  if (qs('bonds')) qs('bonds').value = state.bonds;
+  if (qs('flaws')) qs('flaws').value = state.flaws;
+  if (qs('profArmor')) qs('profArmor').value = state.proficiencies.armor || '';
+  if (qs('profWeapons')) qs('profWeapons').value = state.proficiencies.weapons || '';
+  if (qs('profTools')) qs('profTools').value = state.proficiencies.tools || '';
+  if (qs('profLanguages')) qs('profLanguages').value = state.proficiencies.languages || '';
+  if (qs('moneyPP')) qs('moneyPP').value = state.money.pp || 0;
+  if (qs('moneyGP')) qs('moneyGP').value = state.money.gp || 0;
+  if (qs('moneyEP')) qs('moneyEP').value = state.money.ep || 0;
+  if (qs('moneySP')) qs('moneySP').value = state.money.sp || 0;
+  if (qs('moneyCP')) qs('moneyCP').value = state.money.cp || 0;
 }
 
 async function saveBuilderToFirebase(message = 'Auto-saved.') {
@@ -1771,6 +1890,10 @@ async function saveBuilderToFirebase(message = 'Auto-saved.') {
       currentHp: nextCurrentHp,
       proficiencyBonus: profBonus(),
       initiativeBonus: initiative(),
+      speed: speciesSpeed(),
+      hitDice: hitDiceSummary(),
+      alignment: state.alignment,
+      experience: state.experience,
       strength: state.abilities.Strength,
       dexterity: state.abilities.Dexterity,
       constitution: state.abilities.Constitution,
