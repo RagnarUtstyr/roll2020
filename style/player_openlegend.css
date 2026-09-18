@@ -2636,3 +2636,149 @@ body.player-mode-openlegend #player-openlegend-section { display:none !important
     max-width: 54px !important;
   }
 }
+
+
+/* === 2026-09-18 vnext8: canonical Open Legend initiative card layout ===
+   Visual-only redesign. Existing input/button ids and behavior are unchanged. */
+.player-mode-openlegend #player-initiative-panel {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  justify-content: flex-start !important;
+  gap: 8px !important;
+  min-width: 0 !important;
+  padding: 11px 12px !important;
+}
+
+.player-mode-openlegend #player-initiative-panel .ol-initiative-heading {
+  display: block !important;
+  width: 100% !important;
+  margin: 0 !important;
+}
+
+.player-mode-openlegend #player-initiative-panel .ol-initiative-heading h2 {
+  margin: 0 !important;
+  font-size: 1rem !important;
+  line-height: 1.2 !important;
+  color: var(--ol-gold) !important;
+}
+
+.player-mode-openlegend #player-initiative-panel .ol-initiative-controls {
+  display: grid !important;
+  grid-template-columns: 92px 62px !important;
+  align-items: stretch !important;
+  justify-content: start !important;
+  gap: 8px !important;
+  width: auto !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+}
+
+.player-mode-openlegend #player-initiative-panel .ol-initiative-controls #player-initiative,
+.player-mode-openlegend #player-initiative-panel .ol-initiative-controls #save-initiative-button {
+  box-sizing: border-box !important;
+  height: 44px !important;
+  min-height: 44px !important;
+  margin: 0 !important;
+}
+
+.player-mode-openlegend #player-initiative-panel .ol-initiative-controls #player-initiative {
+  grid-column: 1 !important;
+  width: 92px !important;
+  min-width: 92px !important;
+  max-width: 92px !important;
+  padding: 8px 10px !important;
+  text-align: center !important;
+  font-size: 1.08rem !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+}
+
+.player-mode-openlegend #player-initiative-panel .ol-initiative-controls #save-initiative-button {
+  grid-column: 2 !important;
+  width: 62px !important;
+  min-width: 62px !important;
+  max-width: 62px !important;
+  padding: 8px 10px !important;
+  font-size: .84rem !important;
+  font-weight: 700 !important;
+  white-space: nowrap !important;
+}
+
+.player-mode-openlegend #player-initiative-panel .initiative-formula {
+  display: inline-flex !important;
+  align-items: center !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 3px 8px !important;
+  border: 1px solid rgba(230, 207, 148, .28) !important;
+  border-radius: 999px !important;
+  color: var(--ol-gold) !important;
+  background: rgba(0, 0, 0, .18) !important;
+  font: 700 .72rem/1.2 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace !important;
+  white-space: nowrap !important;
+}
+
+@media (max-width: 720px) {
+  /* Give the initiative card enough room for a real three-digit input plus Set. */
+  .player-mode-openlegend .ol-carousel-slot[data-carousel-slot="overview"] {
+    grid-template-columns: minmax(118px, 1fr) minmax(166px, .82fr) !important;
+  }
+
+  .player-mode-openlegend #player-initiative-panel {
+    padding: 9px 10px !important;
+    gap: 7px !important;
+  }
+
+  .player-mode-openlegend #player-initiative-panel .ol-initiative-controls {
+    grid-template-columns: 86px 58px !important;
+    gap: 7px !important;
+    width: 151px !important;
+  }
+
+  .player-mode-openlegend #player-initiative-panel .ol-initiative-controls #player-initiative {
+    width: 86px !important;
+    min-width: 86px !important;
+    max-width: 86px !important;
+    font-size: 1.02rem !important;
+  }
+
+  .player-mode-openlegend #player-initiative-panel .ol-initiative-controls #save-initiative-button {
+    width: 58px !important;
+    min-width: 58px !important;
+    max-width: 58px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .player-mode-openlegend .ol-carousel-slot[data-carousel-slot="overview"] {
+    grid-template-columns: minmax(108px, 1fr) minmax(158px, .88fr) !important;
+  }
+
+  .player-mode-openlegend #player-initiative-panel {
+    padding: 8px 8px !important;
+  }
+
+  .player-mode-openlegend #player-initiative-panel .ol-initiative-controls {
+    grid-template-columns: 80px 54px !important;
+    gap: 6px !important;
+    width: 140px !important;
+  }
+
+  .player-mode-openlegend #player-initiative-panel .ol-initiative-controls #player-initiative {
+    width: 80px !important;
+    min-width: 80px !important;
+    max-width: 80px !important;
+    padding-inline: 7px !important;
+  }
+
+  .player-mode-openlegend #player-initiative-panel .ol-initiative-controls #save-initiative-button {
+    width: 54px !important;
+    min-width: 54px !important;
+    max-width: 54px !important;
+    padding-inline: 6px !important;
+  }
+}
