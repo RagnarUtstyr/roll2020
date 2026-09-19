@@ -2782,3 +2782,143 @@ body.player-mode-openlegend #player-openlegend-section { display:none !important
     padding-inline: 6px !important;
   }
 }
+
+
+/* === 2026-09-18 vnext9: definitive Initiative component layout ===
+   This deliberately overrides all legacy initiative/form stacking rules. */
+.player-mode-openlegend #player-initiative-panel {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  justify-content: flex-start !important;
+  gap: 10px !important;
+  min-width: 0 !important;
+}
+
+.player-mode-openlegend #player-initiative-panel .ol-initiative-heading {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 10px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+}
+
+.player-mode-openlegend #player-initiative-panel .ol-initiative-heading h2 {
+  flex: 0 0 auto !important;
+  width: auto !important;
+  margin: 0 !important;
+  line-height: 1.15 !important;
+}
+
+.player-mode-openlegend #player-initiative-panel .ol-initiative-heading .initiative-formula {
+  display: inline-flex !important;
+  flex: 0 0 auto !important;
+  position: static !important;
+  inset: auto !important;
+  transform: none !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 3px 8px !important;
+  white-space: nowrap !important;
+}
+
+.player-mode-openlegend #player-initiative-panel .ol-initiative-controls {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: stretch !important;
+  justify-content: flex-start !important;
+  gap: 8px !important;
+  width: auto !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.player-mode-openlegend #player-initiative-panel .ol-initiative-controls #player-initiative,
+.player-mode-openlegend #player-initiative-panel .ol-initiative-controls #save-initiative-button {
+  position: static !important;
+  inset: auto !important;
+  transform: none !important;
+  grid-column: auto !important;
+  grid-row: auto !important;
+  align-self: stretch !important;
+  box-sizing: border-box !important;
+  height: 46px !important;
+  min-height: 46px !important;
+  margin: 0 !important;
+}
+
+.player-mode-openlegend #player-initiative-panel .ol-initiative-controls #player-initiative {
+  flex: 0 0 92px !important;
+  width: 92px !important;
+  min-width: 92px !important;
+  max-width: 92px !important;
+  padding: 8px 10px !important;
+  text-align: center !important;
+  font-size: 1.08rem !important;
+  font-weight: 700 !important;
+}
+
+.player-mode-openlegend #player-initiative-panel .ol-initiative-controls #save-initiative-button {
+  flex: 0 0 64px !important;
+  width: 64px !important;
+  min-width: 64px !important;
+  max-width: 64px !important;
+  padding: 8px 10px !important;
+  white-space: nowrap !important;
+}
+
+@media (max-width: 720px) {
+  .player-mode-openlegend #player-initiative-panel {
+    gap: 9px !important;
+  }
+
+  .player-mode-openlegend #player-initiative-panel .ol-initiative-heading {
+    gap: 8px !important;
+  }
+
+  .player-mode-openlegend #player-initiative-panel .ol-initiative-controls {
+    display: flex !important;
+    flex-flow: row nowrap !important;
+    gap: 8px !important;
+    width: auto !important;
+  }
+
+  .player-mode-openlegend #player-initiative-panel .ol-initiative-controls #player-initiative {
+    flex: 0 0 86px !important;
+    width: 86px !important;
+    min-width: 86px !important;
+    max-width: 86px !important;
+  }
+
+  .player-mode-openlegend #player-initiative-panel .ol-initiative-controls #save-initiative-button {
+    flex: 0 0 60px !important;
+    width: 60px !important;
+    min-width: 60px !important;
+    max-width: 60px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .player-mode-openlegend #player-initiative-panel .ol-initiative-controls #player-initiative {
+    flex-basis: 80px !important;
+    width: 80px !important;
+    min-width: 80px !important;
+    max-width: 80px !important;
+  }
+
+  .player-mode-openlegend #player-initiative-panel .ol-initiative-controls #save-initiative-button {
+    flex-basis: 56px !important;
+    width: 56px !important;
+    min-width: 56px !important;
+    max-width: 56px !important;
+  }
+}
